@@ -1,0 +1,57 @@
+/* components/LoadingScreen/LoadingScreen.css */
+
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(145deg, #0f2027, #203a43, #2c5364);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Segoe UI", sans-serif;
+  z-index: 9999;
+}
+
+.loading-box {
+  text-align: center;
+  color: white;
+  padding: 40px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  max-width: 90%;
+}
+
+.logo-img {
+  width: 100px;
+  margin-bottom: 20px;
+}
+
+.platform-title {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.loader {
+  margin: 20px auto;
+  border: 6px solid rgba(255, 255, 255, 0.3);
+  border-top: 6px solid #00c3ff;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1s linear infinite;
+}
+
+.loading-text {
+  margin-top: 15px;
+  font-size: 1rem;
+  opacity: 0.8;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
