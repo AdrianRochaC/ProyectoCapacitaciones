@@ -39,7 +39,7 @@ const CoursesPage = () => {
                 />
               </div>
 
-              <button>Ver curso</button>
+              <button onClick={() => navigate(`/curso/${course.id}`)}>Ver curso</button>
             </div>
           ))
         )}

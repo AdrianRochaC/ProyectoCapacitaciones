@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import "./AdminCoursesPage.css";
+
 
 const AdminCoursesPage = () => {
   const [title, setTitle] = useState("");
@@ -36,16 +38,21 @@ const AdminCoursesPage = () => {
     alert("Curso agregado exitosamente.");
   };
 
+  const handleDelete = (id) => {
+    const filteredCourses = courses.filter((course) => course.id !== id);
+    setCourses(filteredCourses);
+    localStorage.setItem("courses", JSON.stringify(filteredCourses));
+  };
+
   const convertToEmbedUrl = (url) => {
-    // Convierte un link de YouTube normal a embed
     const match = url.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([^&]+)/);
     return match ? `https://www.youtube.com/embed/${match[1]}` : url;
   };
 
   return (
-    <div style={{ padding: "2rem" }}>
+    <div className="admin-page-container">
       <h1>Panel del Administrador - Agregar Curso</h1>
-      <form onSubmit={handleSubmit} style={{ maxWidth: "500px" }}>
+      <form onSubmit={handleSubmit} className="admin-form">
         <div>
           <label>Título:</label>
           <input
@@ -53,7 +60,6 @@ const AdminCoursesPage = () => {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
-            style={{ width: "100%", marginBottom: "1rem" }}
           />
         </div>
         <div>
@@ -62,7 +68,6 @@ const AdminCoursesPage = () => {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             required
-            style={{ width: "100%", marginBottom: "1rem" }}
           />
         </div>
         <div>
@@ -73,29 +78,27 @@ const AdminCoursesPage = () => {
             onChange={(e) => setVideoUrl(e.target.value)}
             required
             placeholder="https://www.youtube.com/watch?v=..."
-            style={{ width: "100%", marginBottom: "1rem" }}
           />
         </div>
         <button type="submit">Agregar Curso</button>
       </form>
 
-      <hr style={{ margin: "2rem 0" }} />
-
-      <h2>Cursos Guardados</h2>
-      {courses.map((course) => (
-        <div key={course.id} style={{ marginBottom: "2rem" }}>
-          <h3>{course.title}</h3>
-          <p>{course.description}</p>
-          <iframe
-            width="100%"
-            height="215"
-            src={course.videoUrl}
-            title={`Video del curso: ${course.title}`}
-            frameBorder="0"
-            allowFullScreen
-          ></iframe>
-        </div>
-      ))}
+      <div className="admin-course-list">
+        <h2>Cursos Guardados</h2>
+        {courses.length === 0 && <p>No hay cursos registrados aún.</p>}
+        {courses.map((course) => (
+          <div key={course.id} className="admin-course-card">
+            <h3>{course.title}</h3>
+            <p>{course.description}</p>
+            <iframe
+              src={course.videoUrl}
+              title={`Video del curso: ${course.title}`}
+              allowFullScreen
+            ></iframe>
+            <button onClick={() => handleDelete(course.id)}>Eliminar</button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
