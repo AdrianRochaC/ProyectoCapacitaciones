@@ -64,3 +64,33 @@
 .course-card button:hover {
   background-color: #2c5364;
 }
+.video-container {
+  margin: 1rem 0;
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 ratio */
+  height: 0;
+  overflow: hidden;
+}
+
+.video-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.courses-page button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.courses-page button:hover {
+  background-color: #0056b3;
+}
+
+

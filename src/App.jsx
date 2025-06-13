@@ -1,19 +1,15 @@
-import React, { useState } from "react";
-import LoadingScreen from "./components/LoadingScreen/LoadingScreen";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import CoursesPage from "./pages/CoursesPage";
-
+import AdminCoursesPage from "./pages/AdminCoursesPage";
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true);
-
   return (
-    <div className="App">
-      {isLoading ? (
-        <LoadingScreen onFinish={() => setIsLoading(false)} />
-      ) : (
-        <CoursesPage />
-      )}
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<CoursesPage />} />
+        <Route path="/admin" element={<AdminCoursesPage />} />
+      </Routes>
+    </Router>
   );
 }
 
