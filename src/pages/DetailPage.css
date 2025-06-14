@@ -14,7 +14,7 @@
   max-width: 1100px; /* MÁS ancho */
   width: 100%;
   font-family: "Segoe UI", sans-serif;
-  background-color: #ffffff;
+  background-color: #07f00fe7;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
   border-radius: 16px;
   transition: transform 0.3s ease;
@@ -26,7 +26,7 @@
 }
 
 .detail-back-button {
-  background-color: #203a43;
+  background-color: #203a43; /* azul oscuro */
   color: white;
   border: none;
   padding: 10px 18px;
@@ -39,19 +39,19 @@
 }
 
 .detail-back-button:hover {
-  background-color: #2c5364;
+  background-color: #4caf50; /* verde institucional para hover */
   transform: translateY(-2px);
 }
 
 .detail-page h1 {
   font-size: 2rem;
-  color: #203a43;
+  color: #203a43; /* azul oscuro */
   margin-bottom: 1.5rem;
 }
 
 .detail-page p {
   font-size: 1.05rem;
-  color: #555;
+  color: black;
   line-height: 1.7;
   margin-bottom: 2rem;
 }
@@ -73,4 +73,63 @@
   width: 100% !important;
   height: 100% !important;
   border-radius: 12px;
+}
+
+/* Nuevas secciones */
+.course-overview,
+.course-content,
+.learning-objectives,
+.course-resources,
+.course-evaluation {
+  margin-top: 2.5rem;
+  padding: 1.5rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  background-color: #f9f9f9;
+}
+
+.course-overview h2,
+.course-content h2,
+.learning-objectives h2,
+.course-resources h2 {
+  color: #203a43;
+  margin-bottom: 1rem;
+  font-size: 1.4rem;
+}
+
+.course-content ul,
+.learning-objectives ul,
+.course-resources ul {
+  padding-left: 1.2rem;
+}
+
+.course-content li,
+.learning-objectives li,
+.course-resources li {
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+/* Botón de evaluación */
+.evaluation-message {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: #2e7d32;
+}
+
+.evaluation-button {
+  background-color: #4caf50; /* verde */
+  color: #ffffff;
+  border: none;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.evaluation-button:hover {
+  background-color: #388e3c; /* más oscuro para hover */
+  transform: translateY(-2px);
 }

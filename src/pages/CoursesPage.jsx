@@ -5,6 +5,7 @@ import ReactPlayer from "react-player"; // ✅ Importación correcta
 
 const CoursesPage = () => {
   const [courses, setCourses] = useState([]);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,6 +18,12 @@ const CoursesPage = () => {
       {/* Botón para ir a admin */}
       <div style={{ textAlign: "right", marginBottom: "1rem" }}>
         <button onClick={() => navigate("/admin")}>Ir al panel de administrador</button>
+      </div>
+
+      {/* 🔹 Botones de prueba: Login y Registro */}
+      <div style={{ textAlign: "right", marginBottom: "2rem", display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+        <button onClick={() => navigate("/login")}>Login</button>
+        <button onClick={() => navigate("/register")}>Registro</button>
       </div>
 
       <h1 className="title">Cursos Disponibles</h1>
