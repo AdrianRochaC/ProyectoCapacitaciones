@@ -1,0 +1,25 @@
+/* components/Menu.css */
+.main-menu {
+  background-color: #203a43;
+  padding: 1rem 2rem;
+}
+
+.main-menu ul {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.main-menu a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: color 0.2s ease;
+}
+
+.main-menu a:hover {
+  color: #f0db4f;
+}

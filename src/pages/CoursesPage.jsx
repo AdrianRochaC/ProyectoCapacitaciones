@@ -15,10 +15,6 @@ const CoursesPage = () => {
 
   return (
     <div className="courses-page">
-      {/* Botón para ir a admin */}
-      <div style={{ textAlign: "right", marginBottom: "1rem" }}>
-        <button onClick={() => navigate("/admin")}>Ir al panel de administrador</button>
-      </div>
 
       {/* 🔹 Botones de prueba: Login y Registro */}
       <div style={{ textAlign: "right", marginBottom: "2rem", display: "flex", justifyContent: "flex-end", gap: "10px" }}>
