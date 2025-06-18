@@ -195,3 +195,25 @@
   border-left: 4px solid #07b378;
   border-radius: 6px;
 }
+
+.video-progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: #e0e0e0;
+  margin: 10px 0 20px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.video-progress-filled {
+  height: 100%;
+  background-color: #4caf50;
+  transition: width 0.3s ease;
+}
+
+.video-warning {
+  color: #cc0000;
+  font-style: italic;
+  margin-top: 8px;
+}
+
