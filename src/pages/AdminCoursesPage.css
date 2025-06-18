@@ -3,7 +3,6 @@
   max-width: 900px;
   margin: 0 auto;
   font-family: "Segoe UI", sans-serif;
-  background-color: #07f00fe7;
   border-radius: 16px;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
@@ -54,15 +53,25 @@
 
 .admin-course-list {
   margin-top: 3rem;
+  width: 100vw; /* Ocupa todo el ancho de la pantalla */
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  padding: 2rem;
+  background-color: #f0f8ff; /* azul clarito (puedes cambiarlo por #e6f4ea para verde muy claro) */
 }
 
 .admin-course-card {
-  margin-bottom: 2rem;
-  padding: 1rem;
+  margin: 0 auto 2rem;
+  padding: 1.5rem;
   border-radius: 12px;
-  background-color: #f9f9f9;
+  background-color: #e6f4ea; /* verde clarito */
+  max-width: 900px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
+
 
 .admin-course-card h3 {
   color: #0f2027;
@@ -94,4 +103,26 @@
 
 .admin-course-card button:hover {
   background-color: #c0392b;
+}
+
+.evaluation-section {
+  margin-top: 2rem;
+  padding: 1rem;
+  background-color: #f1faff;
+  border: 1px solid #b6d4ff;
+  border-radius: 12px;
+}
+
+.question-block {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.options-group {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
 }

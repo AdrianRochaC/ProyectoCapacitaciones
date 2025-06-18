@@ -8,31 +8,32 @@ const Login = () => {
   const handleLogin = (e) => {
     e.preventDefault();
     console.log("Logging in with:", { email, password });
-    // Aquí podrías conectar con supabase o tu backend
   };
 
   return (
-    <div className="auth-page-container">
-      <h1>Iniciar Sesión</h1>
-      <form className="auth-form" onSubmit={handleLogin}>
-        <label>Email</label>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+    <div className="login-wrapper">
+      <div className="login-container">
+        <h1>Iniciar Sesión</h1>
+        <form className="login-form" onSubmit={handleLogin}>
+          <label>Email</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
 
-        <label>Contraseña</label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+          <label>Contraseña</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
 
-        <button type="submit">Ingresar</button>
-      </form>
+          <button type="submit">Ingresar</button>
+        </form>
+      </div>
     </div>
   );
 };

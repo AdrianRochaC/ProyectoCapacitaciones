@@ -15,13 +15,6 @@ const CoursesPage = () => {
 
   return (
     <div className="courses-page">
-
-      {/* 🔹 Botones de prueba: Login y Registro */}
-      <div style={{ textAlign: "right", marginBottom: "2rem", display: "flex", justifyContent: "flex-end", gap: "10px" }}>
-        <button onClick={() => navigate("/login")}>Login</button>
-        <button onClick={() => navigate("/register")}>Registro</button>
-      </div>
-
       <h1 className="title">Cursos Disponibles</h1>
       <div className="courses-grid">
         {courses.length === 0 ? (

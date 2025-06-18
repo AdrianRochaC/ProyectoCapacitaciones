@@ -7,19 +7,34 @@ const DetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [course, setCourse] = useState(null);
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [answers, setAnswers] = useState({});
+  const [score, setScore] = useState(null);
 
   useEffect(() => {
-    const savedCourses = JSON.parse(localStorage.getItem("courses")) || [];
-    const foundCourse = savedCourses.find((c) => c.id === Number(id));
-    if (foundCourse) {
-      setCourse(foundCourse);
-    } else {
+    const saved = JSON.parse(localStorage.getItem("courses")) || [];
+    const found = saved.find((c) => c.id === Number(id));
+    if (found) setCourse(found);
+    else {
       alert("Curso no encontrado.");
       navigate("/");
     }
   }, [id, navigate]);
 
   if (!course) return null;
+
+  const handleSelect = (qIndex, optIndex) => {
+    setAnswers({ ...answers, [qIndex]: optIndex });
+  };
+
+  const submitQuiz = () => {
+    const total = course.evaluation?.length || 0;
+    let correct = 0;
+    course.evaluation.forEach((q, i) => {
+      if (answers[i] === q.correctIndex) correct++;
+    });
+    setScore({ score: correct, total });
+  };
 
   return (
     <div className="detail-page-container">
@@ -31,7 +46,6 @@ const DetailPage = () => {
         <h1>{course.title}</h1>
         <p>{course.description}</p>
 
-        {/* 1. Video introductorio */}
         <div className="detail-video">
           <ReactPlayer
             url={course.videoUrl}
@@ -42,61 +56,50 @@ const DetailPage = () => {
           />
         </div>
 
-        {/* 2. Descripción general */}
-        <section className="course-overview">
-          <h2>¿Qué aprenderás en este curso?</h2>
-          <p>{course.overview || "Este curso te enseñará los fundamentos básicos para avanzar en el tema seleccionado."}</p>
-        </section>
+        {/* ... omito secciones anteriores por brevedad ... */}
 
-        {/* 3. Contenido del curso */}
-        <section className="course-content">
-          <h2>Contenido del Curso</h2>
-          <ul>
-            {course.modules?.map((mod, index) => (
-              <li key={index}>{mod}</li>
-            )) || <li>Contenido no disponible</li>}
-          </ul>
-        </section>
-
-        {/* 4. Objetivos de aprendizaje */}
-        <section className="learning-objectives">
-          <h2>Objetivos del Aprendizaje</h2>
-          <ul>
-            {course.objectives?.map((obj, index) => (
-              <li key={index}>✅ {obj}</li>
-            )) || <li>Serás capaz de aplicar los conocimientos aprendidos en un contexto práctico.</li>}
-          </ul>
-        </section>
-
-        {/* 5. Recursos iniciales */}
-        <section className="course-resources">
-          <h2>Recursos del Curso</h2>
-          {course.resources?.length > 0 ? (
-            <ul>
-              {course.resources.map((res, index) => (
-                <li key={index}>
-                  <a href={res.url} target="_blank" rel="noopener noreferrer">
-                    📄 {res.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
+        <section className="course-evaluation-section">
+          {!showQuiz ? (
+            <button
+              className="evaluation-button"
+              onClick={() => setShowQuiz(true)}
+              disabled={!course.evaluation?.length}
+            >
+              📝 Realizar Evaluación
+            </button>
           ) : (
-            <p>No hay recursos disponibles.</p>
+            <div className="quiz-container">
+              {course.evaluation.map((q, idx) => (
+                <div key={idx} className="evaluation-question">
+                  <p><strong>{idx + 1}. {q.question}</strong></p>
+                  <ul>
+                    {q.options.map((opt, i) => (
+                      <li key={i}>
+                        <label>
+                          <input
+                            type="radio"
+                            name={`q${idx}`}
+                            checked={answers[idx] === i}
+                            onChange={() => handleSelect(idx, i)}
+                          />
+                          {opt}
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+              <button className="submit-quiz" onClick={submitQuiz}>
+                Enviar respuestas
+              </button>
+            </div>
           )}
-        </section>
 
-        {/* 6. Evaluación */}
-        <section className="course-evaluation">
-          <p className="evaluation-message">
-            🎉 ¡Has finalizado el curso! Ya puedes realizar la evaluación para poner a prueba lo aprendido.
-          </p>
-          <button
-            className="evaluation-button"
-            onClick={() => navigate(`/evaluacion/${course.id}`)}
-          >
-            📝 Realizar Evaluación
-          </button>
+          {score && (
+            <div className="quiz-score">
+              <p>Obtuviste {score.score} de {score.total} preguntas correctas.</p>
+            </div>
+          )}
         </section>
       </div>
     </div>

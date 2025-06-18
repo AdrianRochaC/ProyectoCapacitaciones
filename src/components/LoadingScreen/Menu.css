@@ -1,7 +1,11 @@
 /* components/Menu.css */
+
 .main-menu {
   background-color: #203a43;
   padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .main-menu ul {
@@ -12,6 +16,7 @@
   padding: 0;
 }
 
+/* Enlaces del menú */
 .main-menu a {
   color: white;
   text-decoration: none;
@@ -22,4 +27,30 @@
 
 .main-menu a:hover {
   color: #f0db4f;
+}
+
+/* Sección de navegación principal */
+.menu-links {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+/* Sección de botones de autenticación */
+.auth-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.auth-buttons a {
+  background-color: #4caf50;
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: background-color 0.2s ease;
+}
+
+.auth-buttons a:hover {
+  background-color: #45a049;
 }
