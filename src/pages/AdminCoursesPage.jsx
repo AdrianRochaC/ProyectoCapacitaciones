@@ -5,9 +5,12 @@ const AdminCoursesPage = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
+  const [role, setRole] = useState("Gerente");
   const [courses, setCourses] = useState([]);
   const [showEvaluation, setShowEvaluation] = useState(false);
   const [questions, setQuestions] = useState([]);
+  const [attempts, setAttempts] = useState(1);
+  const [timeLimit, setTimeLimit] = useState(30);
   const [editingCourse, setEditingCourse] = useState(null);
 
   useEffect(() => {
@@ -26,6 +29,7 @@ const AdminCoursesPage = () => {
       alert("Completa todos los campos.");
       return;
     }
+
     const embed = convertToEmbedUrl(videoUrl);
     if (!embed) {
       alert("Enlace YouTube inválido.");
@@ -36,8 +40,11 @@ const AdminCoursesPage = () => {
       ...editingCourse,
       title,
       description,
+      role,
       videoUrl: embed,
       evaluation: questions,
+      attempts,
+      timeLimit,
     };
 
     let updated;
@@ -55,7 +62,10 @@ const AdminCoursesPage = () => {
     setTitle("");
     setDescription("");
     setVideoUrl("");
+    setRole("Gerente");
     setQuestions([]);
+    setAttempts(1);
+    setTimeLimit(30);
     setShowEvaluation(false);
     setEditingCourse(null);
   };
@@ -115,6 +125,14 @@ const AdminCoursesPage = () => {
           required
         />
 
+        <label>Rol del Empleado:</label>
+        <select value={role} onChange={(e) => setRole(e.target.value)}>
+          <option value="Gerente">Gerente</option>
+          <option value="Contabilidad">Contabilidad</option>
+          <option value="Compras">Compras</option>
+          <option value="Atencion al Cliente">Atención al Cliente</option>
+        </select>
+
         <button
           type="button"
           onClick={() => setShowEvaluation(!showEvaluation)}
@@ -126,6 +144,25 @@ const AdminCoursesPage = () => {
         {showEvaluation && (
           <div className="evaluation-section">
             <h3>Evaluación</h3>
+
+            <label>Intentos permitidos:</label>
+            <input
+              type="number"
+              value={attempts}
+              onChange={(e) => setAttempts(parseInt(e.target.value))}
+              min={1}
+              required
+            />
+
+            <label>Tiempo límite (minutos):</label>
+            <input
+              type="number"
+              value={timeLimit}
+              onChange={(e) => setTimeLimit(parseInt(e.target.value))}
+              min={1}
+              required
+            />
+
             {questions.map((q, i) => (
               <div key={i} className="question-block">
                 <label>Pregunta {i + 1}:</label>
@@ -177,7 +214,10 @@ const AdminCoursesPage = () => {
               setTitle("");
               setDescription("");
               setVideoUrl("");
+              setRole("Gerente");
               setQuestions([]);
+              setAttempts(1);
+              setTimeLimit(30);
               setShowEvaluation(false);
             }}
           >
@@ -186,11 +226,11 @@ const AdminCoursesPage = () => {
         )}
       </form>
 
-
       <div className="admin-course-list">
         {courses.map(course => (
           <div key={course.id} className="admin-course-card">
             <h3>{course.title}</h3>
+            <p>👥 Rol: {course.role}</p>
             <iframe src={course.videoUrl} title={course.title} allowFullScreen />
             <button onClick={() => handleDelete(course.id)}>Eliminar</button>
             <button onClick={() => {
@@ -198,7 +238,10 @@ const AdminCoursesPage = () => {
               setTitle(course.title);
               setDescription(course.description);
               setVideoUrl(course.videoUrl);
+              setRole(course.role || "Gerente");
               setQuestions(course.evaluation || []);
+              setAttempts(course.attempts || 1);
+              setTimeLimit(course.timeLimit || 30);
               setShowEvaluation(true);
             }}>Editar</button>
           </div>
