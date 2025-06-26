@@ -5,10 +5,19 @@ const Register = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("Gerente");
 
   const handleRegister = (e) => {
     e.preventDefault();
-    console.log("Registering:", { name, email, password });
+
+    // Aquí luego puedes hacer la petición a la base de datos
+    console.log("Registrando:", { name, email, password, role });
+
+    // Reset formulario si quieres
+    setName("");
+    setEmail("");
+    setPassword("");
+    setRole("Gerente");
   };
 
   return (
@@ -39,6 +48,15 @@ const Register = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+
+          <label>Rol</label>
+          <select value={role} onChange={(e) => setRole(e.target.value)}>
+            <option value="Gerente">Gerente</option>
+            <option value="Contabilidad">Contabilidad</option>
+            <option value="Compras">Compras</option>
+            <option value="Atencion al Cliente">Atención al Cliente</option>
+            <option value="Admin">Administrador</option>
+          </select>
 
           <button type="submit">Crear cuenta</button>
         </form>
