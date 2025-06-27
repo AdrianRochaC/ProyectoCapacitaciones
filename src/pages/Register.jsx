@@ -7,18 +7,19 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("Gerente");
 
-  const handleRegister = (e) => {
-    e.preventDefault();
+  const handleRegister = async (e) => {
+  e.preventDefault();
 
-    // Aquí luego puedes hacer la petición a la base de datos
-    console.log("Registrando:", { name, email, password, role });
+  const response = await fetch("http://localhost/backend/register.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nombre, email, password, rol })
+  });
 
-    // Reset formulario si quieres
-    setName("");
-    setEmail("");
-    setPassword("");
-    setRole("Gerente");
-  };
+  const result = await response.json();
+  alert(result.message);
+};
+
 
   return (
     <div className="register-wrapper">

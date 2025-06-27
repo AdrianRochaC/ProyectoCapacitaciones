@@ -5,10 +5,25 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    console.log("Logging in with:", { email, password });
-  };
+  const handleLogin = async (e) => {
+  e.preventDefault();
+
+  const response = await fetch("http://localhost/backend/login.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password })
+  });
+
+  const result = await response.json();
+  if (result.success) {
+    localStorage.setItem("user", JSON.stringify(result.user));
+    alert("Bienvenido " + result.user.nombre);
+    // Redirige según el rol
+  } else {
+    alert(result.message);
+  }
+};
+
 
   return (
     <div className="login-wrapper">
