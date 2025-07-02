@@ -1,21 +1,22 @@
-import { Outlet, useLocation } from "react-router-dom";
-import Menu from "./Menu";
-import AdminMenu from "./AdminMenu"; // ✅ Importa el menú del admin
+// components/LoadingScreen/Layout.jsx
+import React from 'react';
+import Menu from './Menu';
+import AdminMenu from './AdminMenu';
 
-const Layout = () => {
-  const location = useLocation();
-
-  // Verifica si la ruta contiene "/admin"
-  const isAdminRoute = location.pathname.startsWith("/admin");
+const Layout = ({ children }) => {
+  const user = JSON.parse(localStorage.getItem('user') || 'null');
+  
+  // Determinar si es admin
+  const isAdmin = user && (user.rol === 'Admin' || user.rol === 'Administrador');
 
   return (
-    <div>
-      {/* Mostrar uno u otro menú */}
-      {isAdminRoute ? <AdminMenu /> : <Menu />}
-
-      {/* Aquí va el contenido de la página */}
-      <main>
-        <Outlet />
+    <div className="layout-container">
+      {/* Renderizar el menú apropiado según el rol */}
+      {isAdmin ? <AdminMenu /> : <Menu />}
+      
+      {/* Contenido principal */}
+      <main className="main-content">
+        {children}
       </main>
     </div>
   );
