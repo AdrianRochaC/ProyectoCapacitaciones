@@ -8,18 +8,37 @@ const Register = () => {
   const [role, setRole] = useState("Gerente");
 
   const handleRegister = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const response = await fetch("http://localhost/backend/register.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nombre, email, password, rol })
-  });
+    try {
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          nombre: name,    // ← Corregido: usaba 'nombre' pero la variable es 'name'
+          email: email, 
+          password: password, 
+          rol: role        // ← Corregido: usaba 'rol' pero la variable es 'role'
+        })
+      });
 
-  const result = await response.json();
-  alert(result.message);
-};
-
+      const result = await response.json();
+      
+      if (response.ok) {
+        alert("✅ " + result.message);
+        // Limpiar formulario después del registro exitoso
+        setName("");
+        setEmail("");
+        setPassword("");
+        setRole("Gerente");
+      } else {
+        alert("❌ " + result.message);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("❌ Error de conexión. Verifica que el servidor esté funcionando.");
+    }
+  };
 
   return (
     <div className="register-wrapper">
