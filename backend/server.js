@@ -420,9 +420,125 @@ app.get('/api/profile/:id', verifyToken, async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+// server.js (continuación - agregar rutas de cursos y evaluaciones)
+
+// RUTA: Crear curso con evaluación
+app.post('/api/courses', verifyToken, async (req, res) => {
+  try {
+    const { title, description, videoUrl, role, evaluation = [], attempts = 1, timeLimit = 30 } = req.body;
+
+    if (!title || !description || !videoUrl || !role) {
+      return res.status(400).json({ success: false, message: 'Todos los campos del curso son requeridos' });
+    }
+
+    const connection = await mysql.createConnection(dbConfig);
+
+    // Insertar curso
+    const [result] = await connection.execute(
+      `INSERT INTO courses (title, description, video_url, role, attempts, time_limit) VALUES (?, ?, ?, ?, ?, ?)`,
+      [title, description, videoUrl, role, attempts, timeLimit]
+    );
+
+    const courseId = result.insertId;
+
+    // Insertar preguntas si existen
+    for (const q of evaluation) {
+      const { question, options, correctIndex } = q;
+      if (!question || options.length !== 4 || correctIndex < 0 || correctIndex > 3) continue;
+
+      await connection.execute(
+        `INSERT INTO questions (course_id, question, option_1, option_2, option_3, option_4, correct_index)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [courseId, question, options[0], options[1], options[2], options[3], correctIndex]
+      );
+    }
+
+    await connection.end();
+
+    res.status(201).json({ success: true, message: 'Curso creado exitosamente', courseId });
+  } catch (error) {
+    console.error('Error al crear curso:', error);
+    res.status(500).json({ success: false, message: 'Error interno del servidor' });
+  }
+});
+
+// RUTA: Obtener cursos (puede filtrar por rol opcionalmente)
+app.get('/api/courses', verifyToken, async (req, res) => {
+  try {
+    const { rol } = req.query;
+    const connection = await mysql.createConnection(dbConfig);
+
+    const [courses] = rol
+      ? await connection.execute(`SELECT * FROM courses WHERE role = ?`, [rol])
+      : await connection.execute(`SELECT * FROM courses`);
+
+
+    await connection.end();
+
+    res.json({ success: true, courses });
+  } catch (error) {
+    console.error('Error al obtener cursos:', error);
+    res.status(500).json({ success: false, message: 'Error interno del servidor' });
+  }
+});
+
+// RUTA: Obtener preguntas de evaluación por curso
+app.get('/api/courses/:id/questions', verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const connection = await mysql.createConnection(dbConfig);
+
+    const [questions] = await connection.execute(
+      `SELECT id, question, option_1, option_2, option_3, option_4, correct_index FROM questions WHERE course_id = ?`,
+      [id]
+    );
+
+    await connection.end();
+
+    const formatted = questions.map(q => ({
+      id: q.id,
+      question: q.question,
+      options: [q.option_1, q.option_2, q.option_3, q.option_4],
+      correctIndex: q.correct_index
+    }));
+
+    res.json({ success: true, questions: formatted });
+  } catch (error) {
+    console.error('Error al obtener preguntas:', error);
+    res.status(500).json({ success: false, message: 'Error interno del servidor' });
+  }
+});
+
+// RUTA: Eliminar un curso
+app.delete('/api/courses/:id', verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const connection = await mysql.createConnection(dbConfig);
+
+    // Eliminar preguntas relacionadas (si hay)
+    await connection.execute(`DELETE FROM questions WHERE course_id = ?`, [id]);
+
+    // Eliminar el curso
+    const [result] = await connection.execute(`DELETE FROM courses WHERE id = ?`, [id]);
+
+    await connection.end();
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Curso no encontrado' });
+    }
+
+    res.json({ success: true, message: 'Curso eliminado exitosamente' });
+  } catch (error) {
+    console.error('Error al eliminar curso:', error);
+    res.status(500).json({ success: false, message: 'Error interno del servidor' });
+  }
+});
+
+
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });
+
 
 // Exportar para uso
 export default app;

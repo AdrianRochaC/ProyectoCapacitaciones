@@ -13,17 +13,40 @@ const AdminCoursesPage = () => {
   const [timeLimit, setTimeLimit] = useState(30);
   const [editingCourse, setEditingCourse] = useState(null);
 
+  const API_URL = "/api";
+  const token = localStorage.getItem("authToken"); // ✅ corregido
+
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("courses")) || [];
-    setCourses(saved);
+    fetchCourses();
   }, []);
+
+  const fetchCourses = () => {
+    fetch(`${API_URL}/courses`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        if (res.status === 401) {
+          alert("Sesión expirada. Inicia sesión nuevamente.");
+          localStorage.removeItem("authToken"); // ✅ actualizado
+          localStorage.removeItem("user");
+          window.location.href = "/login";
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (data.success) setCourses(data.courses);
+      })
+      .catch(console.error);
+  };
 
   const convertToEmbedUrl = (url) => {
     const match = url.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([^&]+)/);
     return match ? `https://www.youtube.com/embed/${match[1]}` : null;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title || !description || !videoUrl) {
       alert("Completa todos los campos.");
@@ -37,28 +60,38 @@ const AdminCoursesPage = () => {
     }
 
     const payload = {
-      ...editingCourse,
       title,
       description,
-      role,
       videoUrl: embed,
+      role,
       evaluation: questions,
       attempts,
       timeLimit,
     };
 
-    let updated;
-    if (editingCourse) {
-      updated = courses.map(c => c.id === editingCourse.id ? payload : c);
-    } else {
-      payload.id = Date.now();
-      updated = [...courses, payload];
+    try {
+      const res = await fetch(`${API_URL}/courses`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        fetchCourses();
+        resetForm();
+      } else {
+        alert(data.message);
+      }
+    } catch (err) {
+      console.error("Error al enviar curso:", err);
     }
+  };
 
-    setCourses(updated);
-    localStorage.setItem("courses", JSON.stringify(updated));
-
-    // limpiar
+  const resetForm = () => {
     setTitle("");
     setDescription("");
     setVideoUrl("");
@@ -68,12 +101,6 @@ const AdminCoursesPage = () => {
     setTimeLimit(30);
     setShowEvaluation(false);
     setEditingCourse(null);
-  };
-
-  const handleDelete = (id) => {
-    const filtered = courses.filter(c => c.id !== id);
-    setCourses(filtered);
-    localStorage.setItem("courses", JSON.stringify(filtered));
   };
 
   const handleAddQuestion = () => {
@@ -98,32 +125,72 @@ const AdminCoursesPage = () => {
     setQuestions(cp);
   };
 
+  const handleDeleteCourse = async (id) => {
+    console.log("ID del curso a eliminar:", id);
+    const confirmDelete = window.confirm("¿Estás seguro de que deseas eliminar este curso?");
+    if (!confirmDelete) return;
+
+    if (!token) {
+      alert("⚠️ Token no encontrado. Inicia sesión nuevamente.");
+      window.location.href = "/login";
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/courses/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 401) {
+        alert("⚠️ Sesión expirada. Inicia sesión nuevamente.");
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("user");
+        window.location.href = "/login";
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert("✅ Curso eliminado exitosamente.");
+        fetchCourses();
+      } else {
+        alert(`❌ Error: ${data.message || "No se pudo eliminar el curso."}`);
+      }
+    } catch (error) {
+      console.error("Error al eliminar curso:", error);
+      alert("❌ Error al eliminar el curso. Intenta nuevamente.");
+    }
+  };
+
+
+  const handleEditCourse = (course) => {
+    setTitle(course.title);
+    setDescription(course.description);
+    setVideoUrl(course.videoUrl.replace("https://www.youtube.com/embed/", "https://www.youtube.com/watch?v="));
+    setRole(course.role);
+    setAttempts(course.attempts);
+    setTimeLimit(course.timeLimit);
+    setQuestions([]); // Se puede implementar carga de preguntas si es necesario
+    setShowEvaluation(true);
+    setEditingCourse(course.id);
+  };
+
   return (
     <div className="admin-page-container">
       <h1>Panel Admin {editingCourse ? "(Editando)" : ""}</h1>
       <form onSubmit={handleSubmit} className="admin-form">
         <label>Título:</label>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
+        <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required />
 
         <label>Descripción:</label>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
-        />
+        <textarea value={description} onChange={(e) => setDescription(e.target.value)} required />
 
         <label>Enlace del Video (YouTube):</label>
-        <input
-          type="text"
-          value={videoUrl}
-          onChange={(e) => setVideoUrl(e.target.value)}
-          required
-        />
+        <input type="text" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} required />
 
         <label>Rol del Empleado:</label>
         <select value={role} onChange={(e) => setRole(e.target.value)}>
@@ -207,43 +274,24 @@ const AdminCoursesPage = () => {
         </button>
 
         {editingCourse && (
-          <button
-            type="button"
-            onClick={() => {
-              setEditingCourse(null);
-              setTitle("");
-              setDescription("");
-              setVideoUrl("");
-              setRole("Gerente");
-              setQuestions([]);
-              setAttempts(1);
-              setTimeLimit(30);
-              setShowEvaluation(false);
-            }}
-          >
+          <button type="button" onClick={resetForm}>
             Cancelar
           </button>
         )}
       </form>
 
       <div className="admin-course-list">
-        {courses.map(course => (
+        {courses.map((course) => (
           <div key={course.id} className="admin-course-card">
             <h3>{course.title}</h3>
             <p>👥 Rol: {course.role}</p>
+            <p>⏳ Tiempo límite: {course.timeLimit} min</p>
+            <p>🔁 Intentos: {course.attempts}</p>
             <iframe src={course.videoUrl} title={course.title} allowFullScreen />
-            <button onClick={() => handleDelete(course.id)}>Eliminar</button>
-            <button onClick={() => {
-              setEditingCourse(course);
-              setTitle(course.title);
-              setDescription(course.description);
-              setVideoUrl(course.videoUrl);
-              setRole(course.role || "Gerente");
-              setQuestions(course.evaluation || []);
-              setAttempts(course.attempts || 1);
-              setTimeLimit(course.timeLimit || 30);
-              setShowEvaluation(true);
-            }}>Editar</button>
+            <div className="course-actions">
+              <button onClick={() => handleEditCourse(course)}>✏️ Editar</button>
+              <button onClick={() => handleDeleteCourse(course.id)}>🗑️ Eliminar</button>
+            </div>
           </div>
         ))}
       </div>
