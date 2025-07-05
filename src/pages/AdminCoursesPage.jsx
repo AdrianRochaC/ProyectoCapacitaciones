@@ -12,6 +12,8 @@ const AdminCoursesPage = () => {
   const [attempts, setAttempts] = useState(1);
   const [timeLimit, setTimeLimit] = useState(30);
   const [editingCourse, setEditingCourse] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+
 
   const API_URL = "/api";
   const token = localStorage.getItem("authToken");
@@ -88,7 +90,7 @@ const AdminCoursesPage = () => {
     try {
       const url = editingCourse ? `${API_URL}/courses/${editingCourse}` : `${API_URL}/courses`;
       const method = editingCourse ? "PUT" : "POST";
-      
+
       const res = await fetch(url, {
         method,
         headers: {
@@ -186,20 +188,50 @@ const AdminCoursesPage = () => {
     }
   };
 
-  const handleEditCourse = (course) => {
+  const handleEditCourse = async (course) => {
     setTitle(course.title);
     setDescription(course.description);
-    // Convert embed URL back to watch URL for editing - check both possible field names
+
+    // Convertir embed URL a watch URL para edición
     const videoUrl = course.videoUrl || course.video_url;
     const watchUrl = convertToWatchUrl(videoUrl);
     setVideoUrl(watchUrl);
+
     setRole(course.role || "Gerente");
     setAttempts(course.attempts || 1);
     setTimeLimit(course.timeLimit || course.time_limit || 30);
-    setQuestions(course.evaluation || []);
-    setShowEvaluation(true);
     setEditingCourse(course.id);
+    setShowEvaluation(true);
+
+    // Si ya viene la evaluación en el objeto del curso
+    if (course.evaluation && course.evaluation.length > 0) {
+      setQuestions(course.evaluation);
+    } else {
+      // Cargar preguntas desde la API si no vienen incluidas
+      try {
+        const res = await fetch(`${API_URL}/courses/${course.id}/questions`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          setQuestions(data.questions);
+        } else {
+          console.warn("⚠️ No se pudieron cargar las preguntas del curso.");
+          setQuestions([]);
+        }
+      } catch (err) {
+        console.error("❌ Error al cargar preguntas:", err);
+        setQuestions([]);
+      }
+    }
+
+    // Si estás usando modal:
+    setShowModal(true);
   };
+
 
   return (
     <div className="admin-page-container">
@@ -310,12 +342,12 @@ const AdminCoursesPage = () => {
             <p>👥 Rol: {course.role}</p>
             <p>⏳ Tiempo límite: {course.timeLimit || course.time_limit} min</p>
             <p>🔁 Intentos: {course.attempts}</p>
-            
+
             {/* Video iframe with proper styling and debugging */}
             <div className="video-container">
               {(course.videoUrl || course.video_url) && (course.videoUrl || course.video_url).trim() !== '' ? (
-                <iframe 
-                  src={course.videoUrl || course.video_url} 
+                <iframe
+                  src={course.videoUrl || course.video_url}
                   title={course.title}
                   width="100%"
                   height="315"
@@ -330,7 +362,7 @@ const AdminCoursesPage = () => {
                 </div>
               )}
             </div>
-            
+
             <div className="course-actions">
               <button onClick={() => handleEditCourse(course)}>✏️ Editar</button>
               <button onClick={() => handleDeleteCourse(course.id)}>🗑️ Eliminar</button>

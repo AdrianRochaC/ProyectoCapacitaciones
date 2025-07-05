@@ -544,6 +544,57 @@ app.delete('/api/courses/:id', verifyToken, async (req, res) => {
   }
 });
 
+// RUTA: Editar curso existente (ACTUALIZADA)
+app.put('/api/courses/:id', verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description, videoUrl, role, evaluation = [], attempts, timeLimit } = req.body;
+
+    if (!title || !description || !videoUrl || !role) {
+      return res.status(400).json({ success: false, message: 'Todos los campos del curso son requeridos' });
+    }
+
+    const connection = await mysql.createConnection(dbConfig);
+
+    // Actualizar curso
+    const [updateResult] = await connection.execute(
+      `UPDATE courses SET title = ?, description = ?, video_url = ?, role = ?, attempts = ?, time_limit = ? WHERE id = ?`,
+      [title, description, videoUrl, role, attempts, timeLimit, id]
+    );
+
+    if (updateResult.affectedRows === 0) {
+      await connection.end();
+      return res.status(404).json({ success: false, message: 'Curso no encontrado para actualizar' });
+    }
+
+    // Eliminar preguntas anteriores
+    await connection.execute(`DELETE FROM questions WHERE course_id = ?`, [id]);
+
+    // Insertar nuevas preguntas
+    for (const q of evaluation) {
+      const { question, options, correctIndex } = q;
+      if (!question || options.length !== 4 || correctIndex < 0 || correctIndex > 3) continue;
+
+      await connection.execute(
+        `INSERT INTO questions (course_id, question, option_1, option_2, option_3, option_4, correct_index)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [id, question, options[0], options[1], options[2], options[3], correctIndex]
+      );
+    }
+
+    await connection.end();
+
+    res.json({ 
+      success: true, 
+      message: 'Curso actualizado exitosamente',
+      updatedCourseId: id 
+    });
+  } catch (error) {
+    console.error('Error al actualizar curso:', error);
+    res.status(500).json({ success: false, message: 'Error interno del servidor' });
+  }
+});
+
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
