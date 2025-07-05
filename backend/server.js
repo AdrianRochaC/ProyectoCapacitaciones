@@ -472,10 +472,20 @@ app.get('/api/courses', verifyToken, async (req, res) => {
       ? await connection.execute(`SELECT * FROM courses WHERE role = ?`, [rol])
       : await connection.execute(`SELECT * FROM courses`);
 
+    // Convertir snake_case a camelCase
+    const formattedCourses = courses.map(course => ({
+      id: course.id,
+      title: course.title,
+      description: course.description,
+      videoUrl: course.video_url,  // ← Aquí está la conversión
+      role: course.role,
+      attempts: course.attempts,
+      timeLimit: course.time_limit  // ← Y aquí
+    }));
 
     await connection.end();
 
-    res.json({ success: true, courses });
+    res.json({ success: true, courses: formattedCourses });
   } catch (error) {
     console.error('Error al obtener cursos:', error);
     res.status(500).json({ success: false, message: 'Error interno del servidor' });

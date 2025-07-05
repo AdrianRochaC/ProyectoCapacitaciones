@@ -5,18 +5,20 @@
   min-height: 100vh;
 }
 
-.title {
+.courses-page h1 {
   text-align: center;
   margin-bottom: 2rem;
   font-size: 2.5rem;
   color: #203a43;
 }
 
-/* Grid para mostrar cursos en formato responsive */
-.courses-grid {
+/* Grid responsive para mostrar cursos lado a lado */
+.courses-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 /* Tarjeta individual del curso */
@@ -26,22 +28,28 @@
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
 }
 
 .course-card:hover {
   transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
 }
 
-.course-card h2 {
-  font-size: 1.5rem;
+.course-card h3 {
+  font-size: 1.4rem;
   color: #203a43;
   margin-bottom: 0.5rem;
+  margin-top: 0;
 }
 
 .course-card p {
   color: #444;
   margin-bottom: 1rem;
   font-size: 1rem;
+  line-height: 1.5;
 }
 
 /* Contenedor del reproductor de video */
@@ -49,12 +57,38 @@
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  margin-bottom: 1rem;
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 56.25%; /* Aspect ratio 16:9 */
+}
+
+.video-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 10px;
+}
+
+/* Mensaje cuando no hay video */
+.no-video {
+  background-color: #f8f9fa;
+  padding: 2rem;
+  text-align: center;
+  border-radius: 10px;
+  border: 2px dashed #dee2e6;
+  color: #6c757d;
+  margin-bottom: 1rem;
 }
 
 /* Botón de ver curso */
 .course-card button {
-  margin-top: 1rem;
-  padding: 10px 18px;
+  margin-top: auto;
+  padding: 12px 20px;
   background-color: #3498db;
   color: white;
   font-weight: bold;
@@ -62,8 +96,53 @@
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  font-size: 1rem;
 }
 
 .course-card button:hover {
   background-color: #2980b9;
+}
+
+/* Mensaje cuando no hay cursos */
+.courses-container > p {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-size: 1.2rem;
+  color: #666;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Responsive para tablets */
+@media (max-width: 768px) {
+  .courses-container {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .courses-page {
+    padding: 1rem;
+  }
+  
+  .courses-page h1 {
+    font-size: 2rem;
+  }
+}
+
+/* Responsive para móviles */
+@media (max-width: 480px) {
+  .courses-container {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .course-card {
+    padding: 1rem;
+  }
+  
+  .courses-page h1 {
+    font-size: 1.8rem;
+  }
 }
