@@ -472,15 +472,30 @@ app.get('/api/courses', verifyToken, async (req, res) => {
       ? await connection.execute(`SELECT * FROM courses WHERE role = ?`, [rol])
       : await connection.execute(`SELECT * FROM courses`);
 
-    // Convertir snake_case a camelCase
-    const formattedCourses = courses.map(course => ({
-      id: course.id,
-      title: course.title,
-      description: course.description,
-      videoUrl: course.video_url,  // ← Aquí está la conversión
-      role: course.role,
-      attempts: course.attempts,
-      timeLimit: course.time_limit  // ← Y aquí
+    // Agrega las preguntas para cada curso
+    const formattedCourses = await Promise.all(courses.map(async (course) => {
+      const [questions] = await connection.execute(
+        `SELECT id, question, option_1, option_2, option_3, option_4, correct_index FROM questions WHERE course_id = ?`,
+        [course.id]
+      );
+
+      const evaluation = questions.map(q => ({
+        id: q.id,
+        question: q.question,
+        options: [q.option_1, q.option_2, q.option_3, q.option_4],
+        correctIndex: q.correct_index
+      }));
+
+      return {
+        id: course.id,
+        title: course.title,
+        description: course.description,
+        videoUrl: course.video_url,
+        role: course.role,
+        attempts: course.attempts,
+        timeLimit: course.time_limit,
+        evaluation
+      };
     }));
 
     await connection.end();
@@ -595,6 +610,105 @@ app.put('/api/courses/:id', verifyToken, async (req, res) => {
   }
 });
 
+// Nueva ruta: Guardar progreso del curso
+app.post('/api/progress', verifyToken, async (req, res) => {
+  const { courseId, videoCompleted, score, total, status, attemptsUsed } = req.body;
+  const userId = req.user.id;
+
+  if (!courseId) {
+    return res.status(400).json({ success: false, message: 'Falta el ID del curso' });
+  }
+
+  let connection;
+  try {
+    connection = await mysql.createConnection(dbConfig);
+
+    // Verificar si ya existe progreso previo
+    const [existing] = await connection.execute(
+      'SELECT * FROM course_progress WHERE user_id = ? AND course_id = ?',
+      [userId, courseId]
+    );
+
+    if (existing.length > 0) {
+      // Actualizar progreso
+      await connection.execute(
+        `UPDATE course_progress SET 
+          video_completed = ?,
+          evaluation_score = ?,
+          evaluation_total = ?,
+          evaluation_status = ?,
+          attempts_used = ?,
+          updated_at = CURRENT_TIMESTAMP
+        WHERE user_id = ? AND course_id = ?`,
+        [videoCompleted, score, total, status, attemptsUsed, userId, courseId]
+      );
+    } else {
+      // Crear nuevo progreso
+      await connection.execute(
+        `INSERT INTO course_progress 
+          (user_id, course_id, video_completed, evaluation_score, evaluation_total, evaluation_status, attempts_used)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [userId, courseId, videoCompleted, score, total, status, attemptsUsed]
+      );
+    }
+
+    // Log para depuración
+    console.log('✅ Progreso guardado correctamente para usuario:', userId, 'curso:', courseId);
+
+    // Intentar cerrar conexión sin romper todo si falla
+    try {
+      await connection.end();
+    } catch (endError) {
+      console.warn('⚠️ Error al cerrar conexión:', endError.message);
+    }
+
+    // Intentar enviar la respuesta JSON
+    try {
+      return res.json({ success: true, message: 'Progreso guardado correctamente' });
+    } catch (jsonErr) {
+      console.error('❌ Error al enviar JSON:', jsonErr.message);
+      return res.status(500).send('Error al enviar respuesta');
+    }
+
+  } catch (error) {
+    console.error('❌ Error en /api/progress:', error);
+    if (connection) {
+      try {
+        await connection.end();
+      } catch (endErr) {
+        console.warn('⚠️ Error al cerrar conexión tras fallo:', endErr.message);
+      }
+    }
+    return res.status(500).json({ success: false, message: 'Error interno del servidor' });
+  }
+});
+
+
+// Nueva ruta: Obtener progreso del usuario por curso
+app.get('/api/progress/:courseId', verifyToken, async (req, res) => {
+  const userId = req.user.id;
+  const { courseId } = req.params;
+
+  try {
+    const connection = await mysql.createConnection(dbConfig);
+
+    const [rows] = await connection.execute(
+      'SELECT * FROM course_progress WHERE user_id = ? AND course_id = ?',
+      [userId, courseId]
+    );
+
+    await connection.end();
+
+    if (rows.length === 0) {
+      return res.json({ success: true, progress: null });
+    }
+
+    res.json({ success: true, progress: rows[0] });
+  } catch (error) {
+    console.error('Error al obtener progreso:', error);
+    res.status(500).json({ success: false, message: 'Error interno del servidor' });
+  }
+});
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);

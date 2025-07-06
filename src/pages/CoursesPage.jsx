@@ -47,10 +47,12 @@ const CoursesPage = () => {
   // Función para asegurar que la URL esté en formato embed
   const ensureEmbedUrl = (url) => {
     if (!url) return null;
+
     // Si ya es una URL de embed, la devolvemos tal como está
-    if (url.includes('youtube.com/embed/')) {
+    if (url.includes("youtube.com/embed/")) {
       return url;
     }
+
     // Si es una URL de watch, la convertimos a embed
     const match = url.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([^&]+)/);
     return match ? `https://www.youtube.com/embed/${match[1]}` : url;
@@ -67,12 +69,12 @@ const CoursesPage = () => {
             <div key={course.id} className="course-card">
               <h3>{course.title}</h3>
               <p>{course.description}</p>
-              
-              {/* Video iframe */}
+
               <div className="video-container">
-                {(course.videoUrl || course.video_url) && (course.videoUrl || course.video_url).trim() !== '' ? (
-                  <iframe 
-                    src={ensureEmbedUrl(course.videoUrl || course.video_url)} 
+                {(course.videoUrl || course.video_url) &&
+                (course.videoUrl || course.video_url).trim() !== "" ? (
+                  <iframe
+                    src={ensureEmbedUrl(course.videoUrl || course.video_url)}
                     title={course.title}
                     width="100%"
                     height="315"
@@ -86,8 +88,9 @@ const CoursesPage = () => {
                   </div>
                 )}
               </div>
-              
-              <button onClick={() => navigate(`/curso/${course.id}`)}>
+
+              {/* ✅ Botón corregido con ruta correcta */}
+              <button onClick={() => navigate(`/detail/${course.id}`)}>
                 Ver curso
               </button>
             </div>
