@@ -710,6 +710,41 @@ app.get('/api/progress/:courseId', verifyToken, async (req, res) => {
   }
 });
 
+// Obtener progreso de todos los usuarios (solo para admin)
+app.get('/api/progress/all', verifyToken, async (req, res) => {
+  const { rol } = req.user;
+  if (rol !== 'admin') {
+    return res.status(403).json({ success: false, message: 'Acceso no autorizado' });
+  }
+
+  try {
+    const connection = await mysql.createConnection(dbConfig);
+
+    const [rows] = await connection.execute(`
+      SELECT 
+        u.id as userId, u.nombre, u.email, u.rol,
+        c.title as curso,
+        cp.video_completed, cp.evaluation_score, cp.evaluation_total, cp.evaluation_status, cp.attempts_used
+      FROM course_progress cp
+      JOIN usuarios u ON cp.user_id = u.id
+      JOIN courses c ON cp.course_id = c.id
+      WHERE u.rol != 'admin'
+      ORDER BY u.nombre, c.title
+    `);
+
+    await connection.end();
+    
+    // Protección contra `null`
+    res.json({ success: true, progress: Array.isArray(rows) ? rows : [] });
+
+  } catch (error) {
+    console.error('Error al obtener progreso de todos:', error);
+    res.status(500).json({ success: false, message: 'Error interno del servidor' });
+  }
+});
+
+
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });
