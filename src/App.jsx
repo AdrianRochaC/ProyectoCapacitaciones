@@ -1,18 +1,18 @@
-// App.jsx - Versión con dashboard y registro solo para admins
+// App.jsx
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import CoursesPage from "./pages/CoursesPage";
 import AdminCoursesPage from "./pages/AdminCoursesPage";
+import AdminBitacora from "./pages/AdminBitacora";
+import Bitacora from "./pages/Bitacora";
 import DetailPage from "./pages/DetailPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Perfil from "./pages/Perfil";
-import Bitacora from "./pages/Bitacora";
 import Cuentas from "./pages/Cuentas";
 import Layout from "./components/LoadingScreen/Layout";
 import Dashboard from './pages/Dashboard';
 
-// Hook personalizado para manejar la autenticación
 const useAuth = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -35,20 +35,18 @@ const useAuth = () => {
   return { user, isAdmin, loading };
 };
 
-// Componente para proteger rutas
 const ProtectedRoute = ({ children, adminOnly = false, userOnly = false }) => {
   const { user, isAdmin, loading } = useAuth();
 
   if (loading) return <div>Cargando...</div>;
   if (!user) return <Navigate to="/login" replace />;
 
-  if (adminOnly && !isAdmin) return <Navigate to="/admin-courses" replace />;
+  if (adminOnly && !isAdmin) return <Navigate to="/courses" replace />;
   if (userOnly && isAdmin) return <Navigate to="/admin-courses" replace />;
 
   return children;
 };
 
-// Componente para rutas públicas
 const PublicRoute = ({ children }) => {
   const { user, isAdmin, loading } = useAuth();
 
@@ -61,7 +59,6 @@ const PublicRoute = ({ children }) => {
   return children;
 };
 
-// Redirección por defecto
 const DefaultRedirect = () => {
   const { user, isAdmin, loading } = useAuth();
 
@@ -81,42 +78,49 @@ function App() {
           <PublicRoute>
             <Login />
           </PublicRoute>
-        }/>
+        } />
 
-        {/* Registro solo visible/accesible para admins desde el menú */}
         <Route path="/register" element={
           <ProtectedRoute adminOnly={true}>
             <Layout>
               <Register />
             </Layout>
           </ProtectedRoute>
-        }/>
+        } />
 
-        {/* Usuarios normales (no admins) */}
+        {/* Rutas para usuarios */}
         <Route path="/courses" element={
           <ProtectedRoute userOnly={true}>
             <Layout>
               <CoursesPage />
             </Layout>
           </ProtectedRoute>
-        }/>
+        } />
 
-        {/* Admins */}
+        <Route path="/bitacora" element={
+          <ProtectedRoute userOnly={true}>
+            <Layout>
+              <Bitacora />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        {/* Rutas para admins */}
         <Route path="/admin-courses" element={
           <ProtectedRoute adminOnly={true}>
             <Layout>
               <AdminCoursesPage />
             </Layout>
           </ProtectedRoute>
-        }/>
+        } />
 
-        <Route path="/bitacora" element={
+        <Route path="/AdminBitacora" element={
           <ProtectedRoute adminOnly={true}>
             <Layout>
-              <Bitacora />
+              <AdminBitacora />
             </Layout>
           </ProtectedRoute>
-        }/>
+        } />
 
         <Route path="/cuentas" element={
           <ProtectedRoute adminOnly={true}>
@@ -124,7 +128,7 @@ function App() {
               <Cuentas />
             </Layout>
           </ProtectedRoute>
-        }/>
+        } />
 
         <Route path="/dashboard" element={
           <ProtectedRoute adminOnly={true}>
@@ -132,7 +136,7 @@ function App() {
               <Dashboard />
             </Layout>
           </ProtectedRoute>
-        }/>
+        } />
 
         {/* Compartidas */}
         <Route path="/detail/:id" element={
@@ -141,7 +145,7 @@ function App() {
               <DetailPage />
             </Layout>
           </ProtectedRoute>
-        }/>
+        } />
 
         <Route path="/perfil" element={
           <ProtectedRoute>
@@ -149,7 +153,7 @@ function App() {
               <Perfil />
             </Layout>
           </ProtectedRoute>
-        }/>
+        } />
 
         {/* Redirecciones */}
         <Route path="/" element={<DefaultRedirect />} />

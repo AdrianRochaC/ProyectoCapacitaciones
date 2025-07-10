@@ -1,0 +1,204 @@
+.bitacora-body {
+  background: linear-gradient(135deg, #a8e6cf 0%, #d8ffe5 100%);
+  min-height: 100vh;
+  min-width: 100vw;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.bitacora-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+.bitacora-container h1 {
+  text-align: center;
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 3rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  letter-spacing: -0.5px;
+}
+
+/* Loading y mensajes */
+.bitacora-container > p {
+  text-align: center;
+  font-size: 1.2rem;
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 2rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  max-width: 400px;
+  margin: 2rem auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.bitacora-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.tarea-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  overflow: hidden;
+}
+
+.tarea-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, #bdc3c7, #95a5a6);
+  border-radius: 20px 20px 0 0;
+}
+
+.tarea-card.status-verde::before {
+  background: linear-gradient(90deg, #2ecc71, #27ae60);
+}
+
+.tarea-card.status-amarillo::before {
+  background: linear-gradient(90deg, #f39c12, #e67e22);
+}
+
+.tarea-card.status-rojo::before {
+  background: linear-gradient(90deg, #e74c3c, #c0392b);
+}
+
+.tarea-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+.tarea-card h3 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 1rem 0;
+  line-height: 1.3;
+  text-transform: capitalize;
+}
+
+.tarea-card p {
+  color: #5d6d7e;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0 0 1.5rem 0;
+  font-weight: 400;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 25px;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.status-verde .badge {
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.2), rgba(39, 174, 96, 0.1));
+  color: #27ae60;
+  border: 1px solid rgba(46, 204, 113, 0.3);
+}
+
+.status-amarillo .badge {
+  background: linear-gradient(135deg, rgba(243, 156, 18, 0.2), rgba(230, 126, 34, 0.1));
+  color: #d68910;
+  border: 1px solid rgba(243, 156, 18, 0.3);
+}
+
+.status-rojo .badge {
+  background: linear-gradient(135deg, rgba(231, 76, 60, 0.2), rgba(192, 57, 43, 0.1));
+  color: #c0392b;
+  border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+.badge:hover {
+  transform: scale(1.05);
+}
+
+.tarea-card small {
+  color: #95a5a6;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: block;
+  margin-top: 0.5rem;
+  opacity: 0.8;
+}
+
+/* Animaciones de entrada */
+.tarea-card {
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .bitacora-container {
+    padding: 1.5rem;
+  }
+  
+  .bitacora-container h1 {
+    font-size: 2.2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .bitacora-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .tarea-card {
+    padding: 1.5rem;
+  }
+  
+  .tarea-card h3 {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .bitacora-container {
+    padding: 1rem;
+  }
+  
+  .bitacora-container h1 {
+    font-size: 1.8rem;
+  }
+  
+  .tarea-card {
+    padding: 1.2rem;
+  }
+}

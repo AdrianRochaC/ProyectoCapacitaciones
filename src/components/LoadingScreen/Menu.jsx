@@ -1,6 +1,11 @@
-// components/Menu.jsx
 import { Link, useNavigate } from "react-router-dom";
-import { FaSignOutAlt, FaUser, FaGraduationCap, FaSignInAlt } from "react-icons/fa";
+import {
+  FaSignOutAlt,
+  FaUser,
+  FaGraduationCap,
+  FaSignInAlt,
+  FaClipboardList
+} from "react-icons/fa";
 import "./Menu.css";
 
 const Menu = () => {
@@ -23,6 +28,11 @@ const Menu = () => {
           <li>
             <Link to="/courses">
               <FaGraduationCap /> Cursos
+            </Link>
+          </li>
+          <li>
+            <Link to="/bitacora">
+              <FaClipboardList /> Bitácora
             </Link>
           </li>
           <li>

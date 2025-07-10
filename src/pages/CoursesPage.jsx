@@ -59,43 +59,45 @@ const CoursesPage = () => {
   };
 
   return (
-    <div className="courses-page">
-      <h1>Cursos Disponibles</h1>
-      <div className="courses-container">
-        {courses.length === 0 ? (
-          <p>No hay cursos disponibles para tu rol.</p>
-        ) : (
-          courses.map((course) => (
-            <div key={course.id} className="course-card">
-              <h3>{course.title}</h3>
-              <p>{course.description}</p>
+    <div className="courses-body">
+      <div className="courses-page">
+        <h1>Cursos Disponibles</h1>
+        <div className="courses-container">
+          {courses.length === 0 ? (
+            <p>No hay cursos disponibles para tu rol.</p>
+          ) : (
+            courses.map((course) => (
+              <div key={course.id} className="course-card">
+                <h3>{course.title}</h3>
+                <p>{course.description}</p>
 
-              <div className="video-container">
-                {(course.videoUrl || course.video_url) &&
-                (course.videoUrl || course.video_url).trim() !== "" ? (
-                  <iframe
-                    src={ensureEmbedUrl(course.videoUrl || course.video_url)}
-                    title={course.title}
-                    width="100%"
-                    height="315"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                ) : (
-                  <div className="no-video">
-                    <p>⚠️ No hay video disponible</p>
-                  </div>
-                )}
+                <div className="video-container">
+                  {(course.videoUrl || course.video_url) &&
+                    (course.videoUrl || course.video_url).trim() !== "" ? (
+                    <iframe
+                      src={ensureEmbedUrl(course.videoUrl || course.video_url)}
+                      title={course.title}
+                      width="100%"
+                      height="315"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <div className="no-video">
+                      <p>⚠️ No hay video disponible</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* ✅ Botón corregido con ruta correcta */}
+                <button onClick={() => navigate(`/detail/${course.id}`)}>
+                  Ver curso
+                </button>
               </div>
-
-              {/* ✅ Botón corregido con ruta correcta */}
-              <button onClick={() => navigate(`/detail/${course.id}`)}>
-                Ver curso
-              </button>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

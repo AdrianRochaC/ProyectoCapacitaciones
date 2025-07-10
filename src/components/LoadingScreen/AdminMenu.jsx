@@ -33,7 +33,7 @@ const AdminMenu = () => {
             </Link>
           </li>
           <li>
-            <Link to="/bitacora">
+            <Link to="/AdminBitacora">
               <ClipboardList size={18} /> <span>Bitácora</span>
             </Link>
           </li>
