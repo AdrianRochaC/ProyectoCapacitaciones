@@ -1,5 +1,6 @@
 // src/pages/Cuentas.jsx
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Cuentas.css";
 
 const Cuentas = () => {
@@ -11,8 +12,8 @@ const Cuentas = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRole, setFilterRole] = useState("Todos");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  // Estados para el formulario de edición
   const [editData, setEditData] = useState({
     nombre: "",
     email: "",
@@ -20,11 +21,9 @@ const Cuentas = () => {
     activo: true
   });
 
-  // Estados para el modal de nueva contraseña
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [newPassword, setNewPassword] = useState("");
 
-  // Cargar usuarios al montar el componente
   useEffect(() => {
     loadUsers();
   }, []);
@@ -36,10 +35,10 @@ const Cuentas = () => {
   const loadUsers = async () => {
     setLoading(true);
     setError("");
-    
+
     try {
       const token = getAuthToken();
-      
+
       if (!token) {
         setError("No hay token de autenticación. Por favor, inicia sesión nuevamente.");
         setUsers([]);
@@ -69,13 +68,13 @@ const Cuentas = () => {
       }
     } catch (error) {
       console.error('Error:', error);
-      
+
       if (error.name === 'TypeError' && error.message.includes('fetch')) {
         setError("No se puede conectar con el servidor. Verifica que esté funcionando.");
       } else {
         setError("Error de conexión. Verifica tu conexión a internet.");
       }
-      
+
       setUsers([]);
     } finally {
       setLoading(false);
@@ -125,7 +124,7 @@ const Cuentas = () => {
 
     try {
       const token = getAuthToken();
-      
+
       if (!token) {
         alert("❌ No hay token de autenticación. Por favor, inicia sesión nuevamente.");
         setSaving(false);
@@ -142,9 +141,8 @@ const Cuentas = () => {
       });
 
       if (response.ok) {
-        // Actualizar la lista de usuarios
-        setUsers(prev => prev.map(user => 
-          user.id === selectedUser.id 
+        setUsers(prev => prev.map(user =>
+          user.id === selectedUser.id
             ? { ...user, ...editData }
             : user
         ));
@@ -172,7 +170,7 @@ const Cuentas = () => {
     setSaving(true);
     try {
       const token = getAuthToken();
-      
+
       if (!token) {
         alert("❌ No hay token de autenticación. Por favor, inicia sesión nuevamente.");
         setSaving(false);
@@ -208,7 +206,7 @@ const Cuentas = () => {
     setSaving(true);
     try {
       const token = getAuthToken();
-      
+
       if (!token) {
         alert("❌ No hay token de autenticación. Por favor, inicia sesión nuevamente.");
         setSaving(false);
@@ -225,8 +223,8 @@ const Cuentas = () => {
       });
 
       if (response.ok) {
-        setUsers(prev => prev.map(user => 
-          user.id === userId 
+        setUsers(prev => prev.map(user =>
+          user.id === userId
             ? { ...user, activo: !currentStatus }
             : user
         ));
@@ -246,15 +244,13 @@ const Cuentas = () => {
     }
   };
 
-  // Filtrar usuarios
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = filterRole === "Todos" || user.rol === filterRole;
     return matchesSearch && matchesRole;
   });
 
-  // Obtener roles únicos de los usuarios reales
   const uniqueRoles = [...new Set(users.map(user => user.rol))];
   const roles = ["Todos", ...uniqueRoles];
 
@@ -284,6 +280,14 @@ const Cuentas = () => {
     <div className="cuentas-container">
       <div className="cuentas-header">
         <h1>👥 Gestión de Cuentas</h1>
+
+        {/* 🟢 Botón para crear nueva cuenta */}
+        <div className="crear-cuenta-btn" style={{ margin: "10px 0" }}>
+          <button className="btn btn-success" onClick={() => navigate("/register")}>
+            ➕ Crear nueva cuenta
+          </button>
+        </div>
+
         <div className="cuentas-stats">
           <div className="stat-card">
             <span className="stat-number">{users.length}</span>

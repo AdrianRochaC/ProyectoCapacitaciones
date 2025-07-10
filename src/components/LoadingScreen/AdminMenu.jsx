@@ -1,6 +1,14 @@
 // components/AdminMenu.jsx
 import { Link, useNavigate } from "react-router-dom";
-import "./Menu.css";
+import {
+  BookOpenCheck,
+  ClipboardList,
+  Users2,
+  BarChart3,
+  UserCircle,
+  LogOut
+} from "lucide-react";
+import "./AdminMenu.css";
 
 const AdminMenu = () => {
   const navigate = useNavigate();
@@ -8,7 +16,6 @@ const AdminMenu = () => {
 
   const handleLogout = () => {
     const confirmLogout = window.confirm('¿Estás seguro de que quieres cerrar sesión?');
-    
     if (confirmLogout) {
       localStorage.removeItem('user');
       localStorage.removeItem('authToken');
@@ -20,29 +27,46 @@ const AdminMenu = () => {
     <nav className="main-menu">
       <div className="menu-links">
         <ul>
-          {/* Removido el enlace a /courses - Los admins no necesitan acceso */}
-          <li><Link to="/admin-courses">🛠 Admin Cursos</Link></li>
-          <li><Link to="/bitacora">📝 Bitácora</Link></li>
-          <li><Link to="/cuentas">👥 Cuentas</Link></li>
-          <li><Link to="/perfil">👤 Perfil</Link></li>
+          <li>
+            <Link to="/admin-courses">
+              <BookOpenCheck size={18} /> <span>Gestión Cursos</span>
+            </Link>
+          </li>
+          <li>
+            <Link to="/bitacora">
+              <ClipboardList size={18} /> <span>Bitácora</span>
+            </Link>
+          </li>
+          <li>
+            <Link to="/cuentas">
+              <Users2 size={18} /> <span>Cuentas</span>
+            </Link>
+          </li>
+          <li>
+            <Link to="/dashboard">
+              <BarChart3 size={18} /> <span>Dashboard</span>
+            </Link>
+          </li>
+          <li>
+            <Link to="/perfil">
+              <UserCircle size={18} /> <span>Perfil</span>
+            </Link>
+          </li>
         </ul>
       </div>
-      
+
       <div className="auth-buttons">
         {user ? (
           <>
             <span className="user-info">
-              👋 {user.nombre} ({user.rol})
+              {user.nombre} ({user.rol})
             </span>
             <button onClick={handleLogout} className="logout-btn">
-              🚪 Cerrar Sesión
+              <LogOut size={18} /> <span>Cerrar Sesión</span>
             </button>
           </>
         ) : (
-          <>
-            <Link to="/login">🔐 Login</Link>
-            <Link to="/register">🧾 Registro</Link>
-          </>
+          <Link to="/login">Iniciar Sesión</Link>
         )}
       </div>
     </nav>

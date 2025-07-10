@@ -1,5 +1,5 @@
 .register-wrapper {
-  background-color: #f0f8ff;
+  background-color: #f2f4f7;
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -10,46 +10,58 @@
 
 .register-container {
   background-color: #ffffff;
-  padding: 3rem 2rem;
+  padding: 2.5rem 2rem;
   width: 100%;
-  max-width: 500px;
+  max-width: 480px;
   border-radius: 16px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  border-top: 6px solid #203a43;
 }
 
 .register-container h1 {
   text-align: center;
   color: #203a43;
-  margin-bottom: 2rem;
-  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.9rem;
+  font-weight: 700;
 }
 
 .register-form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.2rem;
 }
 
 .register-form label {
   font-weight: 600;
   color: #203a43;
+  margin-bottom: 4px;
 }
 
-.register-form input {
+.register-form input,
+.register-form select {
   padding: 10px;
   border-radius: 8px;
-  border: 1px solid #ccc;
+  border: 1px solid #cbd5e1;
   font-size: 1rem;
-  transition: border-color 0.2s ease;
+  background-color: #f9fafb;
+  color: #1e293b;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
-.register-form input:focus {
+.register-form input:focus,
+.register-form select:focus {
   outline: none;
   border-color: #07b378;
+  background-color: #ffffff;
+}
+
+.register-form select {
+  color: #203a43;
 }
 
 .register-form button {
-  background-color: #07b378;
+  background-color: #203a43;
   color: white;
   border: none;
   padding: 12px;
@@ -60,20 +72,13 @@
 }
 
 .register-form button:hover {
-  background-color: #059e69;
+  background-color: #1a2e34;
 }
 
-.register-form select {
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
-  transition: border-color 0.2s ease;
-  background-color: #fff;
-  color: #203a43;
-}
-
-.register-form select:focus {
-  outline: none;
-  border-color: #07b378;
+/* Mensaje de éxito o error */
+.register-message {
+  text-align: center;
+  font-weight: 600;
+  margin-top: 1rem;
+  color: #e53935;
 }

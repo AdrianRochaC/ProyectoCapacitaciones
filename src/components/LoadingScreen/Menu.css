@@ -1,11 +1,15 @@
 /* components/Menu.css */
 
 .main-menu {
-  background-color: #203a43;
+  background-color: #1b2a41;
   padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .main-menu ul {
@@ -18,15 +22,16 @@
 
 /* Enlaces del menú */
 .main-menu a {
-  color: white;
+  color: #ffffff;
   text-decoration: none;
-  font-weight: bold;
+  font-weight: 500;
   font-size: 1rem;
-  transition: color 0.2s ease;
+  letter-spacing: 0.5px;
+  transition: color 0.2s ease-in-out;
 }
 
 .main-menu a:hover {
-  color: #f0db4f;
+  color: #00d4ff;
 }
 
 /* Sección de navegación principal */
@@ -43,14 +48,43 @@
 }
 
 .auth-buttons a {
-  background-color: #4caf50;
-  color: white;
-  padding: 0.4rem 0.8rem;
-  border-radius: 6px;
+  background-color: #00a86b;
+  color: #ffffff;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
   font-size: 0.95rem;
-  transition: background-color 0.2s ease;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 168, 107, 0.3);
 }
 
 .auth-buttons a:hover {
-  background-color: #45a049;
+  background-color: #008c5f;
+  transform: scale(1.03);
+}
+.logout-btn {
+  background-color: #e74c3c;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.logout-btn:hover {
+  background-color: #c0392b;
+  transform: scale(1.03);
+}
+
+.user-info {
+  color: white;
+  font-weight: 500;
+  margin-right: 1rem;
 }

@@ -13,7 +13,7 @@ const AdminCoursesPage = () => {
   const [timeLimit, setTimeLimit] = useState(30);
   const [editingCourse, setEditingCourse] = useState(null);
   const [showModal, setShowModal] = useState(false);
-
+  const [showCourses, setShowCourses] = useState(false); // NUEVO
 
   const API_URL = "/api";
   const token = localStorage.getItem("authToken");
@@ -56,11 +56,9 @@ const AdminCoursesPage = () => {
 
   const ensureEmbedUrl = (url) => {
     if (!url) return null;
-    // Si ya es una URL de embed, la devolvemos tal como está
-    if (url.includes('youtube.com/embed/')) {
+    if (url.includes("youtube.com/embed/")) {
       return url;
     }
-    // Si es una URL de watch, la convertimos a embed
     return convertToEmbedUrl(url);
   };
 
@@ -148,7 +146,6 @@ const AdminCoursesPage = () => {
   };
 
   const handleDeleteCourse = async (id) => {
-    console.log("ID del curso a eliminar:", id);
     const confirmDelete = window.confirm("¿Estás seguro de que deseas eliminar este curso?");
     if (!confirmDelete) return;
 
@@ -192,7 +189,6 @@ const AdminCoursesPage = () => {
     setTitle(course.title);
     setDescription(course.description);
 
-    // Convertir embed URL a watch URL para edición
     const videoUrl = course.videoUrl || course.video_url;
     const watchUrl = convertToWatchUrl(videoUrl);
     setVideoUrl(watchUrl);
@@ -203,11 +199,9 @@ const AdminCoursesPage = () => {
     setEditingCourse(course.id);
     setShowEvaluation(true);
 
-    // Si ya viene la evaluación en el objeto del curso
     if (course.evaluation && course.evaluation.length > 0) {
       setQuestions(course.evaluation);
     } else {
-      // Cargar preguntas desde la API si no vienen incluidas
       try {
         const res = await fetch(`${API_URL}/courses/${course.id}/questions`, {
           headers: {
@@ -219,7 +213,6 @@ const AdminCoursesPage = () => {
         if (data.success) {
           setQuestions(data.questions);
         } else {
-          console.warn("⚠️ No se pudieron cargar las preguntas del curso.");
           setQuestions([]);
         }
       } catch (err) {
@@ -228,10 +221,8 @@ const AdminCoursesPage = () => {
       }
     }
 
-    // Si estás usando modal:
     setShowModal(true);
   };
-
 
   return (
     <div className="admin-page-container">
@@ -334,42 +325,51 @@ const AdminCoursesPage = () => {
         )}
       </form>
 
-      <div className="admin-course-list">
-        {courses.map((course) => (
-          <div key={course.id} className="admin-course-card">
-            <h3>{course.title}</h3>
-            <p>{course.description}</p>
-            <p>👥 Rol: {course.role}</p>
-            <p>⏳ Tiempo límite: {course.timeLimit || course.time_limit} min</p>
-            <p>🔁 Intentos: {course.attempts}</p>
+      <button
+        type="button"
+        onClick={() => setShowCourses(!showCourses)}
+        className="toggle-courses-button"
+      >
+        {showCourses ? "Ocultar cursos creados" : "Mostrar cursos creados"}
+      </button>
 
-            {/* Video iframe with proper styling and debugging */}
-            <div className="video-container">
-              {(course.videoUrl || course.video_url) && (course.videoUrl || course.video_url).trim() !== '' ? (
-                <iframe
-                  src={course.videoUrl || course.video_url}
-                  title={course.title}
-                  width="100%"
-                  height="315"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              ) : (
-                <div className="no-video">
-                  <p>⚠️ No hay video disponible</p>
-                  <p>La URL del video está vacía en la base de datos</p>
-                </div>
-              )}
-            </div>
+      {showCourses && (
+        <div className="admin-course-list">
+          {courses.map((course) => (
+            <div key={course.id} className="admin-course-card">
+              <h3>{course.title}</h3>
+              <p>{course.description}</p>
+              <p>👥 Rol: {course.role}</p>
+              <p>⏳ Tiempo límite: {course.timeLimit || course.time_limit} min</p>
+              <p>🔁 Intentos: {course.attempts}</p>
 
-            <div className="course-actions">
-              <button onClick={() => handleEditCourse(course)}>✏️ Editar</button>
-              <button onClick={() => handleDeleteCourse(course.id)}>🗑️ Eliminar</button>
+              <div className="video-container">
+                {(course.videoUrl || course.video_url) && (course.videoUrl || course.video_url).trim() !== '' ? (
+                  <iframe
+                    src={course.videoUrl || course.video_url}
+                    title={course.title}
+                    width="100%"
+                    height="315"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : (
+                  <div className="no-video">
+                    <p>⚠️ No hay video disponible</p>
+                    <p>La URL del video está vacía en la base de datos</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="course-actions">
+                <button onClick={() => handleEditCourse(course)}>✏️ Editar</button>
+                <button onClick={() => handleDeleteCourse(course.id)}>🗑️ Eliminar</button>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
