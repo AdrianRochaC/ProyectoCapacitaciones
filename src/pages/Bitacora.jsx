@@ -141,7 +141,7 @@ const Bitacora = () => {
                       <span className="badge">
                         <FaCircle /> {getStatusText(tarea.estado)}
                       </span>
-                      <p>Fecha límite: {tarea.deadline}</p>
+                      <p>Fecha límite: {new Date(tarea.deadline).toLocaleDateString("es-ES")}</p>
                       <small>
                         Creado:{" "}
                         {new Date(tarea.created_at).toLocaleDateString("es-ES")}
