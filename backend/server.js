@@ -686,65 +686,70 @@ app.post('/api/progress', verifyToken, async (req, res) => {
   }
 });
 
-
-// Nueva ruta: Obtener progreso del usuario por curso
-app.get('/api/progress/:courseId', verifyToken, async (req, res) => {
+// Obtener progreso del usuario autenticado
+app.get('/api/progress', verifyToken, async (req, res) => {
   const userId = req.user.id;
-  const { courseId } = req.params;
+  let connection;
 
   try {
-    const connection = await mysql.createConnection(dbConfig);
-
+    connection = await mysql.createConnection(dbConfig);
     const [rows] = await connection.execute(
-      'SELECT * FROM course_progress WHERE user_id = ? AND course_id = ?',
+      `SELECT 
+        cp.course_id,
+        cp.video_completed,
+        cp.evaluation_score,
+        cp.evaluation_total,
+        cp.evaluation_status,
+        cp.attempts_used,
+        cp.updated_at,
+        c.title AS course_title
+      FROM course_progress cp
+      JOIN courses c ON cp.course_id = c.id
+      WHERE cp.user_id = ?`,
+      [userId]
+    );
+
+    console.log("📊 Datos de progreso del usuario:", rows); // LOG PARA CONSOLA
+
+    await connection.end();
+    return res.json({ success: true, progress: rows });
+  } catch (error) {
+    console.error("❌ Error al obtener progreso:", error);
+    if (connection) await connection.end();
+    return res.status(500).json({ success: false, message: "Error al obtener progreso" });
+  }
+});
+
+
+// Ruta para obtener progreso de un curso específico
+app.get('/api/progress/:courseId', verifyToken, async (req, res) => {
+  const { courseId } = req.params;
+  const userId = req.user.id;
+
+  let connection;
+  try {
+    connection = await mysql.createConnection(dbConfig);
+
+    const [progress] = await connection.execute(
+      `SELECT * FROM course_progress WHERE user_id = ? AND course_id = ?`,
       [userId, courseId]
     );
 
     await connection.end();
 
-    if (rows.length === 0) {
-      return res.json({ success: true, progress: null });
+    if (progress.length === 0) {
+      return res.status(404).json({ success: false, message: 'No hay progreso registrado para este curso.' });
     }
 
-    res.json({ success: true, progress: rows[0] });
+    return res.json({ success: true, progress: progress[0] });
+
   } catch (error) {
-    console.error('Error al obtener progreso:', error);
-    res.status(500).json({ success: false, message: 'Error interno del servidor' });
+    console.error('❌ Error en /api/progress/:courseId:', error.message);
+    if (connection) await connection.end();
+    return res.status(500).json({ success: false, message: 'Error interno del servidor.' });
   }
 });
 
-// Obtener progreso de todos los usuarios (solo para admin)
-app.get('/api/progress/all', verifyToken, async (req, res) => {
-  const { rol } = req.user;
-  if (rol !== 'admin') {
-    return res.status(403).json({ success: false, message: 'Acceso no autorizado' });
-  }
-
-  try {
-    const connection = await mysql.createConnection(dbConfig);
-
-    const [rows] = await connection.execute(`
-      SELECT 
-        u.id as userId, u.nombre, u.email, u.rol,
-        c.title as curso,
-        cp.video_completed, cp.evaluation_score, cp.evaluation_total, cp.evaluation_status, cp.attempts_used
-      FROM course_progress cp
-      JOIN usuarios u ON cp.user_id = u.id
-      JOIN courses c ON cp.course_id = c.id
-      WHERE u.rol != 'admin'
-      ORDER BY u.nombre, c.title
-    `);
-
-    await connection.end();
-    
-    // Protección contra `null`
-    res.json({ success: true, progress: Array.isArray(rows) ? rows : [] });
-
-  } catch (error) {
-    console.error('Error al obtener progreso de todos:', error);
-    res.status(500).json({ success: false, message: 'Error interno del servidor' });
-  }
-});
 
 // 📋 RUTAS DE BITÁCORA
 

@@ -287,3 +287,106 @@
     font-size: 1.25rem;
   }
 }
+.progreso-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.progreso-item {
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-left: 5px solid #3f51b5;
+  border-radius: 10px;
+  padding: 18px 22px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  transition: 0.3s;
+}
+
+.progreso-item:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.progreso-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.estado-evaluacion {
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background-color: #f0f0f0;
+  color: #444;
+}
+
+.estado-verde {
+  background-color: #e0f7e9;
+  color: #2e7d32;
+}
+
+.estado-rojo {
+  background-color: #fdecea;
+  color: #c62828;
+}
+
+.estado-amarillo {
+  background-color: #fff8e1;
+  color: #f9a825;
+}
+
+.progreso-section {
+  margin-top: 10px;
+  position: relative;
+}
+
+.progreso-section label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: #555;
+}
+
+.barra-progreso {
+  width: 100%;
+  height: 10px;
+  background-color: #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.barra-interna {
+  height: 100%;
+  background-color: #3f51b5;
+  transition: width 0.4s ease-in-out;
+  border-radius: 6px 0 0 6px;
+}
+
+.bg-eval {
+  background-color: #e8eaf6;
+}
+
+.barra-eval {
+  background-color: #ff9800;
+}
+
+.porcentaje-label {
+  position: absolute;
+  right: 0;
+  top: -6px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.progreso-meta {
+  margin-top: 12px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #777;
+  flex-wrap: wrap;
+}

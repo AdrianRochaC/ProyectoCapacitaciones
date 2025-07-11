@@ -50,6 +50,13 @@ const DetailPage = () => {
   useEffect(() => {
     if (!course || user.rol === "Admin") return;
 
+    // Solo consultar progreso si el curso fue iniciado
+    const seenBefore = localStorage.getItem(`started_course_${id}`);
+    if (!seenBefore) {
+      setAttemptsLeft(course.attempts);
+      return;
+    }
+
     axios
       .get(`/api/progress/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -66,12 +73,10 @@ const DetailPage = () => {
               total: p.evaluation_total,
             });
           }
-        } else {
-          setAttemptsLeft(course.attempts);
         }
       })
       .catch((err) => {
-        console.error("Error al obtener progreso:", err);
+        console.error("❌ Error al obtener progreso:", err.message);
         setAttemptsLeft(course.attempts);
       });
   }, [course, id, token, user.rol]);
@@ -93,6 +98,12 @@ const DetailPage = () => {
 
   const handleProgress = (state) => {
     setPlayed(state.played);
+
+    if (state.played >= 0.1) {
+      // Marcar que se inició el curso
+      localStorage.setItem(`started_course_${id}`, "true");
+    }
+
     if (state.played >= 0.99 && !videoEnded) {
       setVideoEnded(true);
       axios
@@ -101,14 +112,14 @@ const DetailPage = () => {
           {
             courseId: +id,
             videoCompleted: true,
-            score: score?.score,
-            total: score?.total,
+            score: score?.score ?? null,
+            total: score?.total ?? null,
             status: score
               ? score.score >= Math.ceil(score.total * 0.6)
                 ? "aprobado"
                 : "reprobado"
               : null,
-            attemptsUsed: course.attempts - attemptsLeft,
+            attemptsUsed: (course.attempts - attemptsLeft) ?? 0,
           },
           { headers: { Authorization: `Bearer ${token}` } }
         )
@@ -148,7 +159,7 @@ const DetailPage = () => {
           score: correct,
           total,
           status,
-          attemptsUsed: course.attempts - (attemptsLeft - 1),
+          attemptsUsed: (course.attempts - (attemptsLeft - 1)) ?? 0,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       )
