@@ -746,258 +746,136 @@ app.get('/api/progress/all', verifyToken, async (req, res) => {
   }
 });
 
-// Agregar estas rutas a tu server.js después de las rutas existentes
-
 // 📋 RUTAS DE BITÁCORA
 
-// Obtener todas las tareas de la bitácora
 app.get('/api/bitacora', verifyToken, async (req, res) => {
   try {
     const connection = await mysql.createConnection(dbConfig);
-
     const [rows] = await connection.execute(`
-      SELECT id, titulo, descripcion, estado, created_at, updated_at 
+      SELECT id, titulo, descripcion, estado, asignados, deadline, created_at, updated_at 
       FROM bitacora_global 
       ORDER BY created_at DESC
     `);
-
     await connection.end();
-    
-    res.json({ 
-      success: true, 
-      tareas: Array.isArray(rows) ? rows : [] 
-    });
 
+    res.json({ success: true, tareas: rows || [] });
   } catch (error) {
-    console.error('Error al obtener tareas de bitácora:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error interno del servidor' 
-    });
+    console.error('Error al obtener tareas:', error);
+    res.status(500).json({ success: false, message: 'Error interno del servidor' });
   }
 });
 
-// Crear nueva tarea (solo Admin con mayúscula)
+// Crear tarea (una por usuario asignado)
 app.post('/api/bitacora', verifyToken, async (req, res) => {
   const { rol } = req.user;
-  
-  // Verificar que el rol sea exactamente 'Admin' (con mayúscula)
+  const { titulo, descripcion, estado, asignados, deadline } = req.body;
+
   if (rol !== 'Admin') {
-    return res.status(403).json({ 
-      success: false, 
-      message: 'Solo los administradores pueden crear tareas' 
-    });
-  }
-
-  const { titulo, descripcion, estado } = req.body;
-
-  // Validaciones
-  if (!titulo || !descripcion) {
-    return res.status(400).json({ 
-      success: false, 
-      message: 'Título y descripción son requeridos' 
-    });
-  }
-
-  if (!['rojo', 'amarillo', 'verde'].includes(estado)) {
-    return res.status(400).json({ 
-      success: false, 
-      message: 'Estado inválido' 
-    });
+    return res.status(403).json({ success: false, message: 'Solo los administradores pueden crear tareas' });
   }
 
   try {
     const connection = await mysql.createConnection(dbConfig);
 
-    const [result] = await connection.execute(`
-      INSERT INTO bitacora_global (titulo, descripcion, estado, created_at, updated_at) 
-      VALUES (?, ?, ?, NOW(), NOW())
-    `, [titulo, descripcion, estado]);
-
-    await connection.end();
-
-    res.json({ 
-      success: true, 
-      message: 'Tarea creada exitosamente',
-      id: result.insertId 
-    });
-
-  } catch (error) {
-    console.error('Error al crear tarea:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error interno del servidor' 
-    });
-  }
-});
-
-// Actualizar tarea (solo Admin con mayúscula)
-app.put('/api/bitacora/:id', verifyToken, async (req, res) => {
-  const { rol } = req.user;
-  
-  // Verificar que el rol sea exactamente 'Admin' (con mayúscula)
-  if (rol !== 'Admin') {
-    return res.status(403).json({ 
-      success: false, 
-      message: 'Solo los administradores pueden actualizar tareas' 
-    });
-  }
-
-  const { id } = req.params;
-  const { titulo, descripcion, estado } = req.body;
-
-  // Validaciones
-  if (!titulo || !descripcion) {
-    return res.status(400).json({ 
-      success: false, 
-      message: 'Título y descripción son requeridos' 
-    });
-  }
-
-  if (!['rojo', 'amarillo', 'verde'].includes(estado)) {
-    return res.status(400).json({ 
-      success: false, 
-      message: 'Estado inválido' 
-    });
-  }
-
-  try {
-    const connection = await mysql.createConnection(dbConfig);
-
-    // Verificar si la tarea existe
-    const [existing] = await connection.execute(`
-      SELECT id FROM bitacora_global WHERE id = ?
-    `, [id]);
-
-    if (existing.length === 0) {
-      await connection.end();
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Tarea no encontrada' 
-      });
+    for (const userId of asignados) {
+      await connection.execute(`
+        INSERT INTO bitacora_global (titulo, descripcion, estado, asignados, deadline)
+        VALUES (?, ?, ?, ?, ?)
+      `, [
+        titulo,
+        descripcion,
+        estado || 'rojo',
+        JSON.stringify([userId]),
+        deadline
+      ]);
     }
 
-    // Actualizar la tarea
-    await connection.execute(`
-      UPDATE bitacora_global 
-      SET titulo = ?, descripcion = ?, estado = ?, updated_at = NOW() 
-      WHERE id = ?
-    `, [titulo, descripcion, estado, id]);
-
     await connection.end();
-
-    res.json({ 
-      success: true, 
-      message: 'Tarea actualizada exitosamente' 
-    });
-
+    res.json({ success: true, message: 'Tareas creadas para cada usuario asignado' });
   } catch (error) {
-    console.error('Error al actualizar tarea:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error interno del servidor' 
-    });
+    console.error('❌ Error creando tareas:', error);
+    res.status(500).json({ success: false, message: 'Error interno al crear tarea' });
   }
 });
 
-// Eliminar tarea (solo Admin con mayúscula)
+// Editar tarea (admin: todo, usuario: solo estado si está asignado)
+app.put('/api/bitacora/:id', verifyToken, async (req, res) => {
+  const { rol, id: userId } = req.user;
+  const tareaId = req.params.id;
+  const { titulo, descripcion, estado, asignados, deadline } = req.body;
+
+  try {
+    const connection = await mysql.createConnection(dbConfig);
+
+    const [rows] = await connection.execute(`SELECT * FROM bitacora_global WHERE id = ?`, [tareaId]);
+    if (rows.length === 0) return res.status(404).json({ success: false, message: 'Tarea no encontrada' });
+
+    const tarea = rows[0];
+    const yaVenció = new Date(tarea.deadline) < new Date();
+
+    if (rol === 'Admin') {
+      await connection.execute(`
+        UPDATE bitacora_global 
+        SET titulo = ?, descripcion = ?, estado = ?, asignados = ?, deadline = ?, updated_at = NOW()
+        WHERE id = ?
+      `, [titulo, descripcion, estado, JSON.stringify(asignados), deadline, tareaId]);
+    } else {
+      const asignadosArr = JSON.parse(tarea.asignados || "[]");
+      if (!asignadosArr.includes(userId)) {
+        await connection.end();
+        return res.status(403).json({ success: false, message: 'No tienes permisos para editar esta tarea' });
+      }
+      if (yaVenció) {
+        await connection.end();
+        return res.status(400).json({ success: false, message: 'La tarea ha vencido y no puede ser modificada' });
+      }
+
+      await connection.execute(`
+        UPDATE bitacora_global SET estado = ?, updated_at = NOW() WHERE id = ?
+      `, [estado, tareaId]);
+    }
+
+    await connection.end();
+    res.json({ success: true });
+  } catch (error) {
+    console.error('❌ Error actualizando tarea:', error);
+    res.status(500).json({ success: false, message: 'Error interno del servidor' });
+  }
+});
+
+// Obtener usuarios (para mostrar nombres)
+app.get('/api/usuarios', verifyToken, async (req, res) => {
+  try {
+    const connection = await mysql.createConnection(dbConfig);
+    const [rows] = await connection.execute('SELECT id, nombre FROM usuarios');
+    await connection.end();
+    res.json({ success: true, usuarios: rows });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error al obtener usuarios' });
+  }
+});
+
+
 app.delete('/api/bitacora/:id', verifyToken, async (req, res) => {
   const { rol } = req.user;
-  
-  // Verificar que el rol sea exactamente 'Admin' (con mayúscula)
-  if (rol !== 'Admin') {
-    return res.status(403).json({ 
-      success: false, 
-      message: 'Solo los administradores pueden eliminar tareas' 
-    });
-  }
-
-  const { id } = req.params;
+  if (rol !== 'Admin') return res.status(403).json({ success: false, message: 'Solo Admin puede eliminar' });
 
   try {
     const connection = await mysql.createConnection(dbConfig);
-
-    // Verificar si la tarea existe
-    const [existing] = await connection.execute(`
-      SELECT id FROM bitacora_global WHERE id = ?
-    `, [id]);
-
-    if (existing.length === 0) {
-      await connection.end();
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Tarea no encontrada' 
-      });
-    }
-
-    // Eliminar la tarea
-    await connection.execute(`
-      DELETE FROM bitacora_global WHERE id = ?
-    `, [id]);
-
+    const [result] = await connection.execute(`DELETE FROM bitacora_global WHERE id = ?`, [req.params.id]);
     await connection.end();
 
-    res.json({ 
-      success: true, 
-      message: 'Tarea eliminada exitosamente' 
-    });
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Tarea no encontrada' });
+    }
 
+    res.json({ success: true, message: 'Tarea eliminada' });
   } catch (error) {
     console.error('Error al eliminar tarea:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error interno del servidor' 
-    });
+    res.status(500).json({ success: false, message: 'Error interno del servidor' });
   }
 });
 
-// Obtener estadísticas de la bitácora
-app.get('/api/bitacora/stats', verifyToken, async (req, res) => {
-  try {
-    const connection = await mysql.createConnection(dbConfig);
-
-    const [stats] = await connection.execute(`
-      SELECT 
-        COUNT(*) as total,
-        SUM(CASE WHEN estado = 'rojo' THEN 1 ELSE 0 END) as pendientes,
-        SUM(CASE WHEN estado = 'amarillo' THEN 1 ELSE 0 END) as en_progreso,
-        SUM(CASE WHEN estado = 'verde' THEN 1 ELSE 0 END) as completadas
-      FROM bitacora_global
-    `);
-
-    await connection.end();
-
-    res.json({ 
-      success: true, 
-      stats: stats[0] || { total: 0, pendientes: 0, en_progreso: 0, completadas: 0 }
-    });
-
-  } catch (error) {
-    console.error('Error al obtener estadísticas:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error interno del servidor' 
-    });
-  }
-});
-
-// Ruta adicional para verificar permisos de usuario
-app.get('/api/bitacora/permisos', verifyToken, async (req, res) => {
-  const { rol, nombre } = req.user;
-  
-  res.json({
-    success: true,
-    usuario: nombre,
-    rol: rol,
-    esAdmin: rol === 'Admin',
-    permisos: {
-      crear: rol === 'Admin',
-      editar: rol === 'Admin',
-      eliminar: rol === 'Admin',
-      ver: true
-    }
-  });
-});
 
 
 app.listen(PORT, '0.0.0.0', () => {

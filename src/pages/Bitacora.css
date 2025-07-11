@@ -202,3 +202,107 @@
     padding: 1.2rem;
   }
 }
+
+.estado-select {
+  margin-top: 10px;
+}
+
+.btn-verde {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-verde:hover {
+  background-color: #45a049;
+}
+.usuario-bitacora-columns {
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.usuario-bitacora-column {
+  flex: 1;
+  min-width: 300px;
+}
+
+.usuario-titulo-columna {
+  font-size: 1.2em;
+  margin-bottom: 10px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  text-align: center;
+  color: white;
+  font-weight: bold;
+}
+
+.usuario-rojo {
+  background-color: #e74c3c;
+}
+
+.usuario-amarillo {
+  background-color: #f39c12;
+  color: #222;
+}
+
+.usuario-verde {
+  background-color: #2ecc71;
+}
+
+.tarea-card {
+  background-color: #fefefe;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.badge {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 0.9em;
+  font-weight: bold;
+}
+
+.estado-select {
+  margin-top: 10px;
+}
+.estado-select {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.estado-select label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.estado-select select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #bbb;
+  background-color: #fff;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease;
+  cursor: pointer;
+}
+
+.estado-select select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 4px rgba(52, 152, 219, 0.3);
+}
+
+.estado-select option {
+  font-size: 0.95rem;
+  padding: 4px;
+}

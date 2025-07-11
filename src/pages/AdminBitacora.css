@@ -387,3 +387,35 @@
     padding: 1.5rem;
   }
 }
+
+.bitacora-columns {
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.bitacora-column {
+  flex: 1;
+  min-width: 300px;
+}
+
+.titulo-columna {
+  font-size: 1.2em;
+  margin-bottom: 10px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  color: white;
+  text-align: center;
+}
+
+.status-rojo {
+  background-color: #c0392b;
+}
+.status-amarillo {
+  background-color: #f1c40f;
+  color: black;
+}
+.status-verde {
+  background-color: #27ae60;
+}
