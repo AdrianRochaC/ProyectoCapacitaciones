@@ -750,6 +750,49 @@ app.get('/api/progress/:courseId', verifyToken, async (req, res) => {
   }
 });
 
+// Obtener progreso de todos los usuarios (solo para administradores)
+app.get('/api/progress/all', verifyToken, async (req, res) => {
+  const userId = req.user.id;
+  const userRol = req.user.rol;
+  let connection;
+
+  if (userRol !== 'Admin') {
+    return res.status(403).json({ success: false, message: 'Acceso denegado. Solo administradores.' });
+  }
+
+  try {
+    connection = await mysql.createConnection(dbConfig);
+
+    const [rows] = await connection.execute(
+      `SELECT 
+         u.nombre AS nombre,
+         c.title AS curso,
+         cp.course_id,
+         cp.video_completed,
+         cp.evaluation_score,
+         cp.evaluation_total,
+         cp.evaluation_status,
+         cp.attempts_used,
+         cp.updated_at
+       FROM course_progress cp
+       JOIN users u ON cp.user_id = u.id
+       JOIN courses c ON cp.course_id = c.id
+       ORDER BY cp.updated_at DESC`
+    );
+
+    console.log("📊 Progreso general obtenido:", rows.length, "registros");
+
+    await connection.end();
+    return res.json({ success: true, progress: rows });
+
+  } catch (error) {
+    console.error("❌ Error en /api/progress/all:", error);
+    if (connection) await connection.end();
+    return res.status(500).json({ success: false, message: "Error al obtener el progreso general." });
+  }
+});
+
+
 
 // 📋 RUTAS DE BITÁCORA
 

@@ -1,81 +1,136 @@
-// src/pages/Bitacora.jsx
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import "./Perfil.css"; // reutiliza estilos del perfil
 
 const Dashboard = () => {
-    const [progressData, setProgressData] = useState([]); // array por defecto
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+  const [user, setUser] = useState(null);
+  const [progress, setProgress] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    const token = localStorage.getItem("authToken");
+  useEffect(() => {
+    loadUserData();
+  }, []);
 
-    useEffect(() => {
-        const fetchProgress = async () => {
-            try {
-                console.log("📡 Obteniendo progreso de /api/progress/all...");
-                const response = await axios.get("/api/progress/all", {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
+  const loadUserData = async () => {
+    try {
+      const userData = JSON.parse(localStorage.getItem("user") || "null");
+      const token = localStorage.getItem("authToken");
 
-                const rawData = response.data;
-                const progressList = Array.isArray(rawData?.progress) ? rawData.progress : [];
+      if (userData && token) {
+        setUser(userData);
 
-                if (!Array.isArray(rawData?.progress)) {
-                    console.warn("⚠️ 'progress' no es un array. Se recibió:", rawData?.progress);
-                }
+        const response = await fetch("/api/progress", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-                setProgressData(progressList);
-            } catch (error) {
-                console.error("❌ Error al cargar el progreso:", error);
-                setError("No se pudo cargar el progreso. Verifica tu conexión o el servidor.");
-            } finally {
-                setLoading(false);
-            }
-        };
+        const result = await response.json();
+        if (result.success) {
+          setProgress(result.progress);
+          console.log("📊 Progreso obtenido:", result.progress);
+        }
+      }
 
-        fetchProgress();
-    }, []);
+      setLoading(false);
+    } catch (error) {
+      console.error("❌ Error cargando el progreso:", error);
+      setLoading(false);
+    }
+  };
 
-
-    if (loading) return <p>Cargando progreso...</p>;
-    if (error) return <p style={{ color: "red" }}>❌ {error}</p>;
-    if (!progressData || progressData.length === 0) return <p>No hay progreso registrado aún.</p>;
-
+  if (loading)
     return (
-        <div className="dashboard-container">
-            <h1>📊 Progreso de Usuarios</h1>
-            <div className="dashboard-table">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Curso</th>
-                            <th>Video</th>
-                            <th>Evaluación</th>
-                            <th>Intentos</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {progressData.map((item, index) => (
-                            <tr key={index}>
-                                <td>{item.nombre || "Desconocido"}</td>
-                                <td>{item.curso || "Sin curso"}</td>
-                                <td>{item.video_completed ? "✅" : "❌"}</td>
-                                <td>
-                                    {item.evaluation_status === "aprobado" ? "✅ Aprobado" :
-                                        item.evaluation_status === "reprobado" ? "❌ Reprobado" :
-                                            "⏳ Pendiente"}
-                                    {" "}
-                                    ({item.evaluation_score ?? 0}/{item.evaluation_total ?? 0})
-                                </td>
-                                <td>{item.attempts_used ?? 0}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+      <div className="perfil-container">
+        <div className="loading">Cargando progreso...</div>
+      </div>
     );
+
+  if (!user)
+    return (
+      <div className="perfil-container">
+        <div className="error">No se pudieron cargar los datos del usuario</div>
+      </div>
+    );
+
+  return (
+    <div className="perfil-container">
+      <div className="perfil-header">
+        <h1>📊 Mi Progreso (Vista Dashboard)</h1>
+      </div>
+
+      <div className="perfil-content">
+        {progress.length === 0 ? (
+          <p style={{ fontStyle: "italic" }}>
+            No tienes progreso registrado aún.
+          </p>
+        ) : (
+          <div className="progreso-lista">
+            {progress.map((item, index) => {
+              const videoProgress = item.video_completed ? 100 : 0;
+              const scorePercent =
+                item.evaluation_total > 0
+                  ? ((item.evaluation_score / item.evaluation_total) * 100).toFixed(1)
+                  : "0";
+              const status = item.evaluation_status?.toLowerCase();
+
+              const estadoClase =
+                status === "aprobado"
+                  ? "estado-verde"
+                  : status === "reprobado"
+                  ? "estado-rojo"
+                  : "estado-amarillo";
+
+              const estadoTexto =
+                status === "aprobado"
+                  ? "🟢 Aprobado"
+                  : status === "reprobado"
+                  ? "🔴 Reprobado"
+                  : "🟡 Pendiente";
+
+              return (
+                <div key={index} className="progreso-item">
+                  <div className="progreso-header">
+                    <h3>{item.course_title || `Curso ID ${item.course_id}`}</h3>
+                    <span className={`estado-evaluacion ${estadoClase}`}>{estadoTexto}</span>
+                  </div>
+
+                  <div className="progreso-section">
+                    <label>🎬 Video completado</label>
+                    <div className="barra-progreso">
+                      <div
+                        className="barra-interna"
+                        style={{ width: `${videoProgress}%` }}
+                      ></div>
+                    </div>
+                    <span className="porcentaje-label">{videoProgress}%</span>
+                  </div>
+
+                  <div className="progreso-section">
+                    <label>📊 Evaluación</label>
+                    <div className="barra-progreso bg-eval">
+                      <div
+                        className="barra-interna barra-eval"
+                        style={{ width: `${scorePercent}%` }}
+                      ></div>
+                    </div>
+                    <span className="porcentaje-label">{scorePercent}%</span>
+                  </div>
+
+                  <div className="progreso-meta">
+                    <span>🧠 Intentos usados: {item.attempts_used}</span>
+                    <span>
+                      🕒 Última actualización:{" "}
+                      {new Date(item.updated_at).toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default Dashboard;
