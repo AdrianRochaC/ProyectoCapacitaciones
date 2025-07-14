@@ -49,6 +49,7 @@ const Perfil = () => {
       </div>
 
       <div className="perfil-content">
+
         {/* Información del perfil */}
         <div className="perfil-card">
           <h2>Información Personal</h2>
@@ -69,60 +70,63 @@ const Perfil = () => {
           </div>
         </div>
 
-        <div className="perfil-card">
-  <h2 style={{ marginBottom: '1rem' }}>📈 Progreso de Cursos</h2>
-  {progress.length === 0 ? (
-    <p style={{ fontStyle: 'italic' }}>No tienes progreso registrado aún.</p>
-  ) : (
-    <div className="progreso-lista">
-      {progress.map((item, index) => {
-        const videoProgress = item.video_completed ? 100 : 0;
-        const scorePercent = item.evaluation_total > 0 ? ((item.evaluation_score / item.evaluation_total) * 100).toFixed(1) : '0';
-        const status = item.evaluation_status?.toLowerCase();
+        {/* Progreso solo si no es Admin */}
+        {user.rol !== 'Admin' && (
+          <div className="perfil-card">
+            <h2 style={{ marginBottom: '1rem' }}>📈 Progreso de Cursos</h2>
+            {progress.length === 0 ? (
+              <p style={{ fontStyle: 'italic' }}>No tienes progreso registrado aún.</p>
+            ) : (
+              <div className="progreso-lista">
+                {progress.map((item, index) => {
+                  const videoProgress = item.video_completed ? 100 : 0;
+                  const scorePercent = item.evaluation_total > 0 ? ((item.evaluation_score / item.evaluation_total) * 100).toFixed(1) : '0';
+                  const status = item.evaluation_status?.toLowerCase();
 
-        const estadoClase =
-          status === 'aprobado' ? 'estado-verde' :
-          status === 'reprobado' ? 'estado-rojo' :
-          'estado-amarillo';
+                  const estadoClase =
+                    status === 'aprobado' ? 'estado-verde' :
+                    status === 'reprobado' ? 'estado-rojo' :
+                    'estado-amarillo';
 
-        const estadoTexto =
-          status === 'aprobado' ? '🟢 Aprobado' :
-          status === 'reprobado' ? '🔴 Reprobado' :
-          '🟡 Pendiente';
+                  const estadoTexto =
+                    status === 'aprobado' ? '🟢 Aprobado' :
+                    status === 'reprobado' ? '🔴 Reprobado' :
+                    '🟡 Pendiente';
 
-        return (
-          <div key={index} className="progreso-item">
-            <div className="progreso-header">
-              <h3>{item.course_title || `Curso ID ${item.course_id}`}</h3>
-              <span className={`estado-evaluacion ${estadoClase}`}>{estadoTexto}</span>
-            </div>
+                  return (
+                    <div key={index} className="progreso-item">
+                      <div className="progreso-header">
+                        <h3>{item.course_title || `Curso ID ${item.course_id}`}</h3>
+                        <span className={`estado-evaluacion ${estadoClase}`}>{estadoTexto}</span>
+                      </div>
 
-            <div className="progreso-section">
-              <label>🎬 Video completado</label>
-              <div className="barra-progreso">
-                <div className="barra-interna" style={{ width: `${videoProgress}%` }}></div>
+                      <div className="progreso-section">
+                        <label>🎬 Video completado</label>
+                        <div className="barra-progreso">
+                          <div className="barra-interna" style={{ width: `${videoProgress}%` }}></div>
+                        </div>
+                        <span className="porcentaje-label">{videoProgress}%</span>
+                      </div>
+
+                      <div className="progreso-section">
+                        <label>📊 Evaluación</label>
+                        <div className="barra-progreso bg-eval">
+                          <div className="barra-interna barra-eval" style={{ width: `${scorePercent}%` }}></div>
+                        </div>
+                        <span className="porcentaje-label">{scorePercent}%</span>
+                      </div>
+
+                      <div className="progreso-meta">
+                        <span>🧠 Intentos usados: {item.attempts_used}</span>
+                        <span>🕒 Última actualización: {new Date(item.updated_at).toLocaleString()}</span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-              <span className="porcentaje-label">{videoProgress}%</span>
-            </div>
-
-            <div className="progreso-section">
-              <label>📊 Evaluación</label>
-              <div className="barra-progreso bg-eval">
-                <div className="barra-interna barra-eval" style={{ width: `${scorePercent}%` }}></div>
-              </div>
-              <span className="porcentaje-label">{scorePercent}%</span>
-            </div>
-
-            <div className="progreso-meta">
-              <span>🧠 Intentos usados: {item.attempts_used}</span>
-              <span>🕒 Última actualización: {new Date(item.updated_at).toLocaleString()}</span>
-            </div>
+            )}
           </div>
-        );
-      })}
-    </div>
-  )}
-</div>
+        )}
 
 
         {/* Nota informativa */}

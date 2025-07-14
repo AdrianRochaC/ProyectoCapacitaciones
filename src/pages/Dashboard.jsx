@@ -1,134 +1,149 @@
+
 import React, { useEffect, useState } from "react";
-import "./Perfil.css"; // reutiliza estilos del perfil
+import axios from "axios";
+import "./Dashboard.css";
+
 
 const Dashboard = () => {
-  const [user, setUser] = useState(null);
   const [progress, setProgress] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [cargoFiltro, setCargoFiltro] = useState('todos');
+
 
   useEffect(() => {
-    loadUserData();
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+    // Obtener usuarios y progreso en paralelo
+    Promise.all([
+      axios.get("/api/users", { headers: { Authorization: `Bearer ${token}` } }),
+      axios.get("/api/progress/all", { headers: { Authorization: `Bearer ${token}` } })
+    ])
+      .then(([usersRes, progressRes]) => {
+        if (usersRes.data.success && progressRes.data.success) {
+          setUsers(usersRes.data.users);
+          setProgress(progressRes.data.progress);
+        } else {
+          alert("❌ Error al cargar usuarios o progreso");
+        }
+      })
+      .catch((err) => {
+        alert("❌ No se pudo cargar usuarios o progreso");
+      })
+      .finally(() => setLoading(false));
   }, []);
 
-  const loadUserData = async () => {
-    try {
-      const userData = JSON.parse(localStorage.getItem("user") || "null");
-      const token = localStorage.getItem("authToken");
 
-      if (userData && token) {
-        setUser(userData);
+  // Agrupar progreso por usuario (nombre)
+  const progressByUser = progress.reduce((acc, item) => {
+    if (!acc[item.nombre]) acc[item.nombre] = [];
+    acc[item.nombre].push(item);
+    return acc;
+  }, {});
 
-        const response = await fetch("/api/progress", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const result = await response.json();
-        if (result.success) {
-          setProgress(result.progress);
-          console.log("📊 Progreso obtenido:", result.progress);
-        }
-      }
-
-      setLoading(false);
-    } catch (error) {
-      console.error("❌ Error cargando el progreso:", error);
-      setLoading(false);
-    }
-  };
-
-  if (loading)
-    return (
-      <div className="perfil-container">
-        <div className="loading">Cargando progreso...</div>
-      </div>
-    );
-
-  if (!user)
-    return (
-      <div className="perfil-container">
-        <div className="error">No se pudieron cargar los datos del usuario</div>
-      </div>
-    );
+  // Filtrar usuarios: solo los que no son admin ni Admin
+  let nonAdminUsers = users.filter(u => u.rol !== 'admin' && u.rol !== 'Admin');
+  // Filtro por cargo
+  if (cargoFiltro !== 'todos') {
+    nonAdminUsers = nonAdminUsers.filter(u => u.rol === cargoFiltro);
+  }
 
   return (
-    <div className="perfil-container">
-      <div className="perfil-header">
-        <h1>📊 Mi Progreso (Vista Dashboard)</h1>
+    <div className="dashboard-container-bg">
+      <div className="dashboard-header">
+        <h1>Panel de Progreso General</h1>
+        <div className="dashboard-description">
+          Visualiza el avance de todos los usuarios en los cursos de la plataforma. <br />
+          <span className="dashboard-subtitle">Solo visible para administradores.</span>
+        </div>
+        {/* Filtro de cargos */}
+        <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem', textAlign: 'center' }}>
+          <label style={{ fontWeight: 500, marginRight: 8 }}>Filtrar por cargo:</label>
+          <select value={cargoFiltro} onChange={e => setCargoFiltro(e.target.value)} style={{ padding: '0.4rem 1rem', borderRadius: 8, border: '1.5px solid #bcd2f7', fontSize: '1rem' }}>
+            <option value="todos">Todos</option>
+            {[...new Set(users.filter(u => u.rol !== 'admin' && u.rol !== 'Admin').map(u => u.rol))].map(rol => (
+              <option key={rol} value={rol}>{rol.charAt(0).toUpperCase() + rol.slice(1)}</option>
+            ))}
+          </select>
+        </div>
       </div>
-
-      <div className="perfil-content">
-        {progress.length === 0 ? (
-          <p style={{ fontStyle: "italic" }}>
-            No tienes progreso registrado aún.
-          </p>
-        ) : (
-          <div className="progreso-lista">
-            {progress.map((item, index) => {
-              const videoProgress = item.video_completed ? 100 : 0;
-              const scorePercent =
-                item.evaluation_total > 0
-                  ? ((item.evaluation_score / item.evaluation_total) * 100).toFixed(1)
-                  : "0";
-              const status = item.evaluation_status?.toLowerCase();
-
-              const estadoClase =
-                status === "aprobado"
-                  ? "estado-verde"
-                  : status === "reprobado"
-                  ? "estado-rojo"
-                  : "estado-amarillo";
-
-              const estadoTexto =
-                status === "aprobado"
-                  ? "🟢 Aprobado"
-                  : status === "reprobado"
-                  ? "🔴 Reprobado"
-                  : "🟡 Pendiente";
-
-              return (
-                <div key={index} className="progreso-item">
-                  <div className="progreso-header">
-                    <h3>{item.course_title || `Curso ID ${item.course_id}`}</h3>
-                    <span className={`estado-evaluacion ${estadoClase}`}>{estadoTexto}</span>
-                  </div>
-
-                  <div className="progreso-section">
-                    <label>🎬 Video completado</label>
-                    <div className="barra-progreso">
-                      <div
-                        className="barra-interna"
-                        style={{ width: `${videoProgress}%` }}
-                      ></div>
-                    </div>
-                    <span className="porcentaje-label">{videoProgress}%</span>
-                  </div>
-
-                  <div className="progreso-section">
-                    <label>📊 Evaluación</label>
-                    <div className="barra-progreso bg-eval">
-                      <div
-                        className="barra-interna barra-eval"
-                        style={{ width: `${scorePercent}%` }}
-                      ></div>
-                    </div>
-                    <span className="porcentaje-label">{scorePercent}%</span>
-                  </div>
-
-                  <div className="progreso-meta">
-                    <span>🧠 Intentos usados: {item.attempts_used}</span>
-                    <span>
-                      🕒 Última actualización:{" "}
-                      {new Date(item.updated_at).toLocaleString()}
-                    </span>
-                  </div>
+      {loading ? (
+        <div className="dashboard-loading">Cargando progreso...</div>
+      ) : nonAdminUsers.length === 0 ? (
+        <div className="dashboard-error">No hay usuarios para mostrar.</div>
+      ) : (
+        <div className="dashboard-users-grid">
+          {nonAdminUsers.map((user, idx) => {
+            const cursos = progressByUser[user.nombre] || [];
+            return (
+              <div key={user.id} className="dashboard-user-group">
+                <div className="dashboard-user-header" style={{ justifyContent: 'space-between', display: 'flex', alignItems: 'center' }}>
+                  <span className="dashboard-user-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="#3f51b5" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="12" cy="8" r="4" />
+                      <path d="M4 20c0-3.3 2.7-6 6-6h4c3.3 0 6 2.7 6 6" />
+                    </svg>
+                  </span>
+                  <h2 style={{ margin: 0, fontWeight: 700, fontSize: '1.18rem', color: '#2a3b4d', flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.nombre}</h2>
+                  <span className="dashboard-user-role" style={{ marginLeft: 8, fontSize: '0.98rem', fontWeight: 600, background: '#eaf1fa', color: '#3f51b5', borderRadius: 7, padding: '2px 10px', border: '1px solid #d2e3f7', display: 'inline-flex', alignItems: 'center', letterSpacing: '0.01em' }}>
+                    {user.rol.charAt(0).toUpperCase() + user.rol.slice(1)}
+                  </span>
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+                <div className="dashboard-user-count">
+                  {cursos.length > 0 ? `${cursos.length} curso${cursos.length > 1 ? 's' : ''}` : 'Sin progreso aún'}
+                </div>
+                <div className="dashboard-grid">
+                  {cursos.length > 0 ? cursos.map((item, cidx) => {
+                    const videoProgress = item.video_completed ? 100 : 0;
+                    const scorePercent =
+                      item.evaluation_total > 0 && item.evaluation_score !== null
+                        ? ((item.evaluation_score / item.evaluation_total) * 100).toFixed(1)
+                        : '0';
+                    const status = item.evaluation_status?.toLowerCase();
+                    const estadoClase =
+                      status === 'aprobado' ? 'estado-verde' :
+                        status === 'reprobado' ? 'estado-rojo' :
+                          'estado-amarillo';
+                    const estadoTexto =
+                      status === 'aprobado' ? '🟢 Aprobado' :
+                        status === 'reprobado' ? '🔴 Reprobado' :
+                          '🟡 Pendiente';
+                    return (
+                      <div key={cidx} className="dashboard-curso-card">
+                        <div className="dashboard-progreso-header">
+                          <h3>{item.curso || `Curso ID ${item.course_id}`}</h3>
+                          <span className={`dashboard-estado-evaluacion dashboard-estado-${estadoClase.split('-')[1]}`}>{estadoTexto}</span>
+                        </div>
+                        <div className="dashboard-progreso-section">
+                          <label>🎬 Video completado</label>
+                          <div className="dashboard-barra-progreso">
+                            <div className="dashboard-barra-interna" style={{ width: `${videoProgress}%` }}></div>
+                          </div>
+                          <span className="dashboard-porcentaje-label">{videoProgress}%</span>
+                        </div>
+                        <div className="dashboard-progreso-section">
+                          <label>📊 Evaluación</label>
+                          <div className="dashboard-barra-progreso dashboard-bg-eval">
+                            <div className="dashboard-barra-interna dashboard-barra-eval" style={{ width: `${scorePercent}%` }}></div>
+                          </div>
+                          <span className="dashboard-porcentaje-label">{scorePercent}%</span>
+                        </div>
+                        <div className="dashboard-progreso-meta">
+                          <span>🧠 Intentos usados: {item.attempts_used ?? '-'}</span>
+                          <span>🕒 Última actualización: {item.updated_at ? new Date(item.updated_at).toLocaleString() : '-'}</span>
+                        </div>
+                      </div>
+                    );
+                  }) : <div className="dashboard-error">Este usuario aún no tiene progreso registrado.</div>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
