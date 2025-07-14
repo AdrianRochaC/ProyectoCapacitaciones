@@ -1,0 +1,28 @@
+/* Animaciones para notificaciones y campana */
+@keyframes notifFadeIn {
+  0% { opacity: 0; transform: translateY(-16px) scale(0.98); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes notifCardIn {
+  0% { opacity: 0; transform: translateX(32px) scale(0.96); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+.notif-bell:active {
+  transform: scale(0.93) !important;
+  box-shadow: 0 1px 4px 0 rgba(44,62,80,0.10) !important;
+}
+
+.notif-dropdown {
+  animation: notifFadeIn 0.35s cubic-bezier(.4,0,.2,1);
+}
+
+.notif-unread {
+  animation: notifCardIn 0.4s cubic-bezier(.4,0,.2,1);
+  border-left: 5px solid #2962ff;
+}
+
+.notif-count {
+  animation: notifFadeIn 0.3s cubic-bezier(.4,0,.2,1);
+}

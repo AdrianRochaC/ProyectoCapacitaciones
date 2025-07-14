@@ -29,11 +29,11 @@ const dbConfig = {
 // Middleware para verificar JWT
 const verifyToken = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
-  
+
   if (!token) {
-    return res.status(401).json({ 
-      success: false, 
-      message: 'Token no proporcionado' 
+    return res.status(401).json({
+      success: false,
+      message: 'Token no proporcionado'
     });
   }
 
@@ -42,12 +42,55 @@ const verifyToken = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    return res.status(401).json({ 
-      success: false, 
-      message: 'Token inválido' 
+    return res.status(401).json({
+      success: false,
+      message: 'Token inválido'
     });
   }
 };
+
+// === RUTAS DE NOTIFICACIONES ===
+// Obtener notificaciones del usuario autenticado
+app.get('/api/notifications', verifyToken, async (req, res) => {
+  try {
+    const connection = await mysql.createConnection(dbConfig);
+    const [rows] = await connection.execute(
+      'SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC',
+      [req.user.id]
+    );
+    await connection.end();
+    res.json({ success: true, notifications: rows });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Error al obtener notificaciones' });
+  }
+});
+
+// Marcar notificación como leída
+app.post('/api/notifications/:id/read', verifyToken, async (req, res) => {
+  try {
+    const connection = await mysql.createConnection(dbConfig);
+    await connection.execute('UPDATE notifications SET is_read = 1 WHERE id = ?', [req.params.id]);
+    await connection.end();
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Error al marcar como leída' });
+  }
+});
+
+// Obtener cantidad de no leídas
+app.get('/api/notifications/unread/count', verifyToken, async (req, res) => {
+  try {
+    const connection = await mysql.createConnection(dbConfig);
+    const [rows] = await connection.execute(
+      'SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND is_read = 0',
+      [req.user.id]
+    );
+    await connection.end();
+    res.json({ success: true, count: rows[0]?.count || 0 });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Error al contar no leídas' });
+  }
+});
 
 // Ruta de prueba
 app.get('/api/test', (req, res) => {
@@ -141,71 +184,71 @@ app.post('/api/login', async (req, res) => {
 app.post('/api/register', async (req, res) => {
   try {
     const { nombre, email, password, rol } = req.body;
-    
+
     // Validaciones básicas
     if (!nombre || !email || !password || !rol) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: 'Todos los campos son requeridos' 
+        message: 'Todos los campos son requeridos'
       });
     }
 
     // Validar formato de email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: 'Formato de email inválido' 
+        message: 'Formato de email inválido'
       });
     }
 
     // Validar longitud de contraseña
     if (password.length < 6) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: 'La contraseña debe tener al menos 6 caracteres' 
+        message: 'La contraseña debe tener al menos 6 caracteres'
       });
     }
 
     // Conectar a la base de datos
     const connection = await mysql.createConnection(dbConfig);
-    
+
     // Verificar si el email ya existe
     const [existingUser] = await connection.execute(
       'SELECT id FROM usuarios WHERE email = ?',
       [email]
     );
-    
+
     if (existingUser.length > 0) {
       await connection.end();
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: 'El email ya está registrado' 
+        message: 'El email ya está registrado'
       });
     }
-    
+
     // Encriptar contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
-    
+
     // Insertar usuario (activo por defecto)
     const [result] = await connection.execute(
       'INSERT INTO usuarios (nombre, email, password, rol, activo) VALUES (?, ?, ?, ?, ?)',
       [nombre, email, hashedPassword, rol, true]
     );
-    
+
     await connection.end();
-    
-    res.status(201).json({ 
+
+    res.status(201).json({
       success: true,
       message: 'Usuario registrado exitosamente',
       userId: result.insertId
     });
-    
+
   } catch (error) {
     console.error('Error en registro:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      message: 'Error interno del servidor' 
+      message: 'Error interno del servidor'
     });
   }
 });
@@ -216,25 +259,25 @@ app.post('/api/register', async (req, res) => {
 app.get('/api/users', verifyToken, async (req, res) => {
   try {
     const connection = await mysql.createConnection(dbConfig);
-    
+
     // Obtener todos los usuarios sin las contraseñas
     const [users] = await connection.execute(
-  `SELECT id, nombre, email, rol, activo FROM usuarios ORDER BY nombre`
-);
+      `SELECT id, nombre, email, rol, activo FROM usuarios ORDER BY nombre`
+    );
 
-    
+
     await connection.end();
-    
-    res.json({ 
+
+    res.json({
       success: true,
       users: users
     });
-    
+
   } catch (error) {
     console.error('Error al obtener usuarios:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      message: 'Error interno del servidor' 
+      message: 'Error interno del servidor'
     });
   }
 });
@@ -244,65 +287,65 @@ app.put('/api/users/:id', verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { nombre, email, rol, activo } = req.body;
-    
+
     // Validaciones básicas
     if (!nombre || !email || !rol) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: 'Nombre, email y rol son requeridos' 
+        message: 'Nombre, email y rol son requeridos'
       });
     }
 
     // Validar formato de email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: 'Formato de email inválido' 
+        message: 'Formato de email inválido'
       });
     }
 
     const connection = await mysql.createConnection(dbConfig);
-    
+
     // Verificar si el email ya existe en otro usuario
     const [existingUser] = await connection.execute(
       'SELECT id FROM usuarios WHERE email = ? AND id != ?',
       [email, id]
     );
-    
+
     if (existingUser.length > 0) {
       await connection.end();
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: 'El email ya está siendo usado por otro usuario' 
+        message: 'El email ya está siendo usado por otro usuario'
       });
     }
-    
+
     // Actualizar usuario
     const [result] = await connection.execute(
       'UPDATE usuarios SET nombre = ?, email = ?, rol = ?, activo = ? WHERE id = ?',
       [nombre, email, rol, activo, id]
     );
-    
+
     await connection.end();
-    
+
     if (result.affectedRows === 0) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: 'Usuario no encontrado' 
+        message: 'Usuario no encontrado'
       });
     }
-    
-    res.json({ 
+
+    res.json({
       success: true,
       message: 'Usuario actualizado exitosamente'
     });
-    
+
   } catch (error) {
     console.error('Error al actualizar usuario:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      message: 'Error interno del servidor' 
+      message: 'Error interno del servidor'
     });
   }
 });
@@ -312,45 +355,45 @@ app.put('/api/users/:id/reset-password', verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { newPassword } = req.body;
-    
+
     // Validar longitud de contraseña
     if (!newPassword || newPassword.length < 6) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: 'La contraseña debe tener al menos 6 caracteres' 
+        message: 'La contraseña debe tener al menos 6 caracteres'
       });
     }
 
     const connection = await mysql.createConnection(dbConfig);
-    
+
     // Encriptar nueva contraseña
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    
+
     // Actualizar contraseña
     const [result] = await connection.execute(
       'UPDATE usuarios SET password = ? WHERE id = ?',
       [hashedPassword, id]
     );
-    
+
     await connection.end();
-    
+
     if (result.affectedRows === 0) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: 'Usuario no encontrado' 
+        message: 'Usuario no encontrado'
       });
     }
-    
-    res.json({ 
+
+    res.json({
       success: true,
       message: 'Contraseña actualizada exitosamente'
     });
-    
+
   } catch (error) {
     console.error('Error al cambiar contraseña:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      message: 'Error interno del servidor' 
+      message: 'Error interno del servidor'
     });
   }
 });
@@ -360,34 +403,34 @@ app.put('/api/users/:id/toggle-status', verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { activo } = req.body;
-    
+
     const connection = await mysql.createConnection(dbConfig);
-    
+
     // Actualizar estado del usuario
     const [result] = await connection.execute(
       'UPDATE usuarios SET activo = ? WHERE id = ?',
       [activo, id]
     );
-    
+
     await connection.end();
-    
+
     if (result.affectedRows === 0) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: 'Usuario no encontrado' 
+        message: 'Usuario no encontrado'
       });
     }
-    
-    res.json({ 
+
+    res.json({
       success: true,
       message: `Usuario ${activo ? 'activado' : 'desactivado'} exitosamente`
     });
-    
+
   } catch (error) {
     console.error('Error al cambiar estado:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      message: 'Error interno del servidor' 
+      message: 'Error interno del servidor'
     });
   }
 });
@@ -396,33 +439,33 @@ app.put('/api/users/:id/toggle-status', verifyToken, async (req, res) => {
 app.get('/api/profile/:id', verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     const connection = await mysql.createConnection(dbConfig);
-    
+
     const [users] = await connection.execute(
       'SELECT id, nombre, email, rol, activo FROM usuarios WHERE id = ?',
       [id]
     );
-    
+
     await connection.end();
-    
+
     if (users.length === 0) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: 'Usuario no encontrado' 
+        message: 'Usuario no encontrado'
       });
     }
-    
-    res.json({ 
+
+    res.json({
       success: true,
-      user: users[0] 
+      user: users[0]
     });
-    
+
   } catch (error) {
     console.error('Error al obtener perfil:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      message: 'Error interno del servidor' 
+      message: 'Error interno del servidor'
     });
   }
 });
@@ -457,6 +500,18 @@ app.post('/api/courses', verifyToken, async (req, res) => {
         `INSERT INTO questions (course_id, question, option_1, option_2, option_3, option_4, correct_index)
          VALUES (?, ?, ?, ?, ?, ?, ?)`,
         [courseId, question, options[0], options[1], options[2], options[3], correctIndex]
+      );
+    }
+
+    // === NOTIFICAR A USUARIOS DEL ROL ===
+    const [usersToNotify] = await connection.execute(
+      'SELECT id FROM usuarios WHERE rol = ? AND activo = 1',
+      [role]
+    );
+    for (const user of usersToNotify) {
+      await connection.execute(
+        'INSERT INTO notifications (user_id, message, type, data) VALUES (?, ?, ?, ?)',
+        [user.id, `Se ha creado un nuevo curso: ${title}`, 'curso_nuevo', JSON.stringify({ courseId })]
       );
     }
 
@@ -606,10 +661,10 @@ app.put('/api/courses/:id', verifyToken, async (req, res) => {
 
     await connection.end();
 
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       message: 'Curso actualizado exitosamente',
-      updatedCourseId: id 
+      updatedCourseId: id
     });
   } catch (error) {
     console.error('Error al actualizar curso:', error);
@@ -661,6 +716,28 @@ app.post('/api/progress', verifyToken, async (req, res) => {
 
     // Log para depuración
     console.log('✅ Progreso guardado correctamente para usuario:', userId, 'curso:', courseId);
+
+    // === NOTIFICAR AL ADMIN SI SE COMPLETA ===
+    if (videoCompleted || status === 'aprobado' || status === 'reprobado') {
+      const [admins] = await connection.execute(
+        "SELECT id FROM usuarios WHERE rol = 'Admin' AND activo = 1"
+      );
+      const [[userRow]] = await connection.execute('SELECT nombre FROM usuarios WHERE id = ?', [userId]);
+      const [[courseRow]] = await connection.execute('SELECT title FROM courses WHERE id = ?', [courseId]);
+      for (const admin of admins) {
+        // Verificar si ya existe una notificación igual para este admin, usuario y curso
+        const [existingNotif] = await connection.execute(
+          'SELECT id FROM notifications WHERE user_id = ? AND type = ? AND JSON_EXTRACT(data, "$ .userId") = ? AND JSON_EXTRACT(data, "$ .courseId") = ?',
+          [admin.id, 'curso_completado', userId, courseId]
+        );
+        if (existingNotif.length === 0) {
+          await connection.execute(
+            'INSERT INTO notifications (user_id, message, type, data) VALUES (?, ?, ?, ?)',
+            [admin.id, `El usuario ${userRow.nombre} ha completado o actualizado el curso: ${courseRow.title}`, 'curso_completado', JSON.stringify({ userId, courseId })]
+          );
+        }
+      }
+    }
 
     // Intentar cerrar conexión sin romper todo si falla
     try {
@@ -840,6 +917,11 @@ app.post('/api/bitacora', verifyToken, async (req, res) => {
         JSON.stringify([userId]),
         deadline
       ]);
+      // Notificar al usuario asignado
+      await connection.execute(
+        'INSERT INTO notifications (user_id, message, type, data) VALUES (?, ?, ?, ?)',
+        [userId, `Tienes una nueva tarea: ${titulo}`, 'tarea_nueva', JSON.stringify({ titulo, descripcion, deadline })]
+      );
     }
 
     await connection.end();
@@ -885,6 +967,17 @@ app.put('/api/bitacora/:id', verifyToken, async (req, res) => {
       await connection.execute(`
         UPDATE bitacora_global SET estado = ?, updated_at = NOW() WHERE id = ?
       `, [estado, tareaId]);
+    }
+    // Si la tarea se marca como completa, notificar a los admins
+    if (estado === 'verde') {
+      const [admins] = await connection.execute("SELECT id FROM usuarios WHERE rol = 'Admin' AND activo = 1");
+      const [[userRow]] = await connection.execute('SELECT nombre FROM usuarios WHERE id = ?', [userId]);
+      for (const admin of admins) {
+        await connection.execute(
+          'INSERT INTO notifications (user_id, message, type, data) VALUES (?, ?, ?, ?)',
+          [admin.id, `El usuario ${userRow.nombre} ha marcado como completada la tarea: ${tarea.titulo}`, 'tarea_completada', JSON.stringify({ tareaId })]
+        );
+      }
     }
 
     await connection.end();
