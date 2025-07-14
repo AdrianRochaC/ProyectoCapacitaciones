@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .dashboard-user-role {
   display: inline-flex;
   align-items: center;
@@ -236,6 +237,8 @@
 .dashboard-user-card:hover {
   box-shadow: 0 6px 18px rgba(63,81,181,0.13);
 }
+=======
+>>>>>>> b759618499ce49bf81cf9f18afd3a02ffdb88646
 .dashboard-container {
   padding: 2rem;
   max-width: 960px;
@@ -285,6 +288,7 @@
   margin-top: 2rem;
   font-size: 1.1rem;
 }
+<<<<<<< HEAD
 .perfil-header {
   padding: 2rem 2rem 0 2rem;
   max-width: 960px;
@@ -361,3 +365,5 @@
   color: #e74c3c;
   padding: 3rem 0;
 }
+=======
+>>>>>>> b759618499ce49bf81cf9f18afd3a02ffdb88646
