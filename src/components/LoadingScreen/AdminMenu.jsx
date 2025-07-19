@@ -1,5 +1,5 @@
 // components/AdminMenu.jsx
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   BookOpenCheck,
   ClipboardList,
@@ -16,6 +16,7 @@ const AdminMenu = () => {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user') || 'null');
   const token = localStorage.getItem('authToken');
+  const location = useLocation();
 
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -56,6 +57,13 @@ const AdminMenu = () => {
     <nav className="main-menu">
       <div className="menu-links">
         <ul>
+          {location.pathname !== '/home' && (
+            <li>
+              <Link to="/home">
+                <BookOpenCheck size={18} /> <span>Home</span>
+              </Link>
+            </li>
+          )}
           <li>
             <Link to="/admin-courses">
               <BookOpenCheck size={18} /> <span>Gestión Cursos</span>

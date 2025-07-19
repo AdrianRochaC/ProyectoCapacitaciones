@@ -28,12 +28,8 @@ const Login = () => {
 
         alert("✅ Bienvenido " + result.user.nombre);
 
-        // Redirigir por rol
-        if (result.user.rol === "Admin" || result.user.rol === "Administrador") {
-          navigate("/admin-courses");
-        } else {
-          navigate("/coursespage");
-        }
+        // Redirigir siempre a Home
+        navigate("/home");
       } else {
         alert("❌ " + (result.message || "Credenciales incorrectas"));
       }

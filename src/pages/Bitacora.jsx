@@ -130,7 +130,7 @@ const Bitacora = () => {
                   return (
                     <div
                       key={tarea.id}
-                      className={`tarea-card ${getColorClass(tarea.estado)}`}
+                      className={`usuario-tarea-card usuario-${getColorClass(tarea.estado)}`}
                     >
                       <h3>{tarea.titulo}</h3>
                       <p>{tarea.descripcion}</p>
@@ -138,7 +138,7 @@ const Bitacora = () => {
                         <strong>Asignado a:</strong>{" "}
                         {getNombreUsuario(asignadoId)}
                       </p>
-                      <span className="badge">
+                      <span className="usuario-badge">
                         <FaCircle /> {getStatusText(tarea.estado)}
                       </span>
                       <p>Fecha límite: {new Date(tarea.deadline).toLocaleDateString("es-ES")}</p>

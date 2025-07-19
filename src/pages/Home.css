@@ -1,0 +1,102 @@
+.home-dashboard-bg {
+  background: linear-gradient(120deg, #f8fafc 60%, #eaf1fa 100%);
+  min-height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+}
+.home-dashboard-title {
+  text-align: center;
+  color: #203a43;
+  margin-bottom: 2.5rem;
+  padding-top: 3.5rem;
+}
+.home-dashboard-title h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin-bottom: 0.5rem;
+}
+.home-dashboard-title p {
+  font-size: 1.18rem;
+  color: #5a6b7b;
+  margin-top: 0.2rem;
+}
+.home-dashboard-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.5rem 2.5rem;
+  margin: 0 auto;
+  justify-content: center;
+  max-width: 1100px;
+  padding-bottom: 3rem;
+}
+.home-dashboard-card {
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 4px 24px 0 rgba(60,72,88,0.13);
+  padding: 2.7rem 2.2rem 2.2rem 2.2rem;
+  min-width: 260px;
+  max-width: 340px;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.3rem;
+  transition: box-shadow 0.22s, border-color 0.22s, transform 0.22s;
+  border: 1.5px solid #e3eaf2;
+  position: relative;
+  cursor: pointer;
+  animation: fadeInCard 0.7s cubic-bezier(.4,0,.2,1);
+}
+.home-dashboard-card:hover {
+  box-shadow: 0 12px 36px 0 rgba(44,62,80,0.18);
+  border-color: #43e97b;
+  transform: translateY(-4px) scale(1.025);
+}
+.home-dashboard-icon {
+  margin-bottom: 0.7rem;
+  font-size: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.home-dashboard-title-card {
+  font-size: 1.32rem;
+  font-weight: 700;
+  color: #203a43;
+  margin-bottom: 0.2rem;
+  text-align: center;
+  letter-spacing: -0.5px;
+}
+.home-dashboard-desc {
+  font-size: 1.08rem;
+  color: #5a6b7b;
+  text-align: center;
+  margin-bottom: 0.2rem;
+  font-weight: 400;
+}
+@media (max-width: 900px) {
+  .home-dashboard-cards {
+    flex-direction: column;
+    gap: 2rem 0;
+    padding: 0 1rem 2rem 1rem;
+  }
+  .home-dashboard-card {
+    min-width: 0;
+    max-width: 100%;
+    padding: 2rem 1.2rem 1.5rem 1.2rem;
+  }
+}
+@keyframes fadeInCard {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+} 

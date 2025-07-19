@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./AdminCoursesPage.css";
+import { useNavigate } from "react-router-dom";
+import { BookOpenCheck, ClipboardList, Users2, BarChart3, User } from "lucide-react";
 
 const AdminCoursesPage = () => {
   const [title, setTitle] = useState("");
@@ -17,6 +19,7 @@ const AdminCoursesPage = () => {
 
   const API_URL = "/api";
   const token = localStorage.getItem("authToken");
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchCourses();
@@ -223,6 +226,45 @@ const AdminCoursesPage = () => {
 
     setShowModal(true);
   };
+
+  // --- DASHBOARD VISUAL ---
+  const dashboardCards = [
+    {
+      title: "Gestión de Cursos",
+      icon: <BookOpenCheck size={36} color="#2962ff" />,
+      description: "Crea, edita y elimina cursos y evaluaciones.",
+      route: "/admin-courses",
+      enabled: true,
+    },
+    {
+      title: "Bitácora",
+      icon: <ClipboardList size={36} color="#43e97b" />,
+      description: "Gestiona tareas y seguimiento de actividades.",
+      route: "/AdminBitacora",
+      enabled: true,
+    },
+    {
+      title: "Cuentas",
+      icon: <Users2 size={36} color="#ff9800" />,
+      description: "Administra usuarios y permisos.",
+      route: "/cuentas",
+      enabled: true,
+    },
+    {
+      title: "Dashboard",
+      icon: <BarChart3 size={36} color="#00bcd4" />,
+      description: "Visualiza el progreso general de la plataforma.",
+      route: "/dashboard",
+      enabled: true,
+    },
+    {
+      title: "Perfil",
+      icon: <User size={36} color="#607d8b" />,
+      description: "Ver y editar tu perfil de administrador.",
+      route: "/perfil",
+      enabled: true,
+    },
+  ];
 
   return (
     <div className="admin-page-container">

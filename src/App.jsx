@@ -12,6 +12,7 @@ import Perfil from "./pages/Perfil";
 import Cuentas from "./pages/Cuentas";
 import Layout from "./components/LoadingScreen/Layout";
 import Dashboard from './pages/Dashboard';
+import Home from './pages/Home';
 
 const useAuth = () => {
   const [user, setUser] = useState(null);
@@ -52,8 +53,7 @@ const PublicRoute = ({ children }) => {
 
   if (loading) return <div>Cargando...</div>;
   if (user) {
-    const redirectPath = isAdmin ? '/admin-courses' : '/courses';
-    return <Navigate to={redirectPath} replace />;
+    return <Navigate to="/home" replace />;
   }
 
   return children;
@@ -65,8 +65,7 @@ const DefaultRedirect = () => {
   if (loading) return <div>Cargando...</div>;
   if (!user) return <Navigate to="/login" replace />;
 
-  const redirectPath = isAdmin ? '/admin-courses' : '/courses';
-  return <Navigate to={redirectPath} replace />;
+  return <Navigate to="/home" replace />;
 };
 
 function App() {
@@ -84,6 +83,15 @@ function App() {
           <ProtectedRoute adminOnly={true}>
             <Layout>
               <Register />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        {/* Nueva ruta Home Dashboard visual */}
+        <Route path="/home" element={
+          <ProtectedRoute>
+            <Layout>
+              <Home />
             </Layout>
           </ProtectedRoute>
         } />

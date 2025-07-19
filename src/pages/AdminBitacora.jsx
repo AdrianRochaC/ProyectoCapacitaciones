@@ -128,16 +128,8 @@ const AdminBitacora = () => {
     });
   };
 
-  const getColorClass = (estado) => {
-    switch (estado) {
-      case "verde":
-        return "status-verde";
-      case "amarillo":
-        return "status-amarillo";
-      case "rojo":
-      default:
-        return "status-rojo";
-    }
+  const getStatusClass = (estado) => {
+    return `status-${estado}`;
   };
 
   const estados = [
@@ -146,10 +138,22 @@ const AdminBitacora = () => {
     { key: "verde", label: "✅ Completadas" },
   ];
 
+  const getEstadoLabel = (estado) => {
+    switch (estado) {
+      case "verde":
+        return "COMPLETADO";
+      case "amarillo":
+        return "EN PROGRESO";
+      case "rojo":
+      default:
+        return "PENDIENTE";
+    }
+  };
+
   return (
     <div className="admin-body bitacora-container">
       <div className="bitacora-header">
-        <h1>🚦 Bitácora Global (Admin)</h1>
+        <h1>🚦 Bitácora Global</h1>
         <button className="btn-primary" onClick={() => setShowModal(true)}>
           <FaPlus /> Nueva Tarea
         </button>
@@ -163,7 +167,7 @@ const AdminBitacora = () => {
         <div className="bitacora-columns">
           {estados.map(({ key, label }) => (
             <div key={key} className="bitacora-column">
-              <h2 className={`titulo-columna ${getColorClass(key)}`}>
+              <h2 className={`titulo-columna ${getStatusClass(key)}`}>
                 {label} ({tareas.filter((t) => t.estado === key).length})
               </h2>
               {tareas
@@ -173,32 +177,40 @@ const AdminBitacora = () => {
                     ? t.asignados
                     : JSON.parse(t.asignados || "[]");
                   return (
-                    <div key={t.id} className={`tarea-card ${getColorClass(t.estado)}`}>
-                      <h3>{t.titulo}</h3>
+                    <div key={t.id} className={`admin-tarea-card admin-status-${t.estado}`}>
+                      <div className="admin-tarea-title">{t.titulo}</div>
                       <p>{t.descripcion}</p>
-                      <div className="badge">
-                        <FaCircle /> {t.estado.toUpperCase()}
+                      <div className="admin-badge">
+                        <FaCircle /> {getEstadoLabel(t.estado)}
                       </div>
-                      <div>
-                        <strong>📅 Límite:</strong>{" "}
-                        {new Date(t.deadline).toLocaleDateString("es-ES")}
-                      </div>
-                      <div>
-                        <strong>👥 Asignados:</strong>{" "}
-                        {asignados.map((id) => {
-                          const user = usuarios.find((u) => u.id === id);
-                          return (
-                            <span key={id} className="asignado-badge">
-                              <FaUser /> {user?.nombre || `ID ${id}`}
-                            </span>
-                          );
-                        })}
+                      <div className="tarea-info">
+                        <div className="info-item">
+                          <strong>📅 Límite:</strong>{" "}
+                          {new Date(t.deadline).toLocaleDateString("es-ES")}
+                        </div>
+                        <div className="info-item">
+                          <strong>👥 Asignados:</strong>{" "}
+                          <div className="asignados-container">
+                            {asignados.length === 0 ? (
+                              <span className="no-asignados">Sin asignar</span>
+                            ) : (
+                              asignados.map((id) => {
+                                const user = usuarios.find((u) => u.id === id);
+                                return (
+                                  <span key={id} className="asignado-badge">
+                                    <FaUser /> {user?.nombre || `ID ${id}`}
+                                  </span>
+                                );
+                              })
+                            )}
+                          </div>
+                        </div>
                       </div>
                       <div className="card-actions">
-                        <button className="btn-edit" onClick={() => handleEdit(t)}>
+                        <button className="btn-edit" onClick={() => handleEdit(t)} title="Editar tarea">
                           <FaEdit />
                         </button>
-                        <button className="btn-delete" onClick={() => handleDelete(t.id)}>
+                        <button className="btn-delete" onClick={() => handleDelete(t.id)} title="Eliminar tarea">
                           <FaTrash />
                         </button>
                       </div>
@@ -213,55 +225,75 @@ const AdminBitacora = () => {
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h2>{editingTarea ? "Editar Tarea" : "Nueva Tarea"}</h2>
+            <h2>{editingTarea ? "✏️ Editar Tarea" : "➕ Nueva Tarea"}</h2>
             <form onSubmit={handleSubmit}>
-              <input
-                type="text"
-                placeholder="Título"
-                value={formData.titulo}
-                onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
-                required
-              />
-              <textarea
-                placeholder="Descripción"
-                value={formData.descripcion}
-                onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
-                required
-              />
-              <select
-                value={formData.estado}
-                onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
-              >
-                <option value="rojo">Pendiente</option>
-                <option value="amarillo">En Progreso</option>
-                <option value="verde">Completado</option>
-              </select>
+              <div className="form-group">
+                <label>📝 Título de la tarea:</label>
+                <input
+                  type="text"
+                  placeholder="Ingresa el título de la tarea"
+                  value={formData.titulo}
+                  onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
+                  required
+                />
+              </div>
 
-              <label>📅 Fecha Límite:</label>
-              <input
-                type="date"
-                value={formData.deadline}
-                onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
-                required
-              />
+              <div className="form-group">
+                <label>📄 Descripción:</label>
+                <textarea
+                  placeholder="Describe los detalles de la tarea"
+                  value={formData.descripcion}
+                  onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
+                  required
+                />
+              </div>
 
-              <label>👥 Asignar usuarios:</label>
-              <div className="usuarios-checkboxes">
-                {usuarios.map((u) => (
-                  <label key={u.id}>
-                    <input
-                      type="checkbox"
-                      checked={formData.asignados.includes(u.id)}
-                      onChange={() => handleCheckboxChange(u.id)}
-                    />
-                    {u.nombre}
-                  </label>
-                ))}
+              <div className="form-group">
+                <label>🚦 Estado:</label>
+                <select
+                  value={formData.estado}
+                  onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
+                >
+                  <option value="rojo">🔴 Pendiente</option>
+                  <option value="amarillo">🟡 En Progreso</option>
+                  <option value="verde">✅ Completado</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>📅 Fecha Límite:</label>
+                <input
+                  type="date"
+                  value={formData.deadline}
+                  onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>👥 Asignar usuarios:</label>
+                <div className="usuarios-checkboxes">
+                  {usuarios.length === 0 ? (
+                    <p className="no-usuarios">No hay usuarios disponibles</p>
+                  ) : (
+                    usuarios.map((u) => (
+                      <label key={u.id} className="checkbox-label">
+                        <input
+                          type="checkbox"
+                          checked={formData.asignados.includes(u.id)}
+                          onChange={() => handleCheckboxChange(u.id)}
+                        />
+                        <span className="checkmark"></span>
+                        {u.nombre}
+                      </label>
+                    ))
+                  )}
+                </div>
               </div>
 
               <div className="form-actions">
                 <button type="submit" className="btn-primary">
-                  {editingTarea ? "Actualizar" : "Crear"}
+                  {editingTarea ? "💾 Actualizar" : "✨ Crear"}
                 </button>
                 <button
                   type="button"
@@ -278,7 +310,7 @@ const AdminBitacora = () => {
                     });
                   }}
                 >
-                  Cancelar
+                  ❌ Cancelar
                 </button>
               </div>
             </form>

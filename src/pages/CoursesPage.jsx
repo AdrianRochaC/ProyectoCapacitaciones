@@ -16,6 +16,12 @@ const CoursesPage = () => {
       return;
     }
 
+    // Redirigir a Home si el usuario acaba de iniciar sesión
+    if (window.location.pathname === "/coursespage") {
+      window.location.href = "/home";
+      return;
+    }
+
     const rol = user.rol;
 
     fetch(`/api/courses?rol=${encodeURIComponent(rol)}`, {
