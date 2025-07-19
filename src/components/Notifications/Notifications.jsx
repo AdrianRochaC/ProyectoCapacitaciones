@@ -14,9 +14,6 @@ export default function Notifications({ token }) {
       fetchNotifications();
       fetchUnreadCount();
     }
-    // Opcional: polling cada 30s
-    // const interval = setInterval(() => { fetchNotifications(); fetchUnreadCount(); }, 30000);
-    // return () => clearInterval(interval);
   }, [token]);
 
   const fetchNotifications = async () => {

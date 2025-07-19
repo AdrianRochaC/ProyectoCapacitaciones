@@ -47,15 +47,9 @@ const DetailPage = () => {
       });
   }, [id, navigate, token, user.rol]);
 
+  // Nuevo useEffect: cargar progreso desde la base de datos
   useEffect(() => {
     if (!course || user.rol === "Admin") return;
-
-    // Solo consultar progreso si el curso fue iniciado
-    const seenBefore = localStorage.getItem(`started_course_${id}`);
-    if (!seenBefore) {
-      setAttemptsLeft(course.attempts);
-      return;
-    }
 
     axios
       .get(`/api/progress/${id}`, {
@@ -65,7 +59,7 @@ const DetailPage = () => {
         const p = res.data.progress;
         if (p) {
           if (p.video_completed) setVideoEnded(true);
-          setAttemptsLeft(course.attempts - p.attempts_used);
+          setAttemptsLeft(course.attempts - (p.attempts_used || 0));
 
           if (p.evaluation_score != null) {
             setScore({
@@ -73,10 +67,12 @@ const DetailPage = () => {
               total: p.evaluation_total,
             });
           }
+        } else {
+          setAttemptsLeft(course.attempts);
         }
       })
       .catch((err) => {
-        console.error("❌ Error al obtener progreso:", err.message);
+        // Si no hay progreso registrado, dejar intentos al máximo
         setAttemptsLeft(course.attempts);
       });
   }, [course, id, token, user.rol]);
@@ -99,11 +95,8 @@ const DetailPage = () => {
   const handleProgress = (state) => {
     setPlayed(state.played);
 
-    if (state.played >= 0.1) {
-      // Marcar que se inició el curso
-      localStorage.setItem(`started_course_${id}`, "true");
-    }
-
+    // Ya no usamos localStorage para saber si el curso fue iniciado
+    // Guardar progreso en la DB solo cuando el video termina
     if (state.played >= 0.99 && !videoEnded) {
       setVideoEnded(true);
       axios
