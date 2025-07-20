@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { BookOpenCheck, ClipboardList, Users2, BarChart3, User } from "lucide-react";
-import { FaGraduationCap, FaClipboardList, FaUser, FaBell } from "react-icons/fa";
+import { BookOpenCheck, ClipboardList, Users2, BarChart3, User, Settings } from "lucide-react";
+import { FaGraduationCap, FaClipboardList, FaUser, FaBell, FaCog } from "react-icons/fa";
+import PersonalizationModal from '../PersonalizationModal';
 
 const HomeMenuList = ({ isAdmin, onNavigate, unreadCount, showNotifications }) => {
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showPersonalization, setShowPersonalization] = useState(false);
 
   let options = isAdmin
     ? [
@@ -68,79 +70,249 @@ const HomeMenuList = ({ isAdmin, onNavigate, unreadCount, showNotifications }) =
   };
 
   return (
-    <nav style={{padding:'1.5rem 0', minWidth:220, height:'100%', display:'flex', flexDirection:'column', justifyContent:'space-between'}}>
-      <div>
-        <ul style={{listStyle:'none',margin:0,padding:0,display:'flex',flexDirection:'column',gap:'1.2rem',marginTop:'2.5rem'}}>
-          {options.map(opt => (
-            <li key={opt.to} style={{position:'relative'}}>
-              {opt.isNotif ? (
-                <>
+    <>
+      <nav style={{
+        padding:'1.5rem 0', 
+        minWidth:220, 
+        height:'100%', 
+        display:'flex', 
+        flexDirection:'column', 
+        justifyContent:'space-between',
+        background: 'var(--bg-menu)',
+        color: 'var(--text-primary)'
+      }}>
+        <div>
+          <ul style={{
+            listStyle:'none',
+            margin:0,
+            padding:0,
+            display:'flex',
+            flexDirection:'column',
+            gap:'1.2rem',
+            marginTop:'2.5rem'
+          }}>
+            {options.map(opt => (
+              <li key={opt.to} style={{position:'relative'}}>
+                {opt.isNotif ? (
+                  <>
+                    <button
+                      style={{
+                        display:'flex',
+                        alignItems:'center',
+                        gap:'1rem',
+                        background:'none',
+                        border:'none',
+                        fontSize:'1.08rem',
+                        color:'var(--text-primary)',
+                        cursor:'pointer',
+                        padding:'0.5rem 1.2rem',
+                        width:'100%',
+                        textAlign:'left',
+                        borderRadius:'8px',
+                        transition:'all 0.3s ease',
+                        position:'relative'
+                      }}
+                      onClick={handleNotifClick}
+                      onMouseEnter={e => e.currentTarget.style.background='var(--bg-card-hover)'}
+                      onMouseLeave={e => e.currentTarget.style.background='none'}
+                    >
+                      {opt.icon}
+                      {unreadCount > 0 && (
+                        <span style={{
+                          position:'absolute',
+                          left:10,
+                          top:7,
+                          width:10,
+                          height:10,
+                          background:'#e74c3c',
+                          borderRadius:'50%',
+                          display:'inline-block',
+                          border:'2px solid var(--bg-menu)',
+                          zIndex: 2
+                        }}></span>
+                      )}
+                      <span>{opt.label}</span>
+                    </button>
+                    {showNotifDropdown && (
+                      <div style={{
+                        position:'absolute',
+                        left:'100%',
+                        top:0,
+                        minWidth:'260px',
+                        maxHeight:'340px',
+                        overflowY:'auto',
+                        background:'var(--bg-card)',
+                        boxShadow:'var(--shadow-card)',
+                        borderRadius:'12px',
+                        padding:'1.2rem 1.2rem',
+                        zIndex:9999,
+                        border:'1px solid var(--border-primary)'
+                      }}>
+                        <h4 style={{
+                          margin:'0 0 1rem 0',
+                          fontSize:'1.1rem',
+                          color:'var(--text-primary)'
+                        }}>Notificaciones</h4>
+                        {loading ? (
+                          <div style={{color:'var(--text-secondary)'}}>Cargando...</div>
+                        ) : notifications.length === 0 ? (
+                          <div style={{color:'var(--text-secondary)'}}>Sin notificaciones</div>
+                        ) : (
+                          <ul style={{
+                            listStyle:'none',
+                            margin:0,
+                            padding:0,
+                            display:'flex',
+                            flexDirection:'column',
+                            gap:'0.7rem'
+                          }}>
+                            {notifications.map(n => (
+                              <li key={n.id} style={{
+                                background:n.is_read ? 'var(--bg-card)' : 'linear-gradient(90deg,#e0ffe6,#b2f7ef,#e0f7fa,#b9f6ca)',
+                                borderRadius:'10px',
+                                padding:'0.7rem 0.8rem',
+                                boxShadow:'var(--shadow-light)',
+                                border:'1px solid var(--border-primary)',
+                                display:'flex',
+                                flexDirection:'column',
+                                gap:'0.3rem'
+                              }}>
+                                <div style={{
+                                  fontSize:'1.01rem',
+                                  color:'var(--text-primary)',
+                                  fontWeight:'500',
+                                  letterSpacing:'0.01em'
+                                }}>{n.message}</div>
+                                <div style={{
+                                  fontSize:'0.97rem',
+                                  color:'var(--text-secondary)'
+                                }}>{new Date(n.created_at).toLocaleString()}</div>
+                                {!n.is_read && (
+                                  <button
+                                    style={{
+                                      marginTop:'0.3rem',
+                                      background:'var(--gradient-success)',
+                                      color:'var(--text-white)',
+                                      border:'none',
+                                      borderRadius:'8px',
+                                      cursor:'pointer',
+                                      fontSize:'0.98rem',
+                                      padding:'4px 12px',
+                                      alignSelf:'flex-end'
+                                    }}
+                                    onClick={() => handleMarkAsRead(n.id)}
+                                  >
+                                    Marcar como leída
+                                  </button>
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    )}
+                  </>
+                ) : (
                   <button
-                    style={{display:'flex',alignItems:'center',gap:'1rem',background:'none',border:'none',fontSize:'1.08rem',color:'#203a43',cursor:'pointer',padding:'0.5rem 1.2rem',width:'100%',textAlign:'left',borderRadius:'8px',transition:'background 0.18s',position:'relative'}}
-                    onClick={handleNotifClick}
-                    onMouseEnter={e => e.currentTarget.style.background='#f5f9fc'}
+                    style={{
+                      display:'flex',
+                      alignItems:'center',
+                      gap:'1rem',
+                      background:'none',
+                      border:'none',
+                      fontSize:'1.08rem',
+                      color:'var(--text-primary)',
+                      cursor:'pointer',
+                      padding:'0.5rem 1.2rem',
+                      width:'100%',
+                      textAlign:'left',
+                      borderRadius:'8px',
+                      transition:'all 0.3s ease',
+                      position:'relative'
+                    }}
+                    onClick={() => { navigate(opt.to); if(onNavigate) onNavigate(); }}
+                    onMouseEnter={e => e.currentTarget.style.background='var(--bg-card-hover)'}
                     onMouseLeave={e => e.currentTarget.style.background='none'}
                   >
                     {opt.icon}
-                    {unreadCount > 0 && (
-                      <span style={{position:'absolute',left:10,top:7,width:10,height:10,background:'#e74c3c',borderRadius:'50%',display:'inline-block',border:'2px solid #fff'}}></span>
-                    )}
                     <span>{opt.label}</span>
                   </button>
-                  {showNotifDropdown && (
-                    <div style={{position:'absolute',left:'100%',top:0,minWidth:'260px',maxHeight:'340px',overflowY:'auto',background:'#fff',boxShadow:'0 8px 32px 0 rgba(44,62,80,0.18)',borderRadius:'12px',padding:'1.2rem 1.2rem',zIndex:9999}}>
-                      <h4 style={{margin:'0 0 1rem 0',fontSize:'1.1rem',color:'#2962ff'}}>Notificaciones</h4>
-                      {loading ? (
-                        <div style={{color:'#888'}}>Cargando...</div>
-                      ) : notifications.length === 0 ? (
-                        <div style={{color:'#888'}}>Sin notificaciones</div>
-                      ) : (
-                        <ul style={{listStyle:'none',margin:0,padding:0,display:'flex',flexDirection:'column',gap:'0.7rem'}}>
-                          {notifications.map(n => (
-                            <li key={n.id} style={{background:n.is_read ? '#fff' : 'linear-gradient(90deg,#e0ffe6,#b2f7ef,#e0f7fa,#b9f6ca)',borderRadius:'10px',padding:'0.7rem 0.8rem',boxShadow:'0 2px 8px 0 rgba(44,62,80,0.10)',border:'1px solid #e0e0e0',display:'flex',flexDirection:'column',gap:'0.3rem'}}>
-                              <div style={{fontSize:'1.01rem',color:'#222',fontWeight:'500',letterSpacing:'0.01em'}}>{n.message}</div>
-                              <div style={{fontSize:'0.97rem',color:'#888'}}>{new Date(n.created_at).toLocaleString()}</div>
-                              {!n.is_read && (
-                                <button
-                                  style={{marginTop:'0.3rem',background:'linear-gradient(90deg,#43e97b,#38f9d7)',color:'#fff',border:'none',borderRadius:'8px',cursor:'pointer',fontSize:'0.98rem',padding:'4px 12px',alignSelf:'flex-end'}}
-                                  onClick={() => handleMarkAsRead(n.id)}
-                                >
-                                  Marcar como leída
-                                </button>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  )}
-                </>
-              ) : (
-                <button
-                  style={{display:'flex',alignItems:'center',gap:'1rem',background:'none',border:'none',fontSize:'1.08rem',color:'#203a43',cursor:'pointer',padding:'0.5rem 1.2rem',width:'100%',textAlign:'left',borderRadius:'8px',transition:'background 0.18s',position:'relative'}}
-                  onClick={() => { navigate(opt.to); if(onNavigate) onNavigate(); }}
-                  onMouseEnter={e => e.currentTarget.style.background='#f5f9fc'}
-                  onMouseLeave={e => e.currentTarget.style.background='none'}
-                >
-                  {opt.icon}
-                  <span>{opt.label}</span>
-                </button>
-              )}
+                )}
+              </li>
+            ))}
+            
+            {/* Botón de Personalización */}
+            <li>
+              <button
+                style={{
+                  display:'flex',
+                  alignItems:'center',
+                  gap:'1rem',
+                  background:'none',
+                  border:'none',
+                  fontSize:'1.08rem',
+                  color:'var(--text-primary)',
+                  cursor:'pointer',
+                  padding:'0.5rem 1.2rem',
+                  width:'100%',
+                  textAlign:'left',
+                  borderRadius:'8px',
+                  transition:'all 0.3s ease',
+                  position:'relative'
+                }}
+                onClick={() => setShowPersonalization(true)}
+                onMouseEnter={e => e.currentTarget.style.background='var(--bg-card-hover)'}
+                onMouseLeave={e => e.currentTarget.style.background='none'}
+              >
+                <FaCog size={22} />
+                <span>Personalizar</span>
+              </button>
             </li>
-          ))}
-        </ul>
-      </div>
-      {/* Botón cerrar sesión abajo */}
-      <div style={{marginTop:'2.5rem',padding:'1.2rem 0 0 0',borderTop:'1.5px solid #e3eaf2',display:'flex',justifyContent:'center'}}>
-        <button
-          className="logout-btn"
-          style={{background:'#e74c3c',color:'#fff',padding:'0.6rem 1.5rem',borderRadius:'8px',fontWeight:600,border:'none',cursor:'pointer',fontSize:'1rem'}}
-          onClick={handleLogout}
-        >
-          Cerrar Sesión
-        </button>
-      </div>
-    </nav>
+          </ul>
+        </div>
+        
+        {/* Botón cerrar sesión abajo */}
+        <div style={{
+          marginTop:'2.5rem',
+          padding:'1.2rem 0 0 0',
+          borderTop:'1.5px solid var(--border-primary)',
+          display:'flex',
+          justifyContent:'center'
+        }}>
+          <button
+            className="logout-btn"
+            style={{
+              background:'var(--gradient-danger)',
+              color:'var(--text-white)',
+              padding:'0.6rem 1.5rem',
+              borderRadius:'8px',
+              fontWeight:600,
+              border:'none',
+              cursor:'pointer',
+              fontSize:'1rem',
+              transition:'all 0.3s ease',
+              boxShadow:'var(--shadow-light)'
+            }}
+            onClick={handleLogout}
+            onMouseEnter={e => {
+              e.target.style.transform = 'scale(1.05)';
+              e.target.style.boxShadow = 'var(--shadow-medium)';
+            }}
+            onMouseLeave={e => {
+              e.target.style.transform = 'scale(1)';
+              e.target.style.boxShadow = 'var(--shadow-light)';
+            }}
+          >
+            Cerrar Sesión
+          </button>
+        </div>
+      </nav>
+      
+      <PersonalizationModal 
+        isOpen={showPersonalization} 
+        onClose={() => setShowPersonalization(false)} 
+      />
+    </>
   );
 };
 

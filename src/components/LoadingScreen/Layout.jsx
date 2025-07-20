@@ -42,21 +42,73 @@ const Layout = ({ children }) => {
           <div style={{display:'flex',justifyContent:'flex-start',alignItems:'center',padding:'1.2rem 2.5rem 0 2.5rem'}}>
             <button
               className="home-hamburger-btn"
-              style={{background:'none',border:'none',fontSize:'2.1rem',cursor:'pointer',color:'#203a43',position:'relative'}}
+              style={{
+                background:'none',
+                border:'none',
+                fontSize:'2.1rem',
+                cursor:'pointer',
+                color:'var(--text-primary)',
+                position:'relative',
+                transition:'color 0.3s ease'
+              }}
               onClick={() => setShowMenu(true)}
               aria-label="Abrir menú"
             >
               &#9776;
               {unreadCount > 0 && (
-                <span style={{position:'absolute',top:7,right:-7,width:13,height:13,background:'#e74c3c',borderRadius:'50%',display:'inline-block',border:'2px solid #fff',zIndex:2}}></span>
+                <span style={{
+                  position:'absolute',
+                  top:7,
+                  right:-7,
+                  width:13,
+                  height:13,
+                  background:'#e74c3c',
+                  borderRadius:'50%',
+                  display:'inline-block',
+                  border:'2px solid var(--bg-menu)',
+                  zIndex:2
+                }}></span>
               )}
             </button>
           </div>
           {showMenu && (
-            <div className="home-menu-overlay" style={{position:'fixed',top:0,left:0,width:'100vw',height:'100vh',background:'rgba(32,58,67,0.18)',zIndex:9999,display:'flex',alignItems:'flex-start',justifyContent:'flex-start'}}>
-              <div style={{background:'#fff',minWidth:'220px',maxWidth:'90vw',height:'100vh',boxShadow:'0 8px 32px 0 rgba(44,62,80,0.18)',padding:'0',position:'relative',display:'flex',flexDirection:'column'}}>
+            <div className="home-menu-overlay" style={{
+              position:'fixed',
+              top:0,
+              left:0,
+              width:'100vw',
+              height:'100vh',
+              background:'rgba(0,0,0,0.5)',
+              backdropFilter:'blur(8px)',
+              zIndex:9999,
+              display:'flex',
+              alignItems:'flex-start',
+              justifyContent:'flex-start'
+            }}>
+              <div style={{
+                background:'var(--bg-menu)',
+                minWidth:'220px',
+                maxWidth:'90vw',
+                height:'100vh',
+                boxShadow:'var(--shadow-card)',
+                padding:'0',
+                position:'relative',
+                display:'flex',
+                flexDirection:'column',
+                borderRight:'1px solid var(--border-primary)'
+              }}>
                 <button
-                  style={{position:'absolute',top:'1.2rem',right:'1.2rem',background:'none',border:'none',fontSize:'2rem',cursor:'pointer',color:'#203a43'}}
+                  style={{
+                    position:'absolute',
+                    top:'1.2rem',
+                    right:'1.2rem',
+                    background:'none',
+                    border:'none',
+                    fontSize:'2rem',
+                    cursor:'pointer',
+                    color:'var(--text-primary)',
+                    transition:'color 0.3s ease'
+                  }}
                   onClick={() => setShowMenu(false)}
                   aria-label="Cerrar menú"
                 >
@@ -75,8 +127,8 @@ const Layout = ({ children }) => {
             maxWidth: collapsed ? '56px' : '270px',
             width: collapsed ? '56px' : '220px',
             height: '100vh',
-            boxShadow: '0 8px 32px 0 rgba(44,62,80,0.08)',
-            background: '#fff',
+            boxShadow: 'var(--shadow-card)',
+            background: 'var(--bg-menu)',
             padding: 0,
             position: 'fixed',
             top: 0,
@@ -85,7 +137,8 @@ const Layout = ({ children }) => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'flex-start',
-            transition: 'all 0.22s cubic-bezier(.4,0,.2,1)'
+            transition: 'all 0.22s cubic-bezier(.4,0,.2,1)',
+            borderRight: '1px solid var(--border-primary)'
           }}>
             <div style={{width:'100%',display:'flex',justifyContent:'flex-end',alignItems:'center'}}>
               <button
@@ -93,21 +146,34 @@ const Layout = ({ children }) => {
                   background: 'none',
                   border: 'none',
                   fontSize: '1.7rem',
-                  color: '#203a43',
+                  color: 'var(--text-primary)',
                   margin: '1.2rem 1.2rem 0 0',
                   cursor: 'pointer',
                   outline: 'none',
-                  transition: 'transform 0.18s',
+                  transition: 'all 0.3s ease',
                   position: 'relative'
                 }}
                 onClick={() => setCollapsed(c => !c)}
                 aria-label={collapsed ? 'Expandir menú' : 'Colapsar menú'}
+                onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'}
+                onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
               >
                 {collapsed ? (
                   <>
                     {'☰'}
                     {unreadCount > 0 && (
-                      <span style={{position:'absolute',top:2,right:2,width:13,height:13,background:'#e74c3c',borderRadius:'50%',display:'inline-block',border:'2px solid #fff',zIndex:2}}></span>
+                      <span style={{
+                        position:'absolute',
+                        top:2,
+                        right:2,
+                        width:13,
+                        height:13,
+                        background:'#e74c3c',
+                        borderRadius:'50%',
+                        display:'inline-block',
+                        border:'2px solid var(--bg-menu)',
+                        zIndex:2
+                      }}></span>
                     )}
                   </>
                 ) : '✕'}

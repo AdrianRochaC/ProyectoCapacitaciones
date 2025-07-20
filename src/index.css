@@ -6,7 +6,7 @@
   --bg-card: #ffffff;
   --bg-card-hover: #f8fbff;
   --bg-input: #f8fbff;
-  --bg-menu: #1b2a41;
+  --bg-menu: #ffffff;
   --bg-table: #f5f9fc;
   --bg-table-row: #f0f4f8;
   --bg-table-row-hover: #e6f0fa;
@@ -46,6 +46,12 @@
   --radius-medium: 12px;
   --radius-large: 16px;
   --radius-xl: 22px;
+
+  /* Variables de personalización */
+  --font-size-base: 1rem;
+  --font-family-base: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --spacing-base: 1;
+  --animation-duration: 0.3s;
 }
 
 /* Tema oscuro */
@@ -92,6 +98,145 @@
   --gradient-info: linear-gradient(135deg, #6366f1, #4f46e5);
 }
 
+/* Esquemas de color */
+[data-color-scheme="default"] {
+  /* Mantiene los colores predeterminados del tema */
+}
+
+[data-color-scheme="monochrome"] {
+  --text-primary: #2c3e50;
+  --text-secondary: #7f8c8d;
+  --text-success: #95a5a6;
+  --text-warning: #7f8c8d;
+  --text-danger: #2c3e50;
+  --text-info: #34495e;
+  --border-focus: #7f8c8d;
+  --gradient-success: linear-gradient(135deg, #95a5a6, #7f8c8d);
+  --gradient-danger: linear-gradient(135deg, #2c3e50, #34495e);
+  --gradient-warning: linear-gradient(135deg, #7f8c8d, #95a5a6);
+  --gradient-info: linear-gradient(135deg, #34495e, #2c3e50);
+}
+
+[data-color-scheme="vibrant"] {
+  --text-primary: #e74c3c;
+  --text-secondary: #f39c12;
+  --text-success: #27ae60;
+  --text-warning: #f39c12;
+  --text-danger: #e74c3c;
+  --text-info: #9b59b6;
+  --border-focus: #e74c3c;
+  --gradient-success: linear-gradient(135deg, #27ae60, #2ecc71);
+  --gradient-danger: linear-gradient(135deg, #e74c3c, #c0392b);
+  --gradient-warning: linear-gradient(135deg, #f39c12, #e67e22);
+  --gradient-info: linear-gradient(135deg, #9b59b6, #8e44ad);
+}
+
+[data-color-scheme="pastel"] {
+  --text-primary: #ffb3ba;
+  --text-secondary: #baffc9;
+  --text-success: #bae1ff;
+  --text-warning: #ffdfba;
+  --text-danger: #ffb3ba;
+  --text-info: #e1baff;
+  --border-focus: #ffb3ba;
+  --gradient-success: linear-gradient(135deg, #bae1ff, #a8d8ff);
+  --gradient-danger: linear-gradient(135deg, #ffb3ba, #ffa3aa);
+  --gradient-warning: linear-gradient(135deg, #ffdfba, #ffcfaa);
+  --gradient-info: linear-gradient(135deg, #e1baff, #d1aaff);
+}
+
+[data-color-scheme="neon"] {
+  --text-primary: #00ff88;
+  --text-secondary: #ff0080;
+  --text-success: #00ffff;
+  --text-warning: #ffff00;
+  --text-danger: #ff0080;
+  --text-info: #00ffff;
+  --border-focus: #00ff88;
+  --gradient-success: linear-gradient(135deg, #00ffff, #00ccff);
+  --gradient-danger: linear-gradient(135deg, #ff0080, #cc0066);
+  --gradient-warning: linear-gradient(135deg, #ffff00, #cccc00);
+  --gradient-info: linear-gradient(135deg, #00ffff, #00ccff);
+}
+
+[data-color-scheme="earth"] {
+  --text-primary: #8b4513;
+  --text-secondary: #228b22;
+  --text-success: #228b22;
+  --text-warning: #daa520;
+  --text-danger: #8b4513;
+  --text-info: #4682b4;
+  --border-focus: #228b22;
+  --gradient-success: linear-gradient(135deg, #228b22, #32cd32);
+  --gradient-danger: linear-gradient(135deg, #8b4513, #a0522d);
+  --gradient-warning: linear-gradient(135deg, #daa520, #ffd700);
+  --gradient-info: linear-gradient(135deg, #4682b4, #5f9ea0);
+}
+
+/* Tamaños de fuente */
+[data-font-size="small"] {
+  --font-size-base: 0.9rem;
+}
+
+[data-font-size="medium"] {
+  --font-size-base: 1rem;
+}
+
+[data-font-size="large"] {
+  --font-size-base: 1.1rem;
+}
+
+/* Familias de fuente */
+[data-font-family="inter"] {
+  --font-family-base: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+[data-font-family="roboto"] {
+  --font-family-base: 'Roboto', 'Segoe UI', system-ui, sans-serif;
+}
+
+[data-font-family="open-sans"] {
+  --font-family-base: 'Open Sans', 'Segoe UI', system-ui, sans-serif;
+}
+
+[data-font-family="poppins"] {
+  --font-family-base: 'Poppins', 'Segoe UI', system-ui, sans-serif;
+}
+
+[data-font-family="montserrat"] {
+  --font-family-base: 'Montserrat', 'Segoe UI', system-ui, sans-serif;
+}
+
+[data-font-family="system"] {
+  --font-family-base: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Espaciado */
+[data-spacing="compact"] {
+  --spacing-base: 0.8;
+}
+
+[data-spacing="normal"] {
+  --spacing-base: 1;
+}
+
+[data-spacing="comfortable"] {
+  --spacing-base: 1.2;
+}
+
+/* Animaciones */
+[data-animations="enabled"] {
+  --animation-duration: 0.3s;
+}
+
+[data-animations="reduced"] {
+  --animation-duration: 0.15s;
+}
+
+[data-animations="disabled"] {
+  --animation-duration: 0s;
+}
+
 /* index.css */
 * {
   margin: 0;
@@ -104,10 +249,45 @@ html, body {
   height: 100%;
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  font-size: var(--font-size-base);
+  font-family: var(--font-family-base);
+  transition: background-color 0.3s ease, color 0.3s ease, font-size 0.3s ease, font-family 0.3s ease;
 }
 
 /* Transiciones suaves para cambios de tema */
 * {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: background-color var(--animation-duration) ease, 
+              color var(--animation-duration) ease, 
+              border-color var(--animation-duration) ease, 
+              box-shadow var(--animation-duration) ease,
+              font-size var(--animation-duration) ease,
+              font-family var(--animation-duration) ease,
+              transform var(--animation-duration) ease;
+}
+
+/* Aplicar espaciado base */
+body, div, section, article, aside, header, footer, nav, main {
+  line-height: calc(1.5 * var(--spacing-base));
+}
+
+p, h1, h2, h3, h4, h5, h6 {
+  margin-bottom: calc(0.5rem * var(--spacing-base));
+}
+
+ul, ol {
+  padding-left: calc(1.5rem * var(--spacing-base));
+}
+
+li {
+  margin-bottom: calc(0.25rem * var(--spacing-base));
+}
+
+/* Ajustes de espaciado para elementos específicos */
+.main-menu, .auth-buttons, .menu-links {
+  gap: calc(1rem * var(--spacing-base));
+}
+
+.card, .button, .input {
+  padding: calc(0.5rem * var(--spacing-base)) calc(1rem * var(--spacing-base));
+  margin-bottom: calc(0.5rem * var(--spacing-base));
 }

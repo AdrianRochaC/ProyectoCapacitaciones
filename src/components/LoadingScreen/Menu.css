@@ -1,7 +1,7 @@
 /* components/Menu.css */
 
 .main-menu {
-  background-color: var(--bg-menu);
+  background: var(--bg-menu);
   padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
@@ -11,6 +11,7 @@
   top: 0;
   z-index: 1000;
   border-bottom: 1px solid var(--border-primary);
+  transition: all 0.3s ease;
 }
 
 .main-menu ul {
@@ -23,16 +24,20 @@
 
 /* Enlaces del menú */
 .main-menu a {
-  color: var(--text-white);
+  color: var(--text-primary);
   text-decoration: none;
   font-weight: 500;
   font-size: 1rem;
   letter-spacing: 0.5px;
-  transition: color 0.2s ease-in-out;
+  transition: all 0.3s ease;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-small);
 }
 
 .main-menu a:hover {
-  color: #00d4ff;
+  color: var(--text-white);
+  background: var(--bg-card-hover);
+  transform: translateY(-1px);
 }
 
 /* Sección de navegación principal */
@@ -46,6 +51,7 @@
 .auth-buttons {
   display: flex;
   gap: 1rem;
+  align-items: center;
 }
 
 .auth-buttons a {
@@ -57,13 +63,14 @@
   font-weight: 600;
   text-decoration: none;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 168, 107, 0.3);
+  box-shadow: var(--shadow-light);
 }
 
 .auth-buttons a:hover {
   transform: scale(1.03);
-  box-shadow: 0 6px 16px rgba(0, 168, 107, 0.4);
+  box-shadow: var(--shadow-medium);
 }
+
 .logout-btn {
   background: var(--gradient-danger);
   color: var(--text-white);
@@ -77,15 +84,56 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
+  box-shadow: var(--shadow-light);
 }
 
 .logout-btn:hover {
   transform: scale(1.03);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  box-shadow: var(--shadow-medium);
 }
 
 .user-info {
-  color: var(--text-white);
+  color: var(--text-primary);
   font-weight: 500;
   margin-right: 1rem;
+  transition: color 0.3s ease;
+}
+
+/* Botón de personalización */
+.personalization-btn {
+  background: var(--gradient-primary) !important;
+  border: none !important;
+  border-radius: 50% !important;
+  width: 44px !important;
+  height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  box-shadow: var(--shadow-light) !important;
+}
+
+.personalization-btn:hover {
+  transform: scale(1.1) !important;
+  box-shadow: var(--shadow-medium) !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .main-menu {
+    padding: 1rem;
+  }
+  
+  .main-menu ul {
+    gap: 1rem;
+  }
+  
+  .auth-buttons {
+    gap: 0.5rem;
+  }
+  
+  .user-info {
+    display: none;
+  }
 }
