@@ -1,6 +1,6 @@
 /* Modernización Bitacora - estilo profesional tipo Home pero más compacto */
 .bitacora-body {
-  background: linear-gradient(120deg, #f8fafc 60%, #eaf1fa 100%);
+  background: var(--gradient-primary);
   min-height: 100vh;
   min-width: 100vw;
   padding: 0;
@@ -21,7 +21,7 @@
   text-align: center;
   font-size: 2.2rem;
   font-weight: 800;
-  color: #203a43;
+  color: var(--text-primary);
   margin-bottom: 2.2rem;
   letter-spacing: -0.5px;
 }
@@ -29,14 +29,14 @@
 .bitacora-container > p {
   text-align: center;
   font-size: 1.1rem;
-  color: #5a6b7b;
-  background: #fff;
+  color: var(--text-secondary);
+  background: var(--bg-card);
   padding: 1.5rem;
-  border-radius: 14px;
-  border: 1px solid #e3eaf2;
+  border-radius: var(--radius-medium);
+  border: 1px solid var(--border-primary);
   max-width: 400px;
   margin: 2rem auto;
-  box-shadow: 0 4px 18px rgba(44,62,80,0.08);
+  box-shadow: var(--shadow-card);
 }
 
 .usuario-bitacora-columns {
@@ -50,66 +50,67 @@
 .usuario-bitacora-column {
   flex: 1;
   min-width: 290px;
-  background: #f8fbff;
-  border-radius: 18px;
-  box-shadow: 0 2px 12px 0 rgba(60,72,88,0.09);
+  background: var(--bg-card-hover);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-light);
   padding: 1.5rem 1.2rem 1.2rem 1.2rem;
   margin-bottom: 1.2rem;
   display: flex;
   flex-direction: column;
   align-items: stretch;
   transition: box-shadow 0.18s, border-color 0.18s;
-  border: 1.5px solid #e3eaf2;
+  border: 1.5px solid var(--border-primary);
 }
 
 .usuario-titulo-columna {
   font-size: 1.18rem;
   margin-bottom: 1.2rem;
   padding: 8px 0;
-  border-radius: 8px;
+  border-radius: var(--radius-small);
   text-align: center;
-  color: #fff;
+  color: var(--text-white);
   font-weight: 700;
   letter-spacing: 0.01em;
 }
 
 .usuario-rojo {
-  background: linear-gradient(90deg, #e74c3c, #c0392b);
+  background: var(--gradient-danger);
 }
 .usuario-amarillo {
-  background: linear-gradient(90deg, #f39c12, #e67e22);
-  color: #222;
+  background: var(--gradient-warning);
+  color: var(--text-white);
 }
 .usuario-verde {
-  background: linear-gradient(90deg, #2ecc71, #27ae60);
+  background: var(--gradient-success);
 }
 
 .usuario-tarea-card {
-  background: #fff;
-  border-radius: 15px;
-  box-shadow: 0 2px 12px 0 rgba(60,72,88,0.09);
+  background: var(--bg-card);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-light);
   padding: 1.2rem 1.1rem 1.1rem 1.1rem;
   margin-bottom: 1.2rem;
-  border: 1.5px solid #e3eaf2;
+  border: 1.5px solid var(--border-primary);
   transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s;
   position: relative;
   overflow: visible;
   animation: fadeInCard 0.7s cubic-bezier(.4,0,.2,1);
 }
 .usuario-tarea-card:hover {
-  box-shadow: 0 8px 32px 0 rgba(44,62,80,0.18);
-  border-color: #43e97b;
+  box-shadow: var(--shadow-heavy);
+  border-color: var(--border-focus);
   transform: translateY(-2px) scale(1.012);
+  background: var(--bg-card-hover);
 }
 .usuario-tarea-card h3 {
   font-size: 1.08rem;
-  color: #203a43;
+  color: var(--text-primary);
   font-weight: 700;
   margin-bottom: 0.7rem;
   letter-spacing: -0.5px;
 }
 .usuario-tarea-card p {
-  color: #5a6b7b;
+  color: var(--text-secondary);
   font-size: 0.98rem;
   line-height: 1.5;
   margin-bottom: 0.7rem;
@@ -127,22 +128,22 @@
   transition: all 0.3s ease;
 }
 .usuario-status-verde .usuario-badge {
-  background: #e6f7f1;
-  color: #1ca97a;
-  border: 1px solid #b2f7ef;
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--text-success);
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 .usuario-status-amarillo .usuario-badge {
-  background: #fffbe6;
-  color: #e6a700;
-  border: 1px solid #ffe082;
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--text-warning);
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }
 .usuario-status-rojo .usuario-badge {
-  background: #faeaea;
-  color: #e74c3c;
-  border: 1px solid #ffcdd2;
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--text-danger);
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 .usuario-tarea-card small {
-  color: #95a5a6;
+  color: var(--text-light);
   font-size: 0.89rem;
   font-weight: 500;
   display: block;
@@ -154,7 +155,7 @@
 }
 .estado-select label {
   font-size: 0.97rem;
-  color: #203a43;
+  color: var(--text-primary);
   font-weight: 600;
   margin-bottom: 0.2rem;
 }
@@ -162,15 +163,15 @@
   width: 100%;
   padding: 7px 10px;
   border-radius: 7px;
-  border: 1.5px solid #bcd2f7;
+  border: 1.5px solid var(--border-input);
   font-size: 0.98rem;
   margin-top: 0.2rem;
-  background: #f8fbff;
-  color: #203a43;
+  background: var(--bg-input);
+  color: var(--text-primary);
 }
 .estado-select select:focus {
-  outline: 2px solid #43e97b;
-  border-color: #43e97b;
+  outline: 2px solid var(--border-focus);
+  border-color: var(--border-focus);
 }
 .bitacora-body .bitacora-container {
   margin: 0 auto;

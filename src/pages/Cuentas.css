@@ -3,6 +3,8 @@
   margin: 0 auto;
   padding: 2rem;
   font-family: 'Segoe UI', sans-serif;
+  background: var(--bg-primary);
+  min-height: 100vh;
 }
 
 .cuentas-header {
@@ -13,7 +15,7 @@
 }
 
 .cuentas-header h1 {
-  color: #2c3e50;
+  color: var(--text-primary);
   font-size: 2rem;
   margin-bottom: 1rem;
 }
@@ -25,11 +27,11 @@
 }
 
 .stat-card {
-  background: #ffffff;
-  border: 1px solid #e9ecef;
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
   padding: 1rem 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  border-radius: var(--radius-small);
+  box-shadow: var(--shadow-light);
   text-align: center;
   flex: 1;
   min-width: 150px;
@@ -38,12 +40,12 @@
 .stat-number {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #3498db;
+  color: var(--text-info);
 }
 
 .stat-label {
   font-size: 0.9rem;
-  color: #7f8c8d;
+  color: var(--text-muted);
 }
 
 /* Actions */
@@ -65,10 +67,19 @@
 .role-filter select {
   padding: 0.75rem;
   font-size: 1rem;
-  border: 2px solid #e9ecef;
-  border-radius: 8px;
+  border: 2px solid var(--border-secondary);
+  border-radius: var(--radius-small);
   width: 100%;
   max-width: 300px;
+  background: var(--bg-input);
+  color: var(--text-primary);
+}
+
+.search-box input:focus,
+.role-filter select:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
 }
 
 /* Usuarios grid */
@@ -79,17 +90,19 @@
 }
 
 .usuario-card {
-  background: #fff;
-  border-radius: 12px;
+  background: var(--bg-card);
+  border-radius: var(--radius-medium);
   padding: 1.5rem;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  box-shadow: var(--shadow-light);
   cursor: pointer;
   transition: transform 0.2s ease;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--border-primary);
 }
 
 .usuario-card:hover {
   transform: scale(1.02);
+  box-shadow: var(--shadow-medium);
+  background: var(--bg-card-hover);
 }
 
 .usuario-card.inactive {
@@ -97,8 +110,8 @@
 }
 
 .usuario-avatar {
-  background-color: #3498db;
-  color: white;
+  background: var(--gradient-info);
+  color: var(--text-white);
   width: 48px;
   height: 48px;
   border-radius: 50%;
@@ -112,17 +125,17 @@
 
 .usuario-info h3 {
   margin: 0;
-  color: #2c3e50;
+  color: var(--text-primary);
 }
 
 .usuario-email {
   font-size: 0.9rem;
-  color: #7f8c8d;
+  color: var(--text-muted);
 }
 
 .usuario-rol {
-  background-color: #3498db;
-  color: white;
+  background: var(--gradient-info);
+  color: var(--text-white);
   font-size: 0.8rem;
   font-weight: bold;
   padding: 0.25rem 0.75rem;
@@ -137,12 +150,12 @@
 
 /* Estado del usuario */
 .status-active {
-  color: #27ae60;
+  color: var(--text-success);
   font-weight: bold;
 }
 
 .status-inactive {
-  color: #e74c3c;
+  color: var(--text-danger);
   font-weight: bold;
 }
 
@@ -161,12 +174,14 @@
 }
 
 .modal-content {
-  background: #fff;
-  border-radius: 12px;
+  background: var(--bg-card);
+  border-radius: var(--radius-medium);
   padding: 2rem;
   max-width: 600px;
   width: 100%;
   position: relative;
+  border: 1px solid var(--border-primary);
+  box-shadow: var(--shadow-heavy);
 }
 
 .small-modal {
@@ -177,7 +192,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 2px solid #e9ecef;
+  border-bottom: 2px solid var(--border-primary);
   padding-bottom: 1rem;
   margin-bottom: 1rem;
 }
@@ -185,7 +200,7 @@
 .modal-header h2, .modal-header h3 {
   margin: 0;
   font-size: 1.5rem;
-  color: #2c3e50;
+  color: var(--text-primary);
 }
 
 .modal-close {
@@ -193,7 +208,7 @@
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #e74c3c;
+  color: var(--text-danger);
 }
 
 .modal-body {
@@ -206,18 +221,18 @@
   display: flex;
   justify-content: space-between;
   padding: 0.75rem 1rem;
-  background-color: #f8f9fa;
-  border-radius: 8px;
+  background-color: var(--bg-card-hover);
+  border-radius: var(--radius-small);
 }
 
 .detail-label {
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-primary);
 }
 
 .detail-value {
   font-weight: 500;
-  color: #34495e;
+  color: var(--text-secondary);
 }
 
 .edit-form .form-group {
@@ -228,21 +243,31 @@
 
 .edit-form label {
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--text-primary);
 }
 
 .edit-form input,
 .edit-form select {
   padding: 0.75rem;
   font-size: 1rem;
-  border: 2px solid #e9ecef;
-  border-radius: 8px;
+  border: 2px solid var(--border-secondary);
+  border-radius: var(--radius-small);
+  background: var(--bg-input);
+  color: var(--text-primary);
+}
+
+.edit-form input:focus,
+.edit-form select:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
 }
 
 .checkbox-label {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  color: var(--text-primary);
 }
 
 /* Modal actions */
@@ -256,7 +281,7 @@
 /* Botones reutilizables */
 .btn {
   padding: 0.75rem 1.25rem;
-  border-radius: 8px;
+  border-radius: var(--radius-small);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -264,34 +289,37 @@
 }
 
 .btn-primary {
-  background-color: #3498db;
-  color: white;
+  background: var(--gradient-info);
+  color: var(--text-white);
   border: none;
 }
 
 .btn-primary:hover {
-  background-color: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
 }
 
 .btn-secondary {
-  background-color: #95a5a6;
-  color: white;
+  background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+  color: var(--text-white);
   border: none;
 }
 
 .btn-secondary:hover {
-  background-color: #7f8c8d;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(149, 165, 166, 0.3);
 }
 
 .btn-outline {
   background: transparent;
-  border: 2px solid #3498db;
-  color: #3498db;
+  border: 2px solid var(--text-info);
+  color: var(--text-info);
 }
 
 .btn-outline:hover {
-  background-color: #3498db;
-  color: white;
+  background: var(--gradient-info);
+  color: var(--text-white);
+  transform: translateY(-2px);
 }
 
 /* Estados */
@@ -302,17 +330,17 @@
 }
 
 .error-message {
-  background: #fef2f2;
-  border: 1px solid #f5c2c7;
-  color: #e74c3c;
-  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: var(--text-danger);
+  border-radius: var(--radius-small);
 }
 
 .no-results,
 .no-users {
   text-align: center;
   padding: 2rem;
-  color: #7f8c8d;
+  color: var(--text-muted);
 }
 
 /* Responsive */

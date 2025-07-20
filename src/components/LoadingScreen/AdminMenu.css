@@ -1,11 +1,12 @@
 .main-menu {
-  background-color: #203a43;
+  background-color: var(--bg-menu);
   padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-family: "Segoe UI", sans-serif;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-light);
+  border-bottom: 1px solid var(--border-primary);
 }
 
 .main-menu ul {
@@ -20,7 +21,7 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  color: white;
+  color: var(--text-white);
   text-decoration: none;
   font-weight: 600;
   font-size: 0.95rem;
@@ -30,7 +31,7 @@
 }
 
 .main-menu a:hover {
-  color: #f0db4f;
+  color: var(--text-warning);
 }
 
 .menu-links {
@@ -46,17 +47,17 @@
 }
 
 .user-info {
-  color: #ffffff;
+  color: var(--text-white);
   font-weight: 500;
   font-size: 0.9rem;
 }
 
 .logout-btn {
   background-color: transparent;
-  color: white;
-  border: 1px solid #f44336;
+  color: var(--text-white);
+  border: 1px solid var(--text-danger);
   padding: 0.4rem 0.8rem;
-  border-radius: 6px;
+  border-radius: var(--radius-small);
   font-size: 0.9rem;
   cursor: pointer;
   display: flex;
@@ -66,6 +67,8 @@
 }
 
 .logout-btn:hover {
-  background-color: #f44336;
-  color: white;
+  background: var(--gradient-danger);
+  color: var(--text-white);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
 }

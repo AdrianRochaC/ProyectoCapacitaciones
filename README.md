@@ -1,12 +1,137 @@
-# React + Vite
+# Proyecto de Capacitaciones
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Sistema de gestión de capacitaciones con soporte para tema claro y oscuro.
 
-Currently, two official plugins are available:
+## Características
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Tema Claro y Oscuro**: Sistema completo de temas con transiciones suaves
+- **Interfaz Moderna**: Diseño responsive y profesional
+- **Gestión de Usuarios**: Administración completa de cuentas
+- **Sistema de Cursos**: Creación y gestión de contenido educativo
+- **Bitácora**: Seguimiento de tareas y progreso
+- **Dashboard**: Panel de control con estadísticas
+- **Notificaciones**: Sistema de alertas en tiempo real
 
-## Expanding the ESLint configuration
+## Temas Disponibles
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Tema Claro (Por defecto)
+- Fondo claro con gradientes suaves
+- Colores vibrantes y profesionales
+- Excelente legibilidad
+
+### Tema Oscuro
+- Fondo oscuro para reducir la fatiga visual
+- Colores adaptados para uso nocturno
+- Contraste optimizado
+
+## Cómo Cambiar el Tema
+
+### Opción 1: Botón de Tema
+- Busca el botón con ícono de luna/sol en la interfaz
+- Haz clic para alternar entre temas
+- El tema se guarda automáticamente
+
+### Opción 2: Programáticamente
+```javascript
+import { setTheme, toggleTheme } from './utils/theme';
+
+// Cambiar a tema específico
+setTheme('dark'); // o 'light'
+
+// Alternar entre temas
+toggleTheme();
+```
+
+## Estructura de Variables CSS
+
+El sistema utiliza variables CSS para manejar los temas:
+
+```css
+:root {
+  /* Tema claro */
+  --bg-primary: #f8fafc;
+  --text-primary: #203a43;
+  --border-primary: #e3eaf2;
+  /* ... más variables */
+}
+
+[data-theme="dark"] {
+  /* Tema oscuro */
+  --bg-primary: #0f1419;
+  --text-primary: #e2e8f0;
+  --border-primary: #334155;
+  /* ... más variables */
+}
+```
+
+## Archivos Actualizados
+
+### CSS Base
+- `src/index.css` - Variables CSS y configuración base
+- `src/utils/theme.js` - Utilidades para manejo de temas
+- `src/components/ThemeToggle.jsx` - Componente de cambio de tema
+- `src/components/ThemeToggle.css` - Estilos del botón de tema
+
+### Páginas Actualizadas
+- `src/pages/Home.css`
+- `src/pages/Dashboard.css`
+- `src/pages/AdminBitacora.css`
+- `src/pages/Login.css`
+- `src/pages/Register.css`
+- `src/pages/CoursesPage.css`
+- `src/pages/Bitacora.css`
+- `src/pages/DetailPage.css`
+- `src/pages/AdminCoursesPage.css`
+- `src/pages/Perfil.css`
+- `src/pages/Cuentas.css`
+
+### Componentes Actualizados
+- `src/components/LoadingScreen/Menu.css`
+- `src/components/LoadingScreen/AdminMenu.css`
+- `src/components/LoadingScreen/LoadingScreen.css`
+- `src/components/Notifications/Notifications.css`
+
+## Instalación y Uso
+
+1. Clona el repositorio
+2. Instala las dependencias: `npm install`
+3. Ejecuta el servidor de desarrollo: `npm run dev`
+4. El tema se inicializa automáticamente
+
+## Personalización
+
+Para personalizar los temas, modifica las variables CSS en `src/index.css`:
+
+```css
+:root {
+  /* Personaliza los colores del tema claro */
+  --bg-primary: #tu-color;
+  --text-primary: #tu-color;
+}
+
+[data-theme="dark"] {
+  /* Personaliza los colores del tema oscuro */
+  --bg-primary: #tu-color;
+  --text-primary: #tu-color;
+}
+```
+
+## Compatibilidad
+
+- ✅ Chrome/Chromium
+- ✅ Firefox
+- ✅ Safari
+- ✅ Edge
+- ✅ Dispositivos móviles
+
+## Contribución
+
+1. Fork el proyecto
+2. Crea una rama para tu feature
+3. Commit tus cambios
+4. Push a la rama
+5. Abre un Pull Request
+
+## Licencia
+
+Este proyecto está bajo la Licencia MIT.

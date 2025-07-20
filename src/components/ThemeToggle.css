@@ -1,0 +1,66 @@
+/* src/components/ThemeToggle.css */
+
+.theme-toggle-btn {
+  background: var(--gradient-primary);
+  border: 2px solid var(--border-primary);
+  color: var(--text-primary);
+  padding: 0.5rem;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  box-shadow: var(--shadow-light);
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-toggle-btn:hover {
+  transform: translateY(-2px) scale(1.1);
+  box-shadow: var(--shadow-medium);
+  background: var(--bg-card-hover);
+}
+
+.theme-toggle-btn:active {
+  transform: translateY(-1px) scale(1.05);
+}
+
+.theme-icon {
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+
+.theme-toggle-btn:hover .theme-icon {
+  transform: rotate(180deg);
+}
+
+/* Animación de entrada */
+.theme-toggle-btn {
+  animation: fadeInScale 0.3s ease;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .theme-toggle-btn {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .theme-icon {
+    font-size: 1rem;
+  }
+} 

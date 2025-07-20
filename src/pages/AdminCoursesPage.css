@@ -1,5 +1,5 @@
 body {
-  background-color: #f5f9fc;
+  background-color: var(--bg-primary);
   margin: 0;
   padding: 0;
   font-family: "Segoe UI", sans-serif;
@@ -9,17 +9,17 @@ body {
   padding: 2rem;
   max-width: 960px;
   margin: 2rem auto;
-  background-color: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  background-color: var(--bg-card);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-card);
   position: relative;
   z-index: 1;
+  border: 1px solid var(--border-primary);
 }
-
 
 .admin-page-container h1 {
   text-align: center;
-  color: #203a43;
+  color: var(--text-primary);
   margin-bottom: 2rem;
 }
 
@@ -31,7 +31,7 @@ body {
 
 .admin-form label {
   font-weight: 600;
-  color: #203a43;
+  color: var(--text-primary);
   margin-bottom: 0.3rem;
   display: block;
 }
@@ -41,34 +41,46 @@ body {
 .admin-form select {
   width: 100%;
   padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
+  border-radius: var(--radius-small);
+  border: 1px solid var(--border-secondary);
   font-size: 1rem;
   resize: vertical;
+  background: var(--bg-input);
+  color: var(--text-primary);
+}
+
+.admin-form input:focus,
+.admin-form textarea:focus,
+.admin-form select:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
 }
 
 .admin-form button {
-  background-color: #203a43;
-  color: white;
+  background: var(--gradient-primary);
+  color: var(--text-white);
   border: none;
   padding: 12px;
-  border-radius: 8px;
+  border-radius: var(--radius-small);
   cursor: pointer;
   font-weight: 600;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .admin-form button:hover {
-  background-color: #2c5364;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(32, 58, 67, 0.3);
 }
 
 .create-eval-button {
-  background-color: #3498db !important;
+  background: var(--gradient-info) !important;
   margin-bottom: 1rem;
 }
 
 .create-eval-button:hover {
-  background-color: #2980b9 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3) !important;
 }
 
 /* Sección de la lista de cursos */
@@ -76,12 +88,11 @@ body {
   margin-top: 3rem;
   width: 100%;
   padding: 3rem 2rem;
-  background: linear-gradient(135deg, #f0f8ff 0%, #e6f4ea 100%);
-  border-top: 4px solid #2ecc71;
-  border-radius: 0 0 16px 16px;
+  background: linear-gradient(135deg, var(--bg-card-hover) 0%, rgba(16, 185, 129, 0.05) 100%);
+  border-top: 4px solid var(--text-success);
+  border-radius: 0 0 var(--radius-large) var(--radius-large);
   animation: fadeIn 0.5s ease-in-out;
 }
-
 
 .admin-course-list::before {
   content: '';
@@ -90,13 +101,13 @@ body {
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #3498db, #2ecc71);
+  background: linear-gradient(90deg, var(--text-info), var(--text-success));
 }
 
 /* Título de la sección */
 .admin-course-list h2 {
   text-align: center;
-  color: #203a43;
+  color: var(--text-primary);
   margin-bottom: 2rem;
   font-size: 2rem;
   font-weight: 700;
@@ -106,30 +117,32 @@ body {
 .admin-course-card {
   margin: 0 auto 2rem;
   padding: 2rem;
-  border-radius: 16px;
-  background-color: white;
+  border-radius: var(--radius-large);
+  background-color: var(--bg-card);
   max-width: 900px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e1e8ed;
+  box-shadow: var(--shadow-medium);
+  border: 1px solid var(--border-primary);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
 }
 
 .admin-course-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-heavy);
+  background: var(--bg-card-hover);
 }
 
 .admin-course-card h3 {
-  color: #203a43;
+  color: var(--text-primary);
   margin-bottom: 1rem;
   font-size: 1.5rem;
   font-weight: 700;
-  border-bottom: 2px solid #3498db;
+  border-bottom: 2px solid var(--text-info);
   padding-bottom: 0.5rem;
 }
 
 .admin-course-card p {
-  color: #555;
+  color: var(--text-secondary);
   margin-bottom: 0.8rem;
   font-size: 1rem;
   line-height: 1.5;
@@ -137,10 +150,10 @@ body {
 
 /* Información del curso con iconos */
 .admin-course-card p:nth-of-type(2) {
-  background-color: #f8f9fa;
+  background-color: var(--bg-card-hover);
   padding: 0.8rem;
-  border-radius: 8px;
-  border-left: 4px solid #3498db;
+  border-radius: var(--radius-small);
+  border-left: 4px solid var(--text-info);
 }
 
 .admin-course-card p:nth-of-type(3),
@@ -148,24 +161,25 @@ body {
 .admin-course-card p:nth-of-type(5) {
   display: inline-block;
   margin-right: 1rem;
-  background-color: #e8f5e8;
+  background-color: rgba(16, 185, 129, 0.1);
   padding: 0.4rem 0.8rem;
   border-radius: 20px;
   font-size: 0.9rem;
   font-weight: 600;
+  color: var(--text-success);
 }
 
 /* Contenedor del video mejorado */
 .video-container {
   margin: 1.5rem 0;
-  border-radius: 12px;
+  border-radius: var(--radius-medium);
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-light);
   position: relative;
   width: 100%;
   height: 0;
   padding-bottom: 56.25%; /* Aspect ratio 16:9 */
-  background-color: #f8f9fa;
+  background-color: var(--bg-card-hover);
 }
 
 .video-container iframe {
@@ -175,7 +189,7 @@ body {
   width: 100%;
   height: 100%;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-medium);
 }
 
 /* Mensaje cuando no hay video */
@@ -184,12 +198,12 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: #fff3cd;
+  background-color: rgba(245, 158, 11, 0.1);
   padding: 1.5rem;
   text-align: center;
-  border-radius: 8px;
-  border: 2px dashed #ffc107;
-  color: #856404;
+  border-radius: var(--radius-small);
+  border: 2px dashed var(--text-warning);
+  color: var(--text-warning);
   width: 80%;
   max-width: 300px;
 }
@@ -201,7 +215,7 @@ body {
 
 .no-video p:first-child {
   font-weight: bold;
-  color: #dc3545;
+  color: var(--text-danger);
 }
 
 /* Botones de acción */
@@ -215,7 +229,7 @@ body {
 .course-actions button {
   padding: 10px 16px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-small);
   cursor: pointer;
   font-weight: 600;
   transition: all 0.3s ease;
@@ -223,36 +237,36 @@ body {
 }
 
 .course-actions button:first-child {
-  background-color: #3498db;
-  color: white;
+  background: var(--gradient-info);
+  color: var(--text-white);
 }
 
 .course-actions button:first-child:hover {
-  background-color: #2980b9;
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
 }
 
 .course-actions button:last-child {
-  background-color: #e74c3c;
-  color: white;
+  background: var(--gradient-danger);
+  color: var(--text-white);
 }
 
 .course-actions button:last-child:hover {
-  background-color: #c0392b;
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
 /* Sección de evaluación */
 .evaluation-section {
   margin-top: 2rem;
   padding: 1.5rem;
-  background: linear-gradient(135deg, #f1faff 0%, #e8f5e8 100%);
-  border: 1px solid #b6d4ff;
-  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(52, 152, 219, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-medium);
 }
 
 .evaluation-section h3 {
-  color: #203a43;
+  color: var(--text-primary);
   margin-bottom: 1rem;
   text-align: center;
 }
@@ -260,14 +274,14 @@ body {
 .question-block {
   margin-bottom: 1.5rem;
   padding: 1.5rem;
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  border: 1px solid #e1e8ed;
+  background-color: var(--bg-card);
+  border-radius: var(--radius-medium);
+  box-shadow: var(--shadow-light);
+  border: 1px solid var(--border-primary);
 }
 
 .question-block label {
-  color: #203a43;
+  color: var(--text-primary);
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
@@ -314,12 +328,8 @@ body {
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #3498db, #2ecc71);
-  border-radius: 16px 16px 0 0;
-}
-
-.admin-course-card {
-  position: relative;
+  background: linear-gradient(90deg, var(--text-info), var(--text-success));
+  border-radius: var(--radius-large) var(--radius-large) 0 0;
 }
 
 .modal {
@@ -336,46 +346,48 @@ body {
 }
 
 .modal-content {
-  background-color: #fff;
+  background-color: var(--bg-card);
   padding: 30px;
   width: 90%;
   max-width: 700px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.25);
+  border-radius: var(--radius-small);
+  box-shadow: var(--shadow-heavy);
   max-height: 90vh;
   overflow-y: auto;
+  border: 1px solid var(--border-primary);
 }
 
 /* Botón para mostrar/ocultar cursos */
 .toggle-courses-button {
   margin: 3rem auto 2rem;
   display: block;
-  background-color: #07b378;
-  color: white;
+  background: var(--gradient-success);
+  color: var(--text-white);
   border: none;
   padding: 14px 28px;
-  border-radius: 16px;
+  border-radius: var(--radius-large);
   font-size: 1.05rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  transition: all 0.3s ease;
   box-shadow: 0 8px 18px rgba(7, 179, 120, 0.3);
 }
 
 .toggle-courses-button:hover {
-  background-color: #059e69;
   transform: scale(1.02);
+  box-shadow: 0 12px 24px rgba(7, 179, 120, 0.4);
 }
 
 /* Corte visual entre formulario y lista de cursos */
 .separator-line {
   width: 100%;
   height: 2px;
-  background: linear-gradient(to right, #3498db, #2ecc71);
+  background: linear-gradient(to right, var(--text-info), var(--text-success));
   margin: 4rem 0 2rem;
   border-radius: 2px;
   opacity: 0.7;
 }
+
 @keyframes fadeIn {
   from {
     opacity: 0;

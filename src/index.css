@@ -1,3 +1,97 @@
+/* Variables CSS para temas claro y oscuro */
+:root {
+  /* Tema claro (por defecto) */
+  --bg-primary: #f8fafc;
+  --bg-secondary: #eaf1fa;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f8fbff;
+  --bg-input: #f8fbff;
+  --bg-menu: #1b2a41;
+  --bg-table: #f5f9fc;
+  --bg-table-row: #f0f4f8;
+  --bg-table-row-hover: #e6f0fa;
+  --bg-progress: #e3eaf2;
+  --bg-progress-fill: #3f51b5;
+  --bg-progress-eval: #e8eaf6;
+  --bg-progress-eval-fill: #ff9800;
+  
+  --text-primary: #203a43;
+  --text-secondary: #5a6b7b;
+  --text-muted: #7a869a;
+  --text-light: #95a5a6;
+  --text-white: #ffffff;
+  --text-success: #1ca97a;
+  --text-warning: #e6a700;
+  --text-danger: #e74c3c;
+  --text-info: #3f51b5;
+  
+  --border-primary: #e3eaf2;
+  --border-secondary: #d1d5db;
+  --border-input: #bcd2f7;
+  --border-focus: #43e97b;
+  
+  --shadow-light: 0 2px 12px 0 rgba(60,72,88,0.09);
+  --shadow-medium: 0 4px 24px 0 rgba(60,72,88,0.13);
+  --shadow-heavy: 0 8px 32px 0 rgba(60,72,88,0.18);
+  --shadow-card: 0 4px 18px rgba(44,62,80,0.08);
+  
+  --gradient-primary: linear-gradient(120deg, #f8fafc 60%, #eaf1fa 100%);
+  --gradient-secondary: linear-gradient(120deg, #f5f9fc 60%, #eaf1fa 100%);
+  --gradient-success: linear-gradient(135deg, #43e97b, #38f9d7);
+  --gradient-danger: linear-gradient(135deg, #e74c3c, #c0392b);
+  --gradient-warning: linear-gradient(135deg, #f39c12, #e67e22);
+  --gradient-info: linear-gradient(135deg, #3498db, #2980b9);
+  
+  --radius-small: 8px;
+  --radius-medium: 12px;
+  --radius-large: 16px;
+  --radius-xl: 22px;
+}
+
+/* Tema oscuro */
+[data-theme="dark"] {
+  --bg-primary: #0f1419;
+  --bg-secondary: #1a1f2e;
+  --bg-card: #1e2332;
+  --bg-card-hover: #252a3a;
+  --bg-input: #252a3a;
+  --bg-menu: #0f1419;
+  --bg-table: #1a1f2e;
+  --bg-table-row: #252a3a;
+  --bg-table-row-hover: #2d3444;
+  --bg-progress: #2d3444;
+  --bg-progress-fill: #4f46e5;
+  --bg-progress-eval: #3d2f1f;
+  --bg-progress-eval-fill: #f59e0b;
+  
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-light: #475569;
+  --text-white: #ffffff;
+  --text-success: #10b981;
+  --text-warning: #f59e0b;
+  --text-danger: #ef4444;
+  --text-info: #6366f1;
+  
+  --border-primary: #334155;
+  --border-secondary: #475569;
+  --border-input: #475569;
+  --border-focus: #10b981;
+  
+  --shadow-light: 0 2px 12px 0 rgba(0,0,0,0.3);
+  --shadow-medium: 0 4px 24px 0 rgba(0,0,0,0.4);
+  --shadow-heavy: 0 8px 32px 0 rgba(0,0,0,0.5);
+  --shadow-card: 0 4px 18px rgba(0,0,0,0.3);
+  
+  --gradient-primary: linear-gradient(120deg, #0f1419 60%, #1a1f2e 100%);
+  --gradient-secondary: linear-gradient(120deg, #1a1f2e 60%, #252a3a 100%);
+  --gradient-success: linear-gradient(135deg, #10b981, #059669);
+  --gradient-danger: linear-gradient(135deg, #ef4444, #dc2626);
+  --gradient-warning: linear-gradient(135deg, #f59e0b, #d97706);
+  --gradient-info: linear-gradient(135deg, #6366f1, #4f46e5);
+}
+
 /* index.css */
 * {
   margin: 0;
@@ -8,4 +102,12 @@
 html, body {
   width: 100%;
   height: 100%;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Transiciones suaves para cambios de tema */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }

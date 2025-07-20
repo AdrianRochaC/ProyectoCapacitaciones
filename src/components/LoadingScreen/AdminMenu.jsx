@@ -11,6 +11,7 @@ import { FaBell } from "react-icons/fa";
 import "./AdminMenu.css";
 import "./Notifications.anim.css";
 import { useEffect, useState } from 'react';
+import ThemeToggle from '../ThemeToggle';
 
 const AdminMenu = () => {
   const navigate = useNavigate();
@@ -95,6 +96,7 @@ const AdminMenu = () => {
         {user && (
           <div style={{display:'flex',alignItems:'center',gap:'18px',position:'relative'}}>
             <span className="user-info">Hola, {user.nombre}</span>
+            <ThemeToggle />
             <button className="notif-bell" onClick={() => setShowDropdown(!showDropdown)} style={{position:'relative',background:'#fff',border:'1.5px solid #2962ff',borderRadius:'50%',width:'44px',height:'44px',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 2px 8px 0 rgba(44,62,80,0.10)',transition:'box-shadow 0.2s, transform 0.2s',cursor:'pointer',outline:'none'}}
               onMouseEnter={e => {e.currentTarget.style.boxShadow='0 4px 16px 0 rgba(44,62,80,0.18)';e.currentTarget.style.transform='scale(1.08)';}}
               onMouseLeave={e => {e.currentTarget.style.boxShadow='0 2px 8px 0 rgba(44,62,80,0.10)';e.currentTarget.style.transform='scale(1)';}}>

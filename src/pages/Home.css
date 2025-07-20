@@ -1,5 +1,5 @@
 .home-dashboard-bg {
-  background: linear-gradient(120deg, #f8fafc 60%, #eaf1fa 100%);
+  background: var(--gradient-primary);
   min-height: 100vh;
   width: 100vw;
   margin: 0;
@@ -9,7 +9,7 @@
 }
 .home-dashboard-title {
   text-align: center;
-  color: #203a43;
+  color: var(--text-primary);
   margin-bottom: 2.5rem;
   padding-top: 3.5rem;
 }
@@ -21,7 +21,7 @@
 }
 .home-dashboard-title p {
   font-size: 1.18rem;
-  color: #5a6b7b;
+  color: var(--text-secondary);
   margin-top: 0.2rem;
 }
 .home-dashboard-cards {
@@ -34,9 +34,9 @@
   padding-bottom: 3rem;
 }
 .home-dashboard-card {
-  background: #fff;
-  border-radius: 22px;
-  box-shadow: 0 4px 24px 0 rgba(60,72,88,0.13);
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-medium);
   padding: 2.7rem 2.2rem 2.2rem 2.2rem;
   min-width: 260px;
   max-width: 340px;
@@ -46,15 +46,16 @@
   align-items: center;
   gap: 1.3rem;
   transition: box-shadow 0.22s, border-color 0.22s, transform 0.22s;
-  border: 1.5px solid #e3eaf2;
+  border: 1.5px solid var(--border-primary);
   position: relative;
   cursor: pointer;
   animation: fadeInCard 0.7s cubic-bezier(.4,0,.2,1);
 }
 .home-dashboard-card:hover {
-  box-shadow: 0 12px 36px 0 rgba(44,62,80,0.18);
-  border-color: #43e97b;
+  box-shadow: var(--shadow-heavy);
+  border-color: var(--border-focus);
   transform: translateY(-4px) scale(1.025);
+  background: var(--bg-card-hover);
 }
 .home-dashboard-icon {
   margin-bottom: 0.7rem;
@@ -66,14 +67,14 @@
 .home-dashboard-title-card {
   font-size: 1.32rem;
   font-weight: 700;
-  color: #203a43;
+  color: var(--text-primary);
   margin-bottom: 0.2rem;
   text-align: center;
   letter-spacing: -0.5px;
 }
 .home-dashboard-desc {
   font-size: 1.08rem;
-  color: #5a6b7b;
+  color: var(--text-secondary);
   text-align: center;
   margin-bottom: 0.2rem;
   font-weight: 400;
