@@ -11,7 +11,7 @@
 
 .notif-bell:active {
   transform: scale(0.93) !important;
-  box-shadow: 0 1px 4px 0 rgba(44,62,80,0.10) !important;
+  box-shadow: var(--shadow-light) !important;
 }
 
 .notif-dropdown {
@@ -20,7 +20,7 @@
 
 .notif-unread {
   animation: notifCardIn 0.4s cubic-bezier(.4,0,.2,1);
-  border-left: 5px solid #2962ff;
+  border-left: 5px solid var(--border-primary);
 }
 
 .notif-count {

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { BookOpenCheck, ClipboardList, Users2, BarChart3, User, Settings } from "lucide-react";
-import { FaGraduationCap, FaClipboardList, FaUser, FaBell, FaCog } from "react-icons/fa";
+import { BookOpenCheck, ClipboardList, Users2, BarChart3, User, Settings, Home } from "lucide-react";
+import { FaGraduationCap, FaClipboardList, FaUser, FaBell, FaCog, FaHome } from "react-icons/fa";
 import PersonalizationModal from '../PersonalizationModal';
 
 const HomeMenuList = ({ isAdmin, onNavigate, unreadCount, showNotifications }) => {
@@ -12,6 +12,7 @@ const HomeMenuList = ({ isAdmin, onNavigate, unreadCount, showNotifications }) =
 
   let options = isAdmin
     ? [
+        { to: "/home", icon: <Home size={22} />, label: "Home" },
         { to: "/admin-courses", icon: <BookOpenCheck size={22} />, label: "Gestión Cursos" },
         { to: "/AdminBitacora", icon: <ClipboardList size={22} />, label: "Bitácora" },
         { to: "/cuentas", icon: <Users2 size={22} />, label: "Cuentas" },
@@ -19,6 +20,7 @@ const HomeMenuList = ({ isAdmin, onNavigate, unreadCount, showNotifications }) =
         { to: "/perfil", icon: <User size={22} />, label: "Perfil" },
       ]
     : [
+        { to: "/home", icon: <FaHome size={22} />, label: "Home" },
         { to: "/courses", icon: <FaGraduationCap size={22} />, label: "Cursos" },
         { to: "/bitacora", icon: <FaClipboardList size={22} />, label: "Bitácora" },
         { to: "/perfil", icon: <FaUser size={22} />, label: "Perfil" },
@@ -81,6 +83,7 @@ const HomeMenuList = ({ isAdmin, onNavigate, unreadCount, showNotifications }) =
         background: 'var(--bg-menu)',
         color: 'var(--text-primary)'
       }}>
+
         <div>
           <ul style={{
             listStyle:'none',
@@ -168,7 +171,7 @@ const HomeMenuList = ({ isAdmin, onNavigate, unreadCount, showNotifications }) =
                           }}>
                             {notifications.map(n => (
                               <li key={n.id} style={{
-                                background:n.is_read ? 'var(--bg-card)' : 'linear-gradient(90deg,#e0ffe6,#b2f7ef,#e0f7fa,#b9f6ca)',
+                                background:n.is_read ? 'var(--bg-card)' : 'var(--gradient-info)',
                                 borderRadius:'10px',
                                 padding:'0.7rem 0.8rem',
                                 boxShadow:'var(--shadow-light)',
@@ -191,16 +194,25 @@ const HomeMenuList = ({ isAdmin, onNavigate, unreadCount, showNotifications }) =
                                   <button
                                     style={{
                                       marginTop:'0.3rem',
-                                      background:'var(--gradient-success)',
+                                      background:'var(--gradient-primary)',
                                       color:'var(--text-white)',
                                       border:'none',
                                       borderRadius:'8px',
                                       cursor:'pointer',
                                       fontSize:'0.98rem',
                                       padding:'4px 12px',
-                                      alignSelf:'flex-end'
+                                      alignSelf:'flex-end',
+                                      transition:'all 0.3s ease'
                                     }}
                                     onClick={() => handleMarkAsRead(n.id)}
+                                    onMouseEnter={e => {
+                                      e.target.style.background = 'var(--gradient-primary-hover)';
+                                      e.target.style.transform = 'translateY(-1px)';
+                                    }}
+                                    onMouseLeave={e => {
+                                      e.target.style.background = 'var(--gradient-primary)';
+                                      e.target.style.transform = 'translateY(0)';
+                                    }}
                                   >
                                     Marcar como leída
                                   </button>

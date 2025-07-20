@@ -33,6 +33,8 @@
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
 }
 
+
+
 /* Grid horizontal de usuarios */
 .dashboard-users-grid {
   display: grid;
@@ -45,7 +47,6 @@
   box-sizing: border-box;
   justify-content: center;
   padding: 2.5rem 2rem 2rem 2rem;
-  background: var(--gradient-secondary);
 }
 
 .dashboard-user-group {

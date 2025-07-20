@@ -502,28 +502,40 @@
 
 /* Modal */
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(8px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background: rgba(0, 0, 0, 0.7) !important;
+  backdrop-filter: blur(10px) !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  z-index: 9999999 !important;
   animation: fadeIn 0.3s ease;
+  width: 100vw !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+}
+
+/* Asegurar que el modal esté por encima de todo */
+.modal-overlay * {
+  z-index: inherit !important;
 }
 
 .modal-content {
-  background: var(--bg-card);
-  border-radius: var(--radius-xl);
-  padding: 2.2rem;
-  max-width: 500px;
-  width: 90%;
-  border: 1.5px solid var(--border-primary);
-  box-shadow: var(--shadow-card);
+  background: var(--bg-card) !important;
+  border-radius: var(--radius-xl) !important;
+  padding: 2.2rem !important;
+  max-width: 500px !important;
+  width: 90% !important;
+  border: 1.5px solid var(--border-primary) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+  position: relative !important;
+  z-index: 10000000 !important;
+  transform: translateZ(0) !important;
+  animation: modalSlideIn 0.4s ease-out !important;
 }
 
 .modal-content h2 {
@@ -575,6 +587,17 @@
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+@keyframes modalSlideIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(-50px) scale(0.95);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes fadeInCard {
@@ -632,7 +655,12 @@
     padding: 1rem 0.5rem 1rem 0.5rem;
   }
   .modal-content {
-    padding: 1.1rem;
+    padding: 1.1rem !important;
+    width: 95% !important;
+    max-width: 450px !important;
+  }
+  .modal-overlay {
+    z-index: 9999999 !important;
   }
 }
 
@@ -647,7 +675,14 @@
     padding: 1.1rem;
   }
   .modal-content {
-    padding: 0.7rem;
+    padding: 0.7rem !important;
+    width: 98% !important;
+    max-width: 400px !important;
+    margin: 1rem !important;
+  }
+  .modal-overlay {
+    z-index: 9999999 !important;
+    padding: 1rem !important;
   }
   .btn-edit, .btn-delete {
     width: 40px;

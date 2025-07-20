@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { X, Palette, Moon, Sun, Settings, Type, Eye, Zap } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, Palette, Moon, Sun, Settings, Type, Eye, Zap, Image, Upload, Info, Camera } from 'lucide-react';
+import { getUserPreferences, updateUserPreferences, syncPreferencesWithLocalStorage, getAuthStatus } from '../utils/preferencesApi';
 import './PersonalizationModal.css';
 
 const PersonalizationModal = ({ isOpen, onClose }) => {
@@ -10,82 +11,424 @@ const PersonalizationModal = ({ isOpen, onClose }) => {
   const [fontFamily, setFontFamily] = useState('inter');
   const [spacing, setSpacing] = useState('normal');
   const [animations, setAnimations] = useState('enabled');
+  const [backgroundType, setBackgroundType] = useState('color');
+  const [backgroundImageUrl, setBackgroundImageUrl] = useState('');
+  const [backgroundColor, setBackgroundColor] = useState('default');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [authStatus, setAuthStatus] = useState({ isAuthenticated: false, hasToken: false });
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    const savedColorScheme = localStorage.getItem('colorScheme') || 'default';
-    const savedFontSize = localStorage.getItem('fontSize') || 'medium';
-    const savedFontFamily = localStorage.getItem('fontFamily') || 'inter';
-    const savedSpacing = localStorage.getItem('spacing') || 'normal';
-    const savedAnimations = localStorage.getItem('animations') || 'enabled';
-    
-    setCurrentTheme(savedTheme);
-    setSelectedTheme(savedTheme);
-    setColorScheme(savedColorScheme);
-    setFontSize(savedFontSize);
-    setFontFamily(savedFontFamily);
-    setSpacing(savedSpacing);
-    setAnimations(savedAnimations);
-    
-    // Aplicar configuraciones guardadas
-    applySettings(savedTheme, savedColorScheme, savedFontSize, savedFontFamily, savedSpacing, savedAnimations);
-  }, []);
+    if (isOpen) {
+      const status = getAuthStatus();
+      setAuthStatus(status);
+      loadUserPreferences();
+    }
+  }, [isOpen]);
 
-  const applySettings = (theme, scheme, size, family, space, anim) => {
-    // Aplicar tema
-    localStorage.setItem('theme', theme);
-    document.documentElement.setAttribute('data-theme', theme);
-    
-    // Aplicar esquema de color
-    localStorage.setItem('colorScheme', scheme);
-    document.documentElement.setAttribute('data-color-scheme', scheme);
-    
-    // Aplicar tamaño de fuente
-    localStorage.setItem('fontSize', size);
-    document.documentElement.setAttribute('data-font-size', size);
-    
-    // Aplicar familia de fuente
-    localStorage.setItem('fontFamily', family);
-    document.documentElement.setAttribute('data-font-family', family);
-    
-    // Aplicar espaciado
-    localStorage.setItem('spacing', space);
-    document.documentElement.setAttribute('data-spacing', space);
-    
-    // Aplicar animaciones
-    localStorage.setItem('animations', anim);
-    document.documentElement.setAttribute('data-animations', anim);
+  const loadUserPreferences = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const preferences = await getUserPreferences();
+      
+      setCurrentTheme(preferences.theme);
+      setSelectedTheme(preferences.theme);
+      setColorScheme(preferences.color_scheme);
+      setFontSize(preferences.font_size);
+      setFontFamily(preferences.font_family);
+      setSpacing(preferences.spacing);
+      setAnimations(preferences.animations);
+      setBackgroundType(preferences.background_type);
+      setBackgroundImageUrl(preferences.background_image_url || '');
+      setBackgroundColor(preferences.background_color);
+      
+      // Aplicar configuraciones al DOM
+      applySettings(preferences.theme, preferences.color_scheme, preferences.font_size, preferences.font_family, preferences.spacing, preferences.animations, preferences.background_type, preferences.background_image_url, preferences.background_color);
+      
+    } catch (error) {
+      console.error('Error cargando preferencias:', error);
+      setError('No se pudieron cargar las preferencias. Usando configuración local.');
+      
+      // Cargar desde localStorage como respaldo
+      const localPreferences = {
+        theme: localStorage.getItem('theme') || 'dark',
+        color_scheme: localStorage.getItem('colorScheme') || 'default',
+        font_size: localStorage.getItem('fontSize') || 'medium',
+        font_family: localStorage.getItem('fontFamily') || 'inter',
+        spacing: localStorage.getItem('spacing') || 'normal',
+        animations: localStorage.getItem('animations') || 'enabled',
+        background_type: localStorage.getItem('backgroundType') || 'color',
+        background_image_url: localStorage.getItem('backgroundImageUrl') || null,
+        background_color: localStorage.getItem('backgroundColor') || 'default'
+      };
+      
+      setCurrentTheme(localPreferences.theme);
+      setSelectedTheme(localPreferences.theme);
+      setColorScheme(localPreferences.color_scheme);
+      setFontSize(localPreferences.font_size);
+      setFontFamily(localPreferences.font_family);
+      setSpacing(localPreferences.spacing);
+      setAnimations(localPreferences.animations);
+      setBackgroundType(localPreferences.background_type);
+      setBackgroundImageUrl(localPreferences.background_image_url || '');
+      setBackgroundColor(localPreferences.background_color);
+      
+      applySettings(localPreferences.theme, localPreferences.color_scheme, localPreferences.font_size, localPreferences.font_family, localPreferences.spacing, localPreferences.animations, localPreferences.background_type, localPreferences.background_image_url, localPreferences.background_color);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleThemeChange = (theme) => {
+  const applySettings = (theme, scheme, size, family, space, anim, bgType, bgImage, bgColor) => {
+    // Aplicar al DOM
+    document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.setAttribute('data-color-scheme', scheme);
+    document.documentElement.setAttribute('data-font-size', size);
+    document.documentElement.setAttribute('data-font-family', family);
+    document.documentElement.setAttribute('data-spacing', space);
+    document.documentElement.setAttribute('data-animations', anim);
+    
+    // Aplicar fondo
+    if (bgType === 'image' && bgImage) {
+      document.documentElement.style.setProperty('--background-image', `url(${bgImage})`);
+      document.documentElement.setAttribute('data-background-type', 'image');
+    } else {
+      document.documentElement.style.removeProperty('--background-image');
+      document.documentElement.setAttribute('data-background-type', 'color');
+      document.documentElement.setAttribute('data-background-color', bgColor);
+    }
+  };
+
+  const savePreferences = async (preferences) => {
+    try {
+      // Guardar en la base de datos o localStorage
+      await updateUserPreferences(preferences);
+      setError(null);
+    } catch (error) {
+      console.error('Error guardando preferencias:', error);
+      if (authStatus.isAuthenticated) {
+        setError('No se pudieron guardar las preferencias en el servidor. Los cambios se mantendrán localmente.');
+      }
+    }
+  };
+
+  // Función para manejar la subida de archivos
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validar tipo de archivo
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      setError('Por favor selecciona una imagen en formato JPG, PNG o WebP.');
+      return;
+    }
+
+    // Validar tamaño (máximo 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      setError('La imagen es demasiado grande. Máximo 5MB.');
+      return;
+    }
+
+    try {
+      setUploadingImage(true);
+      setError(null);
+
+      // Comprimir y convertir archivo a base64
+      const compressedBase64Url = await compressAndConvertImage(file);
+      
+      // Aplicar la imagen
+      await handleBackgroundImageChange(compressedBase64Url);
+      
+      setError(null);
+    } catch (error) {
+      console.error('Error procesando imagen:', error);
+      setError('Error al procesar la imagen. Intenta con otra imagen.');
+    } finally {
+      setUploadingImage(false);
+      // Limpiar el input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  // Función para comprimir y convertir imagen
+  const compressAndConvertImage = (file) => {
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = document.createElement('img');
+      
+      img.onload = () => {
+        try {
+          // Calcular dimensiones máximas (máximo 800px de ancho o alto para reducir tamaño)
+          const maxDimension = 800;
+          let { width, height } = img;
+          
+          if (width > height) {
+            if (width > maxDimension) {
+              height = (height * maxDimension) / width;
+              width = maxDimension;
+            }
+          } else {
+            if (height > maxDimension) {
+              width = (width * maxDimension) / height;
+              height = maxDimension;
+            }
+          }
+          
+          // Configurar canvas
+          canvas.width = width;
+          canvas.height = height;
+          
+          // Dibujar imagen redimensionada
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Convertir a base64 con compresión más agresiva
+          const quality = 0.6; // Calidad del 60% para reducir tamaño
+          const base64Url = canvas.toDataURL('image/jpeg', quality);
+          
+          // Verificar tamaño del resultado
+          const base64Size = Math.ceil((base64Url.length * 3) / 4);
+          const maxSize = 2 * 1024 * 1024; // 2MB máximo para API
+          
+          if (base64Size > maxSize) {
+            // Si aún es muy grande, comprimir más agresivamente
+            const lowerQuality = 0.4;
+            const compressedUrl = canvas.toDataURL('image/jpeg', lowerQuality);
+            
+            // Verificar tamaño final
+            const finalSize = Math.ceil((compressedUrl.length * 3) / 4);
+            if (finalSize > maxSize) {
+              // Si aún es muy grande, usar calidad muy baja
+              const veryLowQuality = 0.3;
+              const finalUrl = canvas.toDataURL('image/jpeg', veryLowQuality);
+              resolve(finalUrl);
+            } else {
+              resolve(compressedUrl);
+            }
+          } else {
+            resolve(base64Url);
+          }
+        } catch (error) {
+          reject(error);
+        }
+      };
+      
+      img.onerror = () => {
+        reject(new Error('No se pudo cargar la imagen'));
+      };
+      
+      // Cargar imagen
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  // Función para convertir archivo a base64 (mantener para compatibilidad)
+  const convertFileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // Función para abrir el selector de archivos
+  const openFileSelector = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleThemeChange = async (theme) => {
     setSelectedTheme(theme);
     setCurrentTheme(theme);
-    applySettings(theme, colorScheme, fontSize, fontFamily, spacing, animations);
+    
+    const newPreferences = {
+      theme,
+      color_scheme: colorScheme,
+      font_size: fontSize,
+      font_family: fontFamily,
+      spacing: spacing,
+      animations: animations,
+      background_type: backgroundType,
+      background_image_url: backgroundImageUrl,
+      background_color: backgroundColor
+    };
+    
+    applySettings(theme, colorScheme, fontSize, fontFamily, spacing, animations, backgroundType, backgroundImageUrl, backgroundColor);
+    await savePreferences(newPreferences);
   };
 
-  const handleColorSchemeChange = (scheme) => {
+  const handleColorSchemeChange = async (scheme) => {
     setColorScheme(scheme);
-    applySettings(selectedTheme, scheme, fontSize, fontFamily, spacing, animations);
+    
+    const newPreferences = {
+      theme: selectedTheme,
+      color_scheme: scheme,
+      font_size: fontSize,
+      font_family: fontFamily,
+      spacing: spacing,
+      animations: animations,
+      background_type: backgroundType,
+      background_image_url: backgroundImageUrl,
+      background_color: backgroundColor
+    };
+    
+    applySettings(selectedTheme, scheme, fontSize, fontFamily, spacing, animations, backgroundType, backgroundImageUrl, backgroundColor);
+    await savePreferences(newPreferences);
   };
 
-  const handleFontSizeChange = (size) => {
+  const handleFontSizeChange = async (size) => {
     setFontSize(size);
-    applySettings(selectedTheme, colorScheme, size, fontFamily, spacing, animations);
+    
+    const newPreferences = {
+      theme: selectedTheme,
+      color_scheme: colorScheme,
+      font_size: size,
+      font_family: fontFamily,
+      spacing: spacing,
+      animations: animations,
+      background_type: backgroundType,
+      background_image_url: backgroundImageUrl,
+      background_color: backgroundColor
+    };
+    
+    applySettings(selectedTheme, colorScheme, size, fontFamily, spacing, animations, backgroundType, backgroundImageUrl, backgroundColor);
+    await savePreferences(newPreferences);
   };
 
-  const handleFontFamilyChange = (family) => {
+  const handleFontFamilyChange = async (family) => {
     setFontFamily(family);
-    applySettings(selectedTheme, colorScheme, fontSize, family, spacing, animations);
+    
+    const newPreferences = {
+      theme: selectedTheme,
+      color_scheme: colorScheme,
+      font_size: fontSize,
+      font_family: family,
+      spacing: spacing,
+      animations: animations,
+      background_type: backgroundType,
+      background_image_url: backgroundImageUrl,
+      background_color: backgroundColor
+    };
+    
+    applySettings(selectedTheme, colorScheme, fontSize, family, spacing, animations, backgroundType, backgroundImageUrl, backgroundColor);
+    await savePreferences(newPreferences);
   };
 
-  const handleSpacingChange = (space) => {
+  const handleSpacingChange = async (space) => {
     setSpacing(space);
-    applySettings(selectedTheme, colorScheme, fontSize, fontFamily, space, animations);
+    
+    const newPreferences = {
+      theme: selectedTheme,
+      color_scheme: colorScheme,
+      font_size: fontSize,
+      font_family: fontFamily,
+      spacing: space,
+      animations: animations,
+      background_type: backgroundType,
+      background_image_url: backgroundImageUrl,
+      background_color: backgroundColor
+    };
+    
+    applySettings(selectedTheme, colorScheme, fontSize, fontFamily, space, animations, backgroundType, backgroundImageUrl, backgroundColor);
+    await savePreferences(newPreferences);
   };
 
-  const handleAnimationsChange = (anim) => {
+  const handleAnimationsChange = async (anim) => {
     setAnimations(anim);
-    applySettings(selectedTheme, colorScheme, fontSize, fontFamily, spacing, anim);
+    
+    const newPreferences = {
+      theme: selectedTheme,
+      color_scheme: colorScheme,
+      font_size: fontSize,
+      font_family: fontFamily,
+      spacing: spacing,
+      animations: anim,
+      background_type: backgroundType,
+      background_image_url: backgroundImageUrl,
+      background_color: backgroundColor
+    };
+    
+    applySettings(selectedTheme, colorScheme, fontSize, fontFamily, spacing, anim, backgroundType, backgroundImageUrl, backgroundColor);
+    await savePreferences(newPreferences);
+  };
+
+  const handleBackgroundTypeChange = async (type) => {
+    setBackgroundType(type);
+    
+    const newPreferences = {
+      theme: selectedTheme,
+      color_scheme: colorScheme,
+      font_size: fontSize,
+      font_family: fontFamily,
+      spacing: spacing,
+      animations: animations,
+      background_type: type,
+      background_image_url: backgroundImageUrl,
+      background_color: backgroundColor
+    };
+    
+    applySettings(selectedTheme, colorScheme, fontSize, fontFamily, spacing, animations, type, backgroundImageUrl, backgroundColor);
+    await savePreferences(newPreferences);
+  };
+
+  const handleBackgroundImageChange = async (url) => {
+    // Verificar tamaño de la imagen antes de enviar
+    if (url && url.startsWith('data:')) {
+      const base64Size = Math.ceil((url.length * 3) / 4);
+      const maxApiSize = 8 * 1024 * 1024; // 8MB máximo para API
+      
+      if (base64Size > maxApiSize) {
+        setError('La imagen es demasiado grande para guardar en el servidor. Se aplicará temporalmente.');
+        // Aplicar la imagen temporalmente sin guardar en servidor
+        setBackgroundImageUrl(url);
+        applySettings(selectedTheme, colorScheme, fontSize, fontFamily, spacing, animations, 'image', url, backgroundColor);
+        return;
+      }
+    }
+    
+    setBackgroundImageUrl(url);
+    
+    const newPreferences = {
+      theme: selectedTheme,
+      color_scheme: colorScheme,
+      font_size: fontSize,
+      font_family: fontFamily,
+      spacing: spacing,
+      animations: animations,
+      background_type: 'image',
+      background_image_url: url,
+      background_color: backgroundColor
+    };
+    
+    applySettings(selectedTheme, colorScheme, fontSize, fontFamily, spacing, animations, 'image', url, backgroundColor);
+    await savePreferences(newPreferences);
+  };
+
+  const handleBackgroundColorChange = async (color) => {
+    setBackgroundColor(color);
+    
+    const newPreferences = {
+      theme: selectedTheme,
+      color_scheme: colorScheme,
+      font_size: fontSize,
+      font_family: fontFamily,
+      spacing: spacing,
+      animations: animations,
+      background_type: 'color',
+      background_image_url: backgroundImageUrl,
+      background_color: color
+    };
+    
+    applySettings(selectedTheme, colorScheme, fontSize, fontFamily, spacing, animations, 'color', backgroundImageUrl, color);
+    await savePreferences(newPreferences);
   };
 
   const themes = [
@@ -252,6 +595,105 @@ const PersonalizationModal = ({ isOpen, onClose }) => {
     }
   ];
 
+  const backgroundColors = [
+    {
+      id: 'default',
+      name: 'Predeterminado',
+      description: 'Color del tema actual',
+      color: 'var(--bg-primary)'
+    },
+    {
+      id: 'black',
+      name: 'Negro',
+      description: 'Fondo completamente negro',
+      color: '#000000'
+    },
+    {
+      id: 'white',
+      name: 'Blanco',
+      description: 'Fondo completamente blanco',
+      color: '#ffffff'
+    },
+    {
+      id: 'blue',
+      name: 'Azul',
+      description: 'Fondo azul suave',
+      color: '#1e3a8a'
+    },
+    {
+      id: 'green',
+      name: 'Verde',
+      description: 'Fondo verde natural',
+      color: '#065f46'
+    },
+    {
+      id: 'purple',
+      name: 'Púrpura',
+      description: 'Fondo púrpura elegante',
+      color: '#581c87'
+    },
+    {
+      id: 'dark-purple',
+      name: 'Púrpura Oscuro',
+      description: 'Fondo púrpura intenso',
+      color: '#4c1d95'
+    },
+    {
+      id: 'light-purple',
+      name: 'Púrpura Claro',
+      description: 'Fondo púrpura suave',
+      color: '#7c3aed'
+    },
+    {
+      id: 'pink',
+      name: 'Rosa',
+      description: 'Fondo rosa vibrante',
+      color: '#be185d'
+    },
+    {
+      id: 'red',
+      name: 'Rojo',
+      description: 'Fondo rojo intenso',
+      color: '#dc2626'
+    },
+    {
+      id: 'orange',
+      name: 'Naranja',
+      description: 'Fondo naranja cálido',
+      color: '#ea580c'
+    },
+    {
+      id: 'yellow',
+      name: 'Amarillo',
+      description: 'Fondo amarillo brillante',
+      color: '#ca8a04'
+    },
+    {
+      id: 'teal',
+      name: 'Verde Azulado',
+      description: 'Fondo verde azulado',
+      color: '#0d9488'
+    },
+    {
+      id: 'indigo',
+      name: 'Índigo',
+      description: 'Fondo índigo profundo',
+      color: '#3730a3'
+    },
+    {
+      id: 'gray',
+      name: 'Gris',
+      description: 'Fondo gris elegante',
+      color: '#374151'
+    },
+    {
+      id: 'light-gray',
+      name: 'Gris Claro',
+      description: 'Fondo gris suave',
+      color: '#6b7280'
+    }
+  ];
+
   if (!isOpen) return null;
 
   return (
@@ -268,6 +710,55 @@ const PersonalizationModal = ({ isOpen, onClose }) => {
         </div>
 
         <div className="modal-content">
+          {isLoading && (
+            <div className="loading-indicator">
+              <div className="spinner"></div>
+              <p>Cargando preferencias...</p>
+            </div>
+          )}
+
+          {/* Información de estado de autenticación */}
+          {!authStatus.isAuthenticated && (
+            <div className="auth-info">
+              <div className="info-card">
+                <div className="info-icon">
+                  <Info size={20} />
+                </div>
+                <div className="info-text">
+                  <span>Modo local</span>
+                  <small>
+                    No estás autenticado. Los cambios se guardarán solo en este dispositivo. 
+                    Inicia sesión para sincronizar tus preferencias entre dispositivos.
+                  </small>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="error-message">
+              <p>⚠️ {error}</p>
+            </div>
+          )}
+
+          {/* Información sobre almacenamiento */}
+          {localStorage.getItem('storageCleared') === 'true' && (
+            <div className="storage-info">
+              <div className="info-card warning">
+                <div className="info-icon">
+                  <Info size={20} />
+                </div>
+                <div className="info-text">
+                  <span>Almacenamiento optimizado</span>
+                  <small>
+                    El almacenamiento local estaba lleno y se ha limpiado automáticamente. 
+                    Las imágenes de fondo se guardarán solo temporalmente.
+                  </small>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Sección de Apariencia */}
           <div className="section">
             <h3>Apariencia</h3>
@@ -342,6 +833,187 @@ const PersonalizationModal = ({ isOpen, onClose }) => {
               </div>
             ))}
           </div>
+
+          {/* Sección de Fondo */}
+          <div className="section">
+            <div className="section-header">
+              <Image size={20} />
+              <h3>Fondo</h3>
+            </div>
+            <p className="section-description">
+              Personaliza el fondo de la aplicación
+            </p>
+          </div>
+
+          {/* Tipo de fondo */}
+          <div className="background-type-options">
+            <div className="background-type-option">
+              <label className="radio-option">
+                <input
+                  type="radio"
+                  name="backgroundType"
+                  value="color"
+                  checked={backgroundType === 'color'}
+                  onChange={() => handleBackgroundTypeChange('color')}
+                />
+                <div className="radio-content">
+                  <div className="radio-icon">🎨</div>
+                  <div className="radio-info">
+                    <h4>Color sólido</h4>
+                    <p>Fondo con color personalizado</p>
+                  </div>
+                </div>
+              </label>
+            </div>
+            
+            <div className="background-type-option">
+              <label className="radio-option">
+                <input
+                  type="radio"
+                  name="backgroundType"
+                  value="image"
+                  checked={backgroundType === 'image'}
+                  onChange={() => handleBackgroundTypeChange('image')}
+                />
+                <div className="radio-content">
+                  <div className="radio-icon">🖼️</div>
+                  <div className="radio-info">
+                    <h4>Imagen</h4>
+                    <p>Fondo con imagen personalizada</p>
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          {/* Opciones de fondo según tipo */}
+          {backgroundType === 'color' && (
+            <div className="background-color-options">
+              <h4>Color de fondo</h4>
+              <div className="color-options-grid">
+                {backgroundColors.map((color) => (
+                  <div
+                    key={color.id}
+                    className={`color-option ${backgroundColor === color.id ? 'selected' : ''}`}
+                    onClick={() => handleBackgroundColorChange(color.id)}
+                  >
+                    <div 
+                      className="color-preview" 
+                      style={{ backgroundColor: color.color }}
+                    ></div>
+                    <div className="color-info">
+                      <h5>{color.name}</h5>
+                      <p>{color.description}</p>
+                    </div>
+                    {backgroundColor === color.id && (
+                      <div className="selected-indicator">
+                        <div className="checkmark">✓</div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {backgroundType === 'image' && (
+            <div className="background-image-options">
+              <h4>Imagen de fondo</h4>
+              
+              {/* Opciones de imagen */}
+              <div className="image-options">
+                <div className="image-option-tabs">
+                  <button 
+                    className={`tab-button ${!backgroundImageUrl.startsWith('data:') ? 'active' : ''}`}
+                    onClick={() => setBackgroundImageUrl('')}
+                  >
+                    <Upload size={16} />
+                    URL
+                  </button>
+                  <button 
+                    className={`tab-button ${backgroundImageUrl.startsWith('data:') ? 'active' : ''}`}
+                    onClick={openFileSelector}
+                  >
+                    <Camera size={16} />
+                    Subir archivo
+                  </button>
+                </div>
+
+                {/* Input de URL */}
+                <div className="image-url-input">
+                  <input
+                    type="url"
+                    placeholder="https://ejemplo.com/imagen.jpg"
+                    value={backgroundImageUrl.startsWith('data:') ? '' : backgroundImageUrl}
+                    onChange={(e) => setBackgroundImageUrl(e.target.value)}
+                    onBlur={() => handleBackgroundImageChange(backgroundImageUrl)}
+                    disabled={backgroundImageUrl.startsWith('data:')}
+                  />
+                  <button 
+                    className="btn-apply-image"
+                    onClick={() => handleBackgroundImageChange(backgroundImageUrl)}
+                    disabled={backgroundImageUrl.startsWith('data:')}
+                  >
+                    <Upload size={16} />
+                    Aplicar
+                  </button>
+                </div>
+
+                {/* Botón de subida de archivo */}
+                <div className="file-upload-section">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                    onChange={handleFileUpload}
+                    style={{ display: 'none' }}
+                  />
+                  <button 
+                    className="btn-upload-file"
+                    onClick={openFileSelector}
+                    disabled={uploadingImage}
+                  >
+                    {uploadingImage ? (
+                      <>
+                        <div className="upload-spinner"></div>
+                        Procesando...
+                      </>
+                    ) : (
+                      <>
+                        <Camera size={16} />
+                        Seleccionar imagen (JPG, PNG, WebP - máx. 5MB)
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Vista previa */}
+                {backgroundImageUrl && (
+                  <div className="image-preview">
+                    <img 
+                      src={backgroundImageUrl} 
+                      alt="Vista previa" 
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'block';
+                      }}
+                    />
+                    <div className="image-error" style={{ display: 'none' }}>
+                      <p>❌ No se pudo cargar la imagen</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Información */}
+                <div className="image-help">
+                  <p>💡 <strong>URL:</strong> Puedes usar URLs de imágenes de internet</p>
+                  <p>📁 <strong>Archivo:</strong> Sube imágenes desde tu dispositivo (JPG, PNG, WebP - máximo 5MB)</p>
+                  <p>⚡ <strong>Optimización:</strong> Las imágenes se comprimen automáticamente para mejor rendimiento</p>
+                  <p>💾 <strong>Almacenamiento:</strong> Imágenes muy grandes se aplican temporalmente</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Sección de Tipografía */}
           <div className="section">
@@ -505,7 +1177,8 @@ const PersonalizationModal = ({ isOpen, onClose }) => {
                   {fontSize === 'small' ? ' Pequeña' : fontSize === 'large' ? ' Grande' : ' Normal'} • 
                   {fontFamilies.find(f => f.id === fontFamily)?.name || 'Inter'} • 
                   {spacing === 'compact' ? ' Compacto' : spacing === 'comfortable' ? ' Cómodo' : ' Normal'} • 
-                  {animations === 'enabled' ? ' Animaciones' : animations === 'reduced' ? ' Reducidas' : ' Sin animaciones'}
+                  {animations === 'enabled' ? ' Animaciones' : animations === 'reduced' ? ' Reducidas' : ' Sin animaciones'} • 
+                  {backgroundType === 'image' ? ' Imagen de fondo' : ' Color de fondo'}
                 </small>
               </div>
             </div>

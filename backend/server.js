@@ -15,7 +15,9 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use(express.json());
+// Configurar límites de payload más grandes para imágenes
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Configuración de la base de datos
 const dbConfig = {
@@ -48,6 +50,160 @@ const verifyToken = (req, res, next) => {
     });
   }
 };
+
+// === RUTAS DE PREFERENCIAS DE USUARIO ===
+// Obtener preferencias del usuario
+app.get('/api/user-preferences', verifyToken, async (req, res) => {
+  try {
+    const connection = await mysql.createConnection(dbConfig);
+    
+    const [rows] = await connection.execute(
+      'SELECT theme, color_scheme, font_size, font_family, spacing, animations, background_type, background_image_url, background_color FROM user_preferences WHERE user_id = ?',
+      [req.user.id]
+    );
+
+    await connection.end();
+
+    if (rows.length === 0) {
+      // Si no hay preferencias, crear las por defecto
+      const defaultPreferences = {
+        theme: 'dark',
+        color_scheme: 'default',
+        font_size: 'medium',
+        font_family: 'inter',
+        spacing: 'normal',
+        animations: 'enabled',
+        background_type: 'color',
+        background_image_url: null,
+        background_color: 'default'
+      };
+
+      // Crear preferencias por defecto
+      const insertConnection = await mysql.createConnection(dbConfig);
+      await insertConnection.execute(
+        `INSERT INTO user_preferences (user_id, theme, color_scheme, font_size, font_family, spacing, animations, background_type, background_color)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [req.user.id, defaultPreferences.theme, defaultPreferences.color_scheme, defaultPreferences.font_size, 
+         defaultPreferences.font_family, defaultPreferences.spacing, defaultPreferences.animations, 
+         defaultPreferences.background_type, defaultPreferences.background_color]
+      );
+      await insertConnection.end();
+
+      return res.json({ success: true, preferences: defaultPreferences });
+    }
+
+    res.json({ success: true, preferences: rows[0] });
+
+  } catch (error) {
+    console.error('Error obteniendo preferencias:', error);
+    res.status(500).json({ success: false, message: 'Error interno del servidor' });
+  }
+});
+
+// Actualizar preferencias del usuario
+app.put('/api/user-preferences', verifyToken, async (req, res) => {
+  try {
+    const { 
+      theme, 
+      color_scheme, 
+      font_size, 
+      font_family, 
+      spacing, 
+      animations, 
+      background_type, 
+      background_image_url, 
+      background_color 
+    } = req.body;
+    
+    const connection = await mysql.createConnection(dbConfig);
+    
+    // Verificar si el usuario ya tiene preferencias
+    const [existing] = await connection.execute(
+      'SELECT id FROM user_preferences WHERE user_id = ?',
+      [req.user.id]
+    );
+
+    if (existing.length > 0) {
+      // Actualizar preferencias existentes
+      await connection.execute(
+        `UPDATE user_preferences 
+         SET theme = ?, color_scheme = ?, font_size = ?, font_family = ?, spacing = ?, animations = ?,
+             background_type = ?, background_image_url = ?, background_color = ?
+         WHERE user_id = ?`,
+        [theme, color_scheme, font_size, font_family, spacing, animations, 
+         background_type, background_image_url, background_color, req.user.id]
+      );
+    } else {
+      // Crear nuevas preferencias
+      await connection.execute(
+        `INSERT INTO user_preferences (user_id, theme, color_scheme, font_size, font_family, spacing, animations, background_type, background_image_url, background_color)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [req.user.id, theme, color_scheme, font_size, font_family, spacing, animations, 
+         background_type, background_image_url, background_color]
+      );
+    }
+
+    await connection.end();
+
+    res.json({ 
+      success: true,
+      message: 'Preferencias actualizadas exitosamente',
+      preferences: { 
+        theme, 
+        color_scheme, 
+        font_size, 
+        font_family, 
+        spacing, 
+        animations, 
+        background_type, 
+        background_image_url, 
+        background_color 
+      }
+    });
+
+  } catch (error) {
+    console.error('Error actualizando preferencias:', error);
+    res.status(500).json({ success: false, message: 'Error interno del servidor' });
+  }
+});
+
+// Resetear preferencias a valores por defecto
+app.post('/api/user-preferences/reset', verifyToken, async (req, res) => {
+  try {
+    const connection = await mysql.createConnection(dbConfig);
+    
+    await connection.execute(
+      `UPDATE user_preferences 
+       SET theme = 'dark', color_scheme = 'default', font_size = 'medium', 
+           font_family = 'inter', spacing = 'normal', animations = 'enabled',
+           background_type = 'color', background_image_url = NULL, background_color = 'default'
+       WHERE user_id = ?`,
+      [req.user.id]
+    );
+
+    await connection.end();
+
+    res.json({ 
+      success: true,
+      message: 'Preferencias reseteadas a valores por defecto',
+      preferences: {
+        theme: 'dark',
+        color_scheme: 'default',
+        font_size: 'medium',
+        font_family: 'inter',
+        spacing: 'normal',
+        animations: 'enabled',
+        background_type: 'color',
+        background_image_url: null,
+        background_color: 'default'
+      }
+    });
+
+  } catch (error) {
+    console.error('Error reseteando preferencias:', error);
+    res.status(500).json({ success: false, message: 'Error interno del servidor' });
+  }
+});
 
 // === RUTAS DE NOTIFICACIONES ===
 // Obtener notificaciones del usuario autenticado

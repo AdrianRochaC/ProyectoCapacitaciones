@@ -7,6 +7,8 @@
   box-sizing: border-box;
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
 }
+
+
 .home-dashboard-title {
   text-align: center;
   color: var(--text-primary);

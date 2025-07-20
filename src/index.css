@@ -101,6 +101,14 @@
 /* Esquemas de color */
 [data-color-scheme="default"] {
   /* Mantiene los colores predeterminados del tema */
+  --gradient-primary: linear-gradient(135deg, #3b82f6, #2563eb);
+  --gradient-primary-hover: linear-gradient(135deg, #2563eb, #1d4ed8);
+  --shadow-color: rgba(59, 130, 246, 0.3);
+  --shadow-color-hover: rgba(59, 130, 246, 0.4);
+  --gradient-secondary: linear-gradient(135deg, #6b7280, #4b5563);
+  --gradient-secondary-hover: linear-gradient(135deg, #4b5563, #374151);
+  --shadow-secondary: rgba(107, 114, 128, 0.3);
+  --shadow-secondary-hover: rgba(107, 114, 128, 0.4);
 }
 
 [data-color-scheme="monochrome"] {
@@ -115,6 +123,14 @@
   --gradient-danger: linear-gradient(135deg, #2c3e50, #34495e);
   --gradient-warning: linear-gradient(135deg, #7f8c8d, #95a5a6);
   --gradient-info: linear-gradient(135deg, #34495e, #2c3e50);
+  --gradient-primary: linear-gradient(135deg, #34495e, #2c3e50);
+  --gradient-primary-hover: linear-gradient(135deg, #2c3e50, #1a252f);
+  --shadow-color: rgba(52, 73, 94, 0.3);
+  --shadow-color-hover: rgba(52, 73, 94, 0.4);
+  --gradient-secondary: linear-gradient(135deg, #7f8c8d, #95a5a6);
+  --gradient-secondary-hover: linear-gradient(135deg, #95a5a6, #7f8c8d);
+  --shadow-secondary: rgba(127, 140, 141, 0.3);
+  --shadow-secondary-hover: rgba(127, 140, 141, 0.4);
 }
 
 [data-color-scheme="vibrant"] {
@@ -129,6 +145,14 @@
   --gradient-danger: linear-gradient(135deg, #e74c3c, #c0392b);
   --gradient-warning: linear-gradient(135deg, #f39c12, #e67e22);
   --gradient-info: linear-gradient(135deg, #9b59b6, #8e44ad);
+  --gradient-primary: linear-gradient(135deg, #e74c3c, #c0392b);
+  --gradient-primary-hover: linear-gradient(135deg, #c0392b, #a93226);
+  --shadow-color: rgba(231, 76, 60, 0.3);
+  --shadow-color-hover: rgba(231, 76, 60, 0.4);
+  --gradient-secondary: linear-gradient(135deg, #f39c12, #e67e22);
+  --gradient-secondary-hover: linear-gradient(135deg, #e67e22, #d35400);
+  --shadow-secondary: rgba(243, 156, 18, 0.3);
+  --shadow-secondary-hover: rgba(243, 156, 18, 0.4);
 }
 
 [data-color-scheme="pastel"] {
@@ -143,6 +167,14 @@
   --gradient-danger: linear-gradient(135deg, #ffb3ba, #ffa3aa);
   --gradient-warning: linear-gradient(135deg, #ffdfba, #ffcfaa);
   --gradient-info: linear-gradient(135deg, #e1baff, #d1aaff);
+  --gradient-primary: linear-gradient(135deg, #e1baff, #d1aaff);
+  --gradient-primary-hover: linear-gradient(135deg, #d1aaff, #c19aff);
+  --shadow-color: rgba(225, 186, 255, 0.3);
+  --shadow-color-hover: rgba(225, 186, 255, 0.4);
+  --gradient-secondary: linear-gradient(135deg, #bae1ff, #a8d8ff);
+  --gradient-secondary-hover: linear-gradient(135deg, #a8d8ff, #96c6ff);
+  --shadow-secondary: rgba(186, 225, 255, 0.3);
+  --shadow-secondary-hover: rgba(186, 225, 255, 0.4);
 }
 
 [data-color-scheme="neon"] {
@@ -157,6 +189,14 @@
   --gradient-danger: linear-gradient(135deg, #ff0080, #cc0066);
   --gradient-warning: linear-gradient(135deg, #ffff00, #cccc00);
   --gradient-info: linear-gradient(135deg, #00ffff, #00ccff);
+  --gradient-primary: linear-gradient(135deg, #00ff88, #00cc66);
+  --gradient-primary-hover: linear-gradient(135deg, #00cc66, #00994d);
+  --shadow-color: rgba(0, 255, 136, 0.3);
+  --shadow-color-hover: rgba(0, 255, 136, 0.4);
+  --gradient-secondary: linear-gradient(135deg, #ff0080, #cc0066);
+  --gradient-secondary-hover: linear-gradient(135deg, #cc0066, #99004d);
+  --shadow-secondary: rgba(255, 0, 128, 0.3);
+  --shadow-secondary-hover: rgba(255, 0, 128, 0.4);
 }
 
 [data-color-scheme="earth"] {
@@ -171,6 +211,14 @@
   --gradient-danger: linear-gradient(135deg, #8b4513, #a0522d);
   --gradient-warning: linear-gradient(135deg, #daa520, #ffd700);
   --gradient-info: linear-gradient(135deg, #4682b4, #5f9ea0);
+  --gradient-primary: linear-gradient(135deg, #228b22, #32cd32);
+  --gradient-primary-hover: linear-gradient(135deg, #32cd32, #228b22);
+  --shadow-color: rgba(34, 139, 34, 0.3);
+  --shadow-color-hover: rgba(34, 139, 34, 0.4);
+  --gradient-secondary: linear-gradient(135deg, #8b4513, #a0522d);
+  --gradient-secondary-hover: linear-gradient(135deg, #a0522d, #8b4513);
+  --shadow-secondary: rgba(139, 69, 19, 0.3);
+  --shadow-secondary-hover: rgba(139, 69, 19, 0.4);
 }
 
 /* Tamaños de fuente */
@@ -235,6 +283,641 @@
 
 [data-animations="disabled"] {
   --animation-duration: 0s;
+}
+
+/* Fondos de imagen */
+[data-background-type="image"] {
+  background-image: var(--background-image) !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+  position: relative;
+  min-height: 100vh;
+}
+
+/* Asegurar que la imagen de fondo sea completamente fija */
+[data-background-type="image"] html {
+  background-image: var(--background-image) !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+  background-color: transparent !important;
+}
+
+[data-background-type="image"]::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.1);
+  z-index: 0;
+  pointer-events: none;
+}
+
+[data-theme="light"][data-background-type="image"]::before {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+[data-background-type="image"] body {
+  background-image: var(--background-image) !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+  position: relative;
+}
+
+[data-background-type="image"] body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.1);
+  z-index: 0;
+  pointer-events: none;
+}
+
+[data-theme="light"][data-background-type="image"] body::before {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Forzar imagen de fondo en elementos específicos */
+[data-background-type="image"] .home-dashboard-bg,
+[data-background-type="image"] .dashboard-container-bg,
+[data-background-type="image"] .detail-page-container {
+  background: transparent !important;
+  background-image: var(--background-image) !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+}
+
+/* Asegurar que páginas con scroll mantengan la imagen fija */
+[data-background-type="image"] .bitacora-container,
+[data-background-type="image"] .perfil-container,
+[data-background-type="image"] .admin-page-container,
+[data-background-type="image"] .admin-body,
+[data-background-type="image"] .bitacora-body,
+[data-background-type="image"] .courses-body,
+[data-background-type="image"] .cuentas-container,
+[data-background-type="image"] .dashboard-container-bg,
+[data-background-type="image"] .courses-page,
+[data-background-type="image"] .layout-container {
+  background: transparent !important;
+  background-image: var(--background-image) !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+  min-height: 100vh;
+}
+
+/* Asegurar que el contenido se mueva independientemente de la imagen */
+[data-background-type="image"] .bitacora-content,
+[data-background-type="image"] .perfil-content,
+[data-background-type="image"] .admin-courses-content,
+[data-background-type="image"] .admin-bitacora-content,
+[data-background-type="image"] .courses-container,
+[data-background-type="image"] .dashboard-users-grid {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+}
+
+/* Fondos de color sólido - Sistema completo */
+[data-background-type="color"] {
+  background-color: var(--background-color) !important;
+}
+
+[data-background-type="color"] html {
+  background-color: var(--background-color) !important;
+}
+
+[data-background-type="color"] body {
+  background-color: var(--background-color) !important;
+}
+
+[data-background-type="color"] #root {
+  background-color: var(--background-color) !important;
+}
+
+/* Colores específicos */
+[data-background-type="color"][data-background-color="default"] {
+  --background-color: var(--bg-primary);
+}
+
+[data-background-type="color"][data-background-color="black"] {
+  --background-color: #000000;
+}
+
+[data-background-type="color"][data-background-color="white"] {
+  --background-color: #ffffff;
+}
+
+[data-background-type="color"][data-background-color="blue"] {
+  --background-color: #1e3a8a;
+}
+
+[data-background-type="color"][data-background-color="green"] {
+  --background-color: #065f46;
+}
+
+[data-background-type="color"][data-background-color="purple"] {
+  --background-color: #581c87;
+}
+
+[data-background-type="color"][data-background-color="dark-purple"] {
+  --background-color: #4c1d95;
+}
+
+[data-background-type="color"][data-background-color="light-purple"] {
+  --background-color: #7c3aed;
+}
+
+[data-background-type="color"][data-background-color="pink"] {
+  --background-color: #be185d;
+}
+
+[data-background-type="color"][data-background-color="red"] {
+  --background-color: #dc2626;
+}
+
+[data-background-type="color"][data-background-color="orange"] {
+  --background-color: #ea580c;
+}
+
+[data-background-type="color"][data-background-color="yellow"] {
+  --background-color: #ca8a04;
+}
+
+[data-background-type="color"][data-background-color="teal"] {
+  --background-color: #0d9488;
+}
+
+[data-background-type="color"][data-background-color="indigo"] {
+  --background-color: #3730a3;
+}
+
+[data-background-type="color"][data-background-color="gray"] {
+  --background-color: #374151;
+}
+
+[data-background-type="color"][data-background-color="light-gray"] {
+  --background-color: #6b7280;
+}
+
+/* Aplicar fondo a contenedores específicos */
+[data-background-type="color"] .home-dashboard-bg,
+[data-background-type="color"] .dashboard-container-bg,
+[data-background-type="color"] .bitacora-container,
+[data-background-type="color"] .perfil-container,
+[data-background-type="color"] .admin-page-container,
+[data-background-type="color"] .admin-body,
+[data-background-type="color"] .bitacora-body,
+[data-background-type="color"] .courses-body,
+[data-background-type="color"] .cuentas-container,
+[data-background-type="color"] .courses-page,
+[data-background-type="color"] .detail-page-container,
+[data-background-type="color"] .layout-container {
+  background-color: var(--background-color) !important;
+  background-image: none !important;
+}
+
+/* Asegurar que no haya overlays cuando es color sólido */
+[data-background-type="color"]::before,
+[data-background-type="color"] body::before,
+[data-background-type="color"] html::before,
+[data-background-type="color"] .home-dashboard-bg::before,
+[data-background-type="color"] .dashboard-container-bg::before {
+  display: none !important;
+}
+
+/* Desactivar estilos de imagen cuando es color sólido */
+[data-background-type="color"] .home-dashboard-bg,
+[data-background-type="color"] .dashboard-container-bg,
+[data-background-type="color"] .bitacora-container,
+[data-background-type="color"] .perfil-container,
+[data-background-type="color"] .admin-page-container,
+[data-background-type="color"] .admin-body,
+[data-background-type="color"] .bitacora-body,
+[data-background-type="color"] .courses-body,
+[data-background-type="color"] .cuentas-container,
+[data-background-type="color"] .courses-page,
+[data-background-type="color"] .detail-page-container {
+  background-image: none !important;
+  background-attachment: initial !important;
+  background-size: initial !important;
+  background-position: initial !important;
+  background-repeat: initial !important;
+}
+
+/* Asegurar que el color sólido se aplique correctamente en modo light y dark */
+[data-theme="light"][data-background-type="color"] {
+  background-color: var(--background-color) !important;
+}
+
+[data-theme="dark"][data-background-type="color"] {
+  background-color: var(--background-color) !important;
+}
+
+/* Reglas específicas para cada color de fondo */
+[data-background-type="color"][data-background-color="default"] {
+  --background-color: var(--bg-primary) !important;
+}
+
+[data-background-type="color"][data-background-color="black"] {
+  --background-color: #000000 !important;
+}
+
+[data-background-type="color"][data-background-color="white"] {
+  --background-color: #ffffff !important;
+}
+
+[data-background-type="color"][data-background-color="blue"] {
+  --background-color: #1e3a8a !important;
+}
+
+[data-background-type="color"][data-background-color="green"] {
+  --background-color: #065f46 !important;
+}
+
+[data-background-type="color"][data-background-color="purple"] {
+  --background-color: #581c87 !important;
+}
+
+[data-background-type="color"][data-background-color="dark-purple"] {
+  --background-color: #4c1d95 !important;
+}
+
+[data-background-type="color"][data-background-color="light-purple"] {
+  --background-color: #7c3aed !important;
+}
+
+[data-background-type="color"][data-background-color="pink"] {
+  --background-color: #be185d !important;
+}
+
+[data-background-type="color"][data-background-color="red"] {
+  --background-color: #dc2626 !important;
+}
+
+[data-background-type="color"][data-background-color="orange"] {
+  --background-color: #ea580c !important;
+}
+
+[data-background-type="color"][data-background-color="yellow"] {
+  --background-color: #ca8a04 !important;
+}
+
+[data-background-type="color"][data-background-color="teal"] {
+  --background-color: #0d9488 !important;
+}
+
+[data-background-type="color"][data-background-color="indigo"] {
+  --background-color: #3730a3 !important;
+}
+
+[data-background-type="color"][data-background-color="gray"] {
+  --background-color: #374151 !important;
+}
+
+[data-background-type="color"][data-background-color="light-gray"] {
+  --background-color: #6b7280 !important;
+}
+
+/* Aplicar color inmediatamente al cambiar */
+[data-background-type="color"] {
+  transition: background-color 0.3s ease !important;
+}
+
+/* Forzar aplicación del color en todos los elementos principales */
+[data-background-type="color"] html,
+[data-background-type="color"] body,
+[data-background-type="color"] #root {
+  background-color: var(--background-color) !important;
+  background-image: none !important;
+}
+
+
+
+/* Mejorar contraste de elementos cuando hay imagen de fondo */
+[data-background-type="image"] .home-dashboard-card,
+[data-background-type="image"] .dashboard-user-group,
+[data-background-type="image"] .detail-page,
+[data-background-type="image"] .personalization-modal {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"][data-background-type="image"] .home-dashboard-card,
+[data-theme="dark"][data-background-type="image"] .dashboard-user-group,
+[data-theme="dark"][data-background-type="image"] .detail-page,
+[data-theme="dark"][data-background-type="image"] .personalization-modal {
+  background: rgba(30, 35, 50, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Mejorar contraste de botones en modo claro con imagen de fondo (solo páginas específicas) */
+[data-theme="light"][data-background-type="image"] .bitacora-container button,
+[data-theme="light"][data-background-type="image"] .perfil-container button,
+[data-theme="light"][data-background-type="image"] .admin-page-container button,
+[data-theme="light"][data-background-type="image"] .admin-body button,
+[data-theme="light"][data-background-type="image"] .bitacora-body button,
+[data-theme="light"][data-background-type="image"] .courses-body button,
+[data-theme="light"][data-background-type="image"] .cuentas-container button,
+[data-theme="light"][data-background-type="image"] .dashboard-container-bg button,
+[data-theme="light"][data-background-type="image"] .courses-page button,
+[data-theme="light"][data-background-type="image"] .detail-page-container button,
+[data-theme="light"][data-background-type="image"] .bitacora-container .btn-primary,
+[data-theme="light"][data-background-type="image"] .perfil-container .btn-primary,
+[data-theme="light"][data-background-type="image"] .admin-page-container .btn-primary,
+[data-theme="light"][data-background-type="image"] .admin-body .btn-primary,
+[data-theme="light"][data-background-type="image"] .bitacora-body .btn-primary,
+[data-theme="light"][data-background-type="image"] .courses-body .btn-primary,
+[data-theme="light"][data-background-type="image"] .cuentas-container .btn-primary,
+[data-theme="light"][data-background-type="image"] .dashboard-container-bg .btn-primary,
+[data-theme="light"][data-background-type="image"] .courses-page .btn-primary,
+[data-theme="light"][data-background-type="image"] .detail-page-container .btn-primary {
+  background: var(--gradient-primary, linear-gradient(135deg, #3b82f6, #2563eb)) !important;
+  color: white !important;
+  border: 1px solid var(--border-focus, rgba(59, 130, 246, 0.3)) !important;
+  backdrop-filter: blur(5px);
+  text-shadow: none;
+  box-shadow: 0 2px 8px var(--shadow-color, rgba(59, 130, 246, 0.3));
+}
+
+[data-theme="light"][data-background-type="image"] .bitacora-container button:hover,
+[data-theme="light"][data-background-type="image"] .perfil-container button:hover,
+[data-theme="light"][data-background-type="image"] .admin-page-container button:hover,
+[data-theme="light"][data-background-type="image"] .admin-body button:hover,
+[data-theme="light"][data-background-type="image"] .bitacora-body button:hover,
+[data-theme="light"][data-background-type="image"] .courses-body button:hover,
+[data-theme="light"][data-background-type="image"] .cuentas-container button:hover,
+[data-theme="light"][data-background-type="image"] .dashboard-container-bg button:hover,
+[data-theme="light"][data-background-type="image"] .courses-page button:hover,
+[data-theme="light"][data-background-type="image"] .detail-page-container button:hover,
+[data-theme="light"][data-background-type="image"] .bitacora-container .btn-primary:hover,
+[data-theme="light"][data-background-type="image"] .perfil-container .btn-primary:hover,
+[data-theme="light"][data-background-type="image"] .admin-page-container .btn-primary:hover,
+[data-theme="light"][data-background-type="image"] .admin-body .btn-primary:hover,
+[data-theme="light"][data-background-type="image"] .bitacora-body .btn-primary:hover,
+[data-theme="light"][data-background-type="image"] .courses-body .btn-primary:hover,
+[data-theme="light"][data-background-type="image"] .cuentas-container .btn-primary:hover,
+[data-theme="light"][data-background-type="image"] .dashboard-container-bg .btn-primary:hover,
+[data-theme="light"][data-background-type="image"] .courses-page .btn-primary:hover,
+[data-theme="light"][data-background-type="image"] .detail-page-container .btn-primary:hover {
+  background: var(--gradient-primary-hover, linear-gradient(135deg, #2563eb, #1d4ed8)) !important;
+  color: white !important;
+  border: 1px solid var(--border-focus-hover, rgba(37, 99, 235, 0.4)) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--shadow-color-hover, rgba(59, 130, 246, 0.4));
+}
+
+/* Estilos para botones secundarios y otros tipos */
+[data-theme="light"][data-background-type="image"] .bitacora-container .btn-secondary,
+[data-theme="light"][data-background-type="image"] .perfil-container .btn-secondary,
+[data-theme="light"][data-background-type="image"] .admin-page-container .btn-secondary,
+[data-theme="light"][data-background-type="image"] .admin-body .btn-secondary,
+[data-theme="light"][data-background-type="image"] .bitacora-body .btn-secondary,
+[data-theme="light"][data-background-type="image"] .courses-body .btn-secondary,
+[data-theme="light"][data-background-type="image"] .cuentas-container .btn-secondary,
+[data-theme="light"][data-background-type="image"] .dashboard-container-bg .btn-secondary,
+[data-theme="light"][data-background-type="image"] .courses-page .btn-secondary,
+[data-theme="light"][data-background-type="image"] .detail-page-container .btn-secondary {
+  background: var(--gradient-secondary, linear-gradient(135deg, #6b7280, #4b5563)) !important;
+  color: white !important;
+  border: 1px solid var(--border-secondary, rgba(107, 114, 128, 0.3)) !important;
+  backdrop-filter: blur(5px);
+  text-shadow: none;
+  box-shadow: 0 2px 8px var(--shadow-secondary, rgba(107, 114, 128, 0.3));
+}
+
+[data-theme="light"][data-background-type="image"] .bitacora-container .btn-secondary:hover,
+[data-theme="light"][data-background-type="image"] .perfil-container .btn-secondary:hover,
+[data-theme="light"][data-background-type="image"] .admin-page-container .btn-secondary:hover,
+[data-theme="light"][data-background-type="image"] .admin-body .btn-secondary:hover,
+[data-theme="light"][data-background-type="image"] .bitacora-body .btn-secondary:hover,
+[data-theme="light"][data-background-type="image"] .courses-body .btn-secondary:hover,
+[data-theme="light"][data-background-type="image"] .cuentas-container .btn-secondary:hover,
+[data-theme="light"][data-background-type="image"] .dashboard-container-bg .btn-secondary:hover,
+[data-theme="light"][data-background-type="image"] .courses-page .btn-secondary:hover,
+[data-theme="light"][data-background-type="image"] .detail-page-container .btn-secondary:hover {
+  background: var(--gradient-secondary-hover, linear-gradient(135deg, #4b5563, #374151)) !important;
+  color: white !important;
+  border: 1px solid var(--border-secondary-hover, rgba(75, 85, 99, 0.4)) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--shadow-secondary-hover, rgba(107, 114, 128, 0.4));
+}
+
+/* Mejorar contraste de inputs y formularios (solo páginas específicas) */
+[data-theme="light"][data-background-type="image"] .bitacora-container input,
+[data-theme="light"][data-background-type="image"] .perfil-container input,
+[data-theme="light"][data-background-type="image"] .admin-page-container input,
+[data-theme="light"][data-background-type="image"] .admin-body input,
+[data-theme="light"][data-background-type="image"] .bitacora-body input,
+[data-theme="light"][data-background-type="image"] .courses-body input,
+[data-theme="light"][data-background-type="image"] .cuentas-container input,
+[data-theme="light"][data-background-type="image"] .dashboard-container-bg input,
+[data-theme="light"][data-background-type="image"] .courses-page input,
+[data-theme="light"][data-background-type="image"] .detail-page-container input,
+[data-theme="light"][data-background-type="image"] .bitacora-container textarea,
+[data-theme="light"][data-background-type="image"] .perfil-container textarea,
+[data-theme="light"][data-background-type="image"] .admin-page-container textarea,
+[data-theme="light"][data-background-type="image"] .admin-body textarea,
+[data-theme="light"][data-background-type="image"] .bitacora-body textarea,
+[data-theme="light"][data-background-type="image"] .courses-body textarea,
+[data-theme="light"][data-background-type="image"] .cuentas-container textarea,
+[data-theme="light"][data-background-type="image"] .dashboard-container-bg textarea,
+[data-theme="light"][data-background-type="image"] .courses-page textarea,
+[data-theme="light"][data-background-type="image"] .detail-page-container textarea,
+[data-theme="light"][data-background-type="image"] .bitacora-container select,
+[data-theme="light"][data-background-type="image"] .perfil-container select,
+[data-theme="light"][data-background-type="image"] .admin-page-container select,
+[data-theme="light"][data-background-type="image"] .admin-body select,
+[data-theme="light"][data-background-type="image"] .bitacora-body select,
+[data-theme="light"][data-background-type="image"] .courses-body select,
+[data-theme="light"][data-background-type="image"] .cuentas-container select,
+[data-theme="light"][data-background-type="image"] .dashboard-container-bg select,
+[data-theme="light"][data-background-type="image"] .courses-page select,
+[data-theme="light"][data-background-type="image"] .detail-page-container select {
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #333 !important;
+  border: 1px solid rgba(0, 0, 0, 0.2) !important;
+  backdrop-filter: blur(5px);
+}
+
+[data-theme="light"][data-background-type="image"] .bitacora-container input:focus,
+[data-theme="light"][data-background-type="image"] .perfil-container input:focus,
+[data-theme="light"][data-background-type="image"] .admin-page-container input:focus,
+[data-theme="light"][data-background-type="image"] .admin-body input:focus,
+[data-theme="light"][data-background-type="image"] .bitacora-body input:focus,
+[data-theme="light"][data-background-type="image"] .courses-body input:focus,
+[data-theme="light"][data-background-type="image"] .cuentas-container input:focus,
+[data-theme="light"][data-background-type="image"] .dashboard-container-bg input:focus,
+[data-theme="light"][data-background-type="image"] .courses-page input:focus,
+[data-theme="light"][data-background-type="image"] .detail-page-container input:focus,
+[data-theme="light"][data-background-type="image"] .bitacora-container textarea:focus,
+[data-theme="light"][data-background-type="image"] .perfil-container textarea:focus,
+[data-theme="light"][data-background-type="image"] .admin-page-container textarea:focus,
+[data-theme="light"][data-background-type="image"] .admin-body textarea:focus,
+[data-theme="light"][data-background-type="image"] .bitacora-body textarea:focus,
+[data-theme="light"][data-background-type="image"] .courses-body textarea:focus,
+[data-theme="light"][data-background-type="image"] .cuentas-container textarea:focus,
+[data-theme="light"][data-background-type="image"] .dashboard-container-bg textarea:focus,
+[data-theme="light"][data-background-type="image"] .courses-page textarea:focus,
+[data-theme="light"][data-background-type="image"] .detail-page-container textarea:focus,
+[data-theme="light"][data-background-type="image"] .bitacora-container select:focus,
+[data-theme="light"][data-background-type="image"] .perfil-container select:focus,
+[data-theme="light"][data-background-type="image"] .admin-page-container select:focus,
+[data-theme="light"][data-background-type="image"] .admin-body select:focus,
+[data-theme="light"][data-background-type="image"] .bitacora-body select:focus,
+[data-theme="light"][data-background-type="image"] .courses-body select:focus,
+[data-theme="light"][data-background-type="image"] .cuentas-container select:focus,
+[data-theme="light"][data-background-type="image"] .dashboard-container-bg select:focus,
+[data-theme="light"][data-background-type="image"] .courses-page select:focus,
+[data-theme="light"][data-background-type="image"] .detail-page-container select:focus {
+  background: rgba(255, 255, 255, 1) !important;
+  border: 1px solid rgba(0, 0, 0, 0.4) !important;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Mejorar contraste de tablas (solo páginas específicas) */
+[data-theme="light"][data-background-type="image"] .bitacora-container table,
+[data-theme="light"][data-background-type="image"] .perfil-container table,
+[data-theme="light"][data-background-type="image"] .admin-page-container table,
+[data-theme="light"][data-background-type="image"] .admin-body table,
+[data-theme="light"][data-background-type="image"] .bitacora-body table,
+[data-theme="light"][data-background-type="image"] .courses-body table,
+[data-theme="light"][data-background-type="image"] .cuentas-container table,
+[data-theme="light"][data-background-type="image"] .dashboard-container-bg table,
+[data-theme="light"][data-background-type="image"] .courses-page table,
+[data-theme="light"][data-background-type="image"] .detail-page-container table,
+[data-theme="light"][data-background-type="image"] .bitacora-container .table,
+[data-theme="light"][data-background-type="image"] .perfil-container .table,
+[data-theme="light"][data-background-type="image"] .admin-page-container .table,
+[data-theme="light"][data-background-type="image"] .admin-body .table,
+[data-theme="light"][data-background-type="image"] .bitacora-body .table,
+[data-theme="light"][data-background-type="image"] .courses-body .table,
+[data-theme="light"][data-background-type="image"] .cuentas-container .table,
+[data-theme="light"][data-background-type="image"] .dashboard-container-bg .table,
+[data-theme="light"][data-background-type="image"] .courses-page .table,
+[data-theme="light"][data-background-type="image"] .detail-page-container .table {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="light"][data-background-type="image"] .bitacora-container th,
+[data-theme="light"][data-background-type="image"] .perfil-container th,
+[data-theme="light"][data-background-type="image"] .admin-page-container th,
+[data-theme="light"][data-background-type="image"] .admin-body th,
+[data-theme="light"][data-background-type="image"] .bitacora-body th,
+[data-theme="light"][data-background-type="image"] .courses-body th,
+[data-theme="light"][data-background-type="image"] .cuentas-container th,
+[data-theme="light"][data-background-type="image"] .dashboard-container-bg th,
+[data-theme="light"][data-background-type="image"] .courses-page th,
+[data-theme="light"][data-background-type="image"] .detail-page-container th,
+[data-theme="light"][data-background-type="image"] .bitacora-container td,
+[data-theme="light"][data-background-type="image"] .perfil-container td,
+[data-theme="light"][data-background-type="image"] .admin-page-container td,
+[data-theme="light"][data-background-type="image"] .admin-body td,
+[data-theme="light"][data-background-type="image"] .bitacora-body td,
+[data-theme="light"][data-background-type="image"] .courses-body td,
+[data-theme="light"][data-background-type="image"] .cuentas-container td,
+[data-theme="light"][data-background-type="image"] .dashboard-container-bg td,
+[data-theme="light"][data-background-type="image"] .courses-page td,
+[data-theme="light"][data-background-type="image"] .detail-page-container td {
+  background: rgba(255, 255, 255, 0.8) !important;
+  color: #333 !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="light"][data-background-type="image"] .bitacora-container th,
+[data-theme="light"][data-background-type="image"] .perfil-container th,
+[data-theme="light"][data-background-type="image"] .admin-page-container th,
+[data-theme="light"][data-background-type="image"] .admin-body th,
+[data-theme="light"][data-background-type="image"] .bitacora-body th,
+[data-theme="light"][data-background-type="image"] .courses-body th,
+[data-theme="light"][data-background-type="image"] .cuentas-container th,
+[data-theme="light"][data-background-type="image"] .dashboard-container-bg th,
+[data-theme="light"][data-background-type="image"] .courses-page th,
+[data-theme="light"][data-background-type="image"] .detail-page-container th {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: #000 !important;
+  font-weight: 600;
+}
+
+/* Sobrescribir gradientes cuando hay imagen de fondo */
+[data-background-type="image"] .home-dashboard-bg,
+[data-background-type="image"] .dashboard-container-bg {
+  background: transparent !important;
+  background-image: var(--background-image) !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+}
+
+/* Asegurar que el overlay cubra toda la página */
+[data-background-type="image"] .home-dashboard-bg::before,
+[data-background-type="image"] .dashboard-container-bg::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.1);
+  z-index: 0;
+  pointer-events: none;
+}
+
+[data-theme="light"][data-background-type="image"] .home-dashboard-bg::before,
+[data-theme="light"][data-background-type="image"] .dashboard-container-bg::before {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Asegurar que el contenido esté por encima del overlay */
+[data-background-type="image"] .home-dashboard-title,
+[data-background-type="image"] .home-dashboard-cards,
+[data-background-type="image"] .dashboard-users-grid {
+  position: relative;
+  z-index: 1;
+}
+
+/* Asegurar que todos los elementos interactivos estén por encima */
+[data-background-type="image"] * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Excepción para el modal de personalización */
+[data-background-type="image"] .personalization-overlay,
+[data-background-type="image"] .personalization-modal {
+  position: fixed !important;
+  z-index: 9999 !important;
+}
+
+/* Excepciones para elementos que deben estar detrás */
+[data-background-type="image"] .home-dashboard-bg,
+[data-background-type="image"] .dashboard-container-bg,
+[data-background-type="image"] .detail-page-container {
+  z-index: 0;
+}
+
+[data-background-type="image"] .home-dashboard-bg::before,
+[data-background-type="image"] .dashboard-container-bg::before,
+[data-background-type="image"] body::before,
+[data-background-type="image"]::before {
+  z-index: 0;
 }
 
 /* index.css */
