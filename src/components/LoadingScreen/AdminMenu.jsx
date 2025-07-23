@@ -50,11 +50,38 @@ const AdminMenu = () => {
     if (data.success) setUnreadCount(data.count);
   };
 
+  const clearUserPreferencesAndStyles = () => {
+    // Elimina todas las preferencias personalizadas
+    localStorage.removeItem('theme');
+    localStorage.removeItem('colorScheme');
+    localStorage.removeItem('fontSize');
+    localStorage.removeItem('fontFamily');
+    localStorage.removeItem('spacing');
+    localStorage.removeItem('animations');
+    localStorage.removeItem('backgroundType');
+    localStorage.removeItem('backgroundImageUrl');
+    localStorage.removeItem('backgroundColor');
+    localStorage.removeItem('storageCleared');
+    localStorage.removeItem('backgroundImageTooLarge');
+
+    // Restablece los estilos del DOM a los valores por defecto
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.documentElement.setAttribute('data-color-scheme', 'default');
+    document.documentElement.setAttribute('data-font-size', 'medium');
+    document.documentElement.setAttribute('data-font-family', 'inter');
+    document.documentElement.setAttribute('data-spacing', 'normal');
+    document.documentElement.setAttribute('data-animations', 'enabled');
+    document.documentElement.setAttribute('data-background-type', 'color');
+    document.documentElement.setAttribute('data-background-color', 'default');
+    document.documentElement.style.removeProperty('--background-image');
+  };
+
   const handleLogout = () => {
     const confirmLogout = window.confirm('¿Estás seguro de que quieres cerrar sesión?');
     if (confirmLogout) {
       localStorage.removeItem('user');
       localStorage.removeItem('authToken');
+      clearUserPreferencesAndStyles();
       navigate('/login', { replace: true });
     }
   };
