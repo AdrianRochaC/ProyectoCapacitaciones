@@ -73,6 +73,9 @@ const DetailPage = () => {
       })
       .catch((err) => {
         // Si no hay progreso registrado, dejar intentos al máximo
+        if (!(err.response && err.response.status === 404)) {
+          console.error("Error al cargar progreso:", err);
+        }
         setAttemptsLeft(course.attempts);
       });
   }, [course, id, token, user.rol]);
@@ -174,63 +177,77 @@ const DetailPage = () => {
         <p>{course.description}</p>
 
         <div className="detail-video">
-          <ReactPlayer
-            url={course.videoUrl}
-            controls
-            onProgress={handleProgress}
-            onEnded={() => setVideoEnded(true)}
-            className="react-player"
-          />
+          {course.videoUrl && course.videoUrl.includes('youtube.com/embed/') ? (
+            <ReactPlayer
+              url={course.videoUrl}
+              controls
+              onProgress={handleProgress}
+              onEnded={() => setVideoEnded(true)}
+              className="react-player"
+            />
+          ) : (
+            <ReactPlayer
+              url={`http://localhost:3001${course.videoUrl || course.video_url}`}
+              controls
+              onProgress={handleProgress}
+              onEnded={() => setVideoEnded(true)}
+              className="react-player"
+            />
+          )}
         </div>
 
         <div className="video-progress-bar">
           <div className="video-progress-filled" style={{ width: `${played * 100}%` }} />
         </div>
 
-        {!showQuiz ? (
-          <div className="course-evaluation-section">
-            <button
-              className="evaluation-button"
-              disabled={!videoEnded || (attemptsLeft !== null && attemptsLeft <= 0)}
-              onClick={startQuiz}
-            >
-              📝 Realizar Evaluación
-            </button>
-            {!videoEnded && <p className="video-warning">Debes ver todo el video.</p>}
-            {attemptsLeft !== null && <p className="evaluation-message">Intentos restantes: {attemptsLeft}</p>}
-          </div>
-        ) : (
-          <div className="quiz-container">
-            {timeLeft !== null && (
-              <p className="evaluation-message">
-                ⏳ Tiempo restante: {Math.floor(timeLeft / 60)}:{("0" + (timeLeft % 60)).slice(-2)}
-              </p>
-            )}
-            {course.evaluation.map((q, idx) => (
-              <div className="evaluation-question" key={idx}>
-                <p><strong>{idx + 1}. {q.question}</strong></p>
-                <ul>
-                  {q.options.map((opt, i) => (
-                    <li key={i}>
-                      <label>
-                        <input
-                          type="radio"
-                          name={`q${idx}`}
-                          checked={answers[idx] === i}
-                          onChange={() => handleSelect(idx, i)}
-                        />
-                        {" "}{opt}
-                      </label>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-            <button className="submit-quiz" onClick={submitQuiz}>Enviar respuestas</button>
-          </div>
+        {/* Solo mostrar evaluación si hay preguntas */}
+        {Array.isArray(course.evaluation) && course.evaluation.length > 0 && (
+          !showQuiz ? (
+            <div className="course-evaluation-section">
+              <button
+                className="evaluation-button"
+                disabled={!videoEnded || (attemptsLeft !== null && attemptsLeft <= 0)}
+                onClick={startQuiz}
+              >
+                📝 Realizar Evaluación
+              </button>
+              {!videoEnded && <p className="video-warning">Debes ver todo el video.</p>}
+              {attemptsLeft !== null && <p className="evaluation-message">Intentos restantes: {attemptsLeft}</p>}
+            </div>
+          ) : (
+            <div className="quiz-container">
+              {timeLeft !== null && (
+                <p className="evaluation-message">
+                  ⏳ Tiempo restante: {Math.floor(timeLeft / 60)}:{("0" + (timeLeft % 60)).slice(-2)}
+                </p>
+              )}
+              {course.evaluation.map((q, idx) => (
+                <div className="evaluation-question" key={idx}>
+                  <p><strong>{idx + 1}. {q.question}</strong></p>
+                  <ul>
+                    {q.options.map((opt, i) => (
+                      <li key={i}>
+                        <label>
+                          <input
+                            type="radio"
+                            name={`q${idx}`}
+                            checked={answers[idx] === i}
+                            onChange={() => handleSelect(idx, i)}
+                          />
+                          {" "}{opt}
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+              <button className="submit-quiz" onClick={submitQuiz}>Enviar respuestas</button>
+            </div>
+          )
         )}
 
-        {score && (
+        {/* Mostrar puntaje solo si hay evaluación */}
+        {Array.isArray(course.evaluation) && course.evaluation.length > 0 && score && (
           <div className="quiz-score">
             ✅ Obtuviste {score.score} de {score.total} (
             {score.score >= Math.ceil(score.total * 0.6) ? "Aprobado" : "Reprobado"})

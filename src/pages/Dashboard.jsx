@@ -98,19 +98,21 @@ const Dashboard = () => {
                 <div className="dashboard-grid">
                   {cursos.length > 0 ? cursos.map((item, cidx) => {
                     const videoProgress = item.video_completed ? 100 : 0;
-                    const scorePercent =
-                      item.evaluation_total > 0 && item.evaluation_score !== null
-                        ? ((item.evaluation_score / item.evaluation_total) * 100).toFixed(1)
-                        : '0';
+                    const hasEval = item.evaluation_total && item.evaluation_total > 0;
+                    const scorePercent = hasEval && item.evaluation_score !== null ? ((item.evaluation_score / item.evaluation_total) * 100).toFixed(1) : null;
                     const status = item.evaluation_status?.toLowerCase();
-                    const estadoClase =
-                      status === 'aprobado' ? 'estado-verde' :
-                        status === 'reprobado' ? 'estado-rojo' :
-                          'estado-amarillo';
-                    const estadoTexto =
-                      status === 'aprobado' ? '🟢 Aprobado' :
-                        status === 'reprobado' ? '🔴 Reprobado' :
-                          '🟡 Pendiente';
+                    let estadoClase = 'estado-amarillo';
+                    let estadoTexto = '🟡 Pendiente';
+                    if (!hasEval && item.video_completed) {
+                      estadoClase = 'estado-verde';
+                      estadoTexto = '🟢 Completado';
+                    } else if (hasEval && status === 'aprobado') {
+                      estadoClase = 'estado-verde';
+                      estadoTexto = '🟢 Aprobado';
+                    } else if (hasEval && status === 'reprobado') {
+                      estadoClase = 'estado-rojo';
+                      estadoTexto = '🔴 Reprobado';
+                    }
                     return (
                       <div key={cidx} className="dashboard-curso-card">
                         <div className="dashboard-progreso-header">
@@ -126,14 +128,20 @@ const Dashboard = () => {
                         </div>
                         <div className="dashboard-progreso-section">
                           <label>📊 Evaluación</label>
-                          <div className="dashboard-barra-progreso dashboard-bg-eval">
-                            <div className="dashboard-barra-interna dashboard-barra-eval" style={{ width: `${scorePercent}%` }}></div>
-                          </div>
-                          <span className="dashboard-porcentaje-label">{scorePercent}%</span>
+                          {hasEval ? (
+                            <>
+                              <div className="dashboard-barra-progreso dashboard-bg-eval">
+                                <div className="dashboard-barra-interna dashboard-barra-eval" style={{ width: `${scorePercent}%` }}></div>
+                              </div>
+                              <span className="dashboard-porcentaje-label">{scorePercent}%</span>
+                            </>
+                          ) : (
+                            <span style={{ color: '#888', fontStyle: 'italic', marginLeft: 8 }}>No tiene</span>
+                          )}
                         </div>
                         <div className="dashboard-progreso-meta">
                           <span>🧠 Intentos usados: {item.attempts_used ?? '-'}</span>
-                          <span>🕒 Última actualización: {item.updated_at ? new Date(item.updated_at).toLocaleString() : '-'}</span>
+                          <span>🕒 Última actualización: {item.updated_at ? new Date(item.updated_at).toLocaleString('es-CO', { hour12: false }) : '-'}</span>
                         </div>
                       </div>
                     );

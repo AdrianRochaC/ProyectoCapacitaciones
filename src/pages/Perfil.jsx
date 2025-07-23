@@ -80,18 +80,22 @@ const Perfil = () => {
               <div className="progreso-lista">
                 {progress.map((item, index) => {
                   const videoProgress = item.video_completed ? 100 : 0;
-                  const scorePercent = item.evaluation_total > 0 ? ((item.evaluation_score / item.evaluation_total) * 100).toFixed(1) : '0';
+                  const hasEval = item.evaluation_total && item.evaluation_total > 0;
+                  const scorePercent = hasEval ? ((item.evaluation_score / item.evaluation_total) * 100).toFixed(1) : null;
                   const status = item.evaluation_status?.toLowerCase();
 
-                  const estadoClase =
-                    status === 'aprobado' ? 'estado-verde' :
-                    status === 'reprobado' ? 'estado-rojo' :
-                    'estado-amarillo';
-
-                  const estadoTexto =
-                    status === 'aprobado' ? '🟢 Aprobado' :
-                    status === 'reprobado' ? '🔴 Reprobado' :
-                    '🟡 Pendiente';
+                  let estadoClase = 'estado-amarillo';
+                  let estadoTexto = '🟡 Pendiente';
+                  if (!hasEval && item.video_completed) {
+                    estadoClase = 'estado-verde';
+                    estadoTexto = '🟢 Completado';
+                  } else if (hasEval && status === 'aprobado') {
+                    estadoClase = 'estado-verde';
+                    estadoTexto = '🟢 Aprobado';
+                  } else if (hasEval && status === 'reprobado') {
+                    estadoClase = 'estado-rojo';
+                    estadoTexto = '🔴 Reprobado';
+                  }
 
                   return (
                     <div key={index} className="progreso-item">
@@ -110,15 +114,21 @@ const Perfil = () => {
 
                       <div className="progreso-section">
                         <label>📊 Evaluación</label>
-                        <div className="barra-progreso bg-eval">
-                          <div className="barra-interna barra-eval" style={{ width: `${scorePercent}%` }}></div>
-                        </div>
-                        <span className="porcentaje-label">{scorePercent}%</span>
+                        {hasEval ? (
+                          <>
+                            <div className="barra-progreso bg-eval">
+                              <div className="barra-interna barra-eval" style={{ width: `${scorePercent}%` }}></div>
+                            </div>
+                            <span className="porcentaje-label">{scorePercent}%</span>
+                          </>
+                        ) : (
+                          <span style={{ color: '#888', fontStyle: 'italic', marginLeft: 8 }}>No tiene</span>
+                        )}
                       </div>
 
                       <div className="progreso-meta">
                         <span>🧠 Intentos usados: {item.attempts_used}</span>
-                        <span>🕒 Última actualización: {new Date(item.updated_at).toLocaleString()}</span>
+                        <span>🕒 Última actualización: {new Date(item.updated_at).toLocaleString('es-CO', { hour12: false })}</span>
                       </div>
                     </div>
                   );

@@ -4,6 +4,8 @@ import mysql from 'mysql2/promise';
 import bcrypt from 'bcrypt';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
+import multer from 'multer';
+import path from 'path';
 
 const app = express();
 const PORT = 3001;
@@ -18,6 +20,22 @@ app.use(cors({
 // Configurar límites de payload más grandes para imágenes
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
+// Servir la carpeta de videos como archivos estáticos (pública, antes de autenticación)
+app.use('/uploads/videos', express.static('uploads/videos'));
+
+// Configuración de almacenamiento para videos
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/videos/'); // Carpeta donde se guardarán los videos
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    cb(null, Date.now() + '-' + file.fieldname + ext);
+  }
+});
+const upload = multer({ storage: storage });
+
 
 // Configuración de la base de datos
 const dbConfig = {
@@ -629,12 +647,22 @@ app.get('/api/profile/:id', verifyToken, async (req, res) => {
 // server.js (continuación - agregar rutas de cursos y evaluaciones)
 
 // RUTA: Crear curso con evaluación
-app.post('/api/courses', verifyToken, async (req, res) => {
+app.post('/api/courses', verifyToken, upload.single('videoFile'), async (req, res) => {
   try {
-    const { title, description, videoUrl, role, evaluation = [], attempts = 1, timeLimit = 30 } = req.body;
+    const { title, description, videoUrl, role, attempts = 1, timeLimit = 30 } = req.body;
+    let finalVideoUrl = videoUrl;
 
-    if (!title || !description || !videoUrl || !role) {
-      return res.status(400).json({ success: false, message: 'Todos los campos del curso son requeridos' });
+    // Si se subió un archivo, usa su ruta
+    if (req.file) {
+      finalVideoUrl = `/uploads/videos/${req.file.filename}`;
+    }
+
+    // Procesar evaluation como JSON
+    let evaluation = [];
+    try {
+      evaluation = req.body.evaluation ? JSON.parse(req.body.evaluation) : [];
+    } catch (err) {
+      return res.status(400).json({ success: false, message: 'Error al procesar las preguntas de evaluación.' });
     }
 
     const connection = await mysql.createConnection(dbConfig);
@@ -642,7 +670,7 @@ app.post('/api/courses', verifyToken, async (req, res) => {
     // Insertar curso
     const [result] = await connection.execute(
       `INSERT INTO courses (title, description, video_url, role, attempts, time_limit) VALUES (?, ?, ?, ?, ?, ?)`,
-      [title, description, videoUrl, role, attempts, timeLimit]
+      [title, description, finalVideoUrl, role, attempts, timeLimit]
     );
 
     const courseId = result.insertId;
@@ -650,7 +678,7 @@ app.post('/api/courses', verifyToken, async (req, res) => {
     // Insertar preguntas si existen
     for (const q of evaluation) {
       const { question, options, correctIndex } = q;
-      if (!question || options.length !== 4 || correctIndex < 0 || correctIndex > 3) continue;
+      if (!question || !options || options.length !== 4 || correctIndex < 0 || correctIndex > 3) continue;
 
       await connection.execute(
         `INSERT INTO questions (course_id, question, option_1, option_2, option_3, option_4, correct_index)
@@ -675,8 +703,8 @@ app.post('/api/courses', verifyToken, async (req, res) => {
 
     res.status(201).json({ success: true, message: 'Curso creado exitosamente', courseId });
   } catch (error) {
-    console.error('Error al crear curso:', error);
-    res.status(500).json({ success: false, message: 'Error interno del servidor' });
+    console.error('Error creando curso:', error);
+    res.status(500).json({ success: false, message: 'Error interno al crear curso' });
   }
 });
 

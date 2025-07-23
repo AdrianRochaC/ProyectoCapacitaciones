@@ -16,6 +16,8 @@ const AdminCoursesPage = () => {
   const [editingCourse, setEditingCourse] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showCourses, setShowCourses] = useState(false); // NUEVO
+  const [videoFile, setVideoFile] = useState(null); // Nuevo estado para archivo
+  const [useFile, setUseFile] = useState(false); // Nuevo estado para alternar entre link y archivo
 
   const API_URL = "/api";
   const token = localStorage.getItem("authToken");
@@ -65,28 +67,46 @@ const AdminCoursesPage = () => {
     return convertToEmbedUrl(url);
   };
 
+  const handleFileChange = (e) => {
+    setVideoFile(e.target.files[0]);
+  };
+
+  // Nuevo handler para alternar entre enlace y archivo
+  const handleUseFileChange = (value) => {
+    setUseFile(value);
+    if (value) {
+      setVideoUrl(""); // Limpiar enlace si se va a usar archivo
+    } else {
+      setVideoFile(null); // Limpiar archivo si se va a usar enlace
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title || !description || !videoUrl) {
-      alert("Completa todos los campos.");
+    if (!title || !description || (!videoUrl && !videoFile)) {
+      alert("Completa todos los campos y elige un link o archivo de video.");
       return;
     }
 
-    const embed = convertToEmbedUrl(videoUrl);
-    if (!embed) {
-      alert("Enlace YouTube inválido.");
-      return;
-    }
+    let formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("role", role);
+    formData.append("attempts", attempts);
+    formData.append("timeLimit", timeLimit);
+    formData.append("evaluation", JSON.stringify(questions));
 
-    const payload = {
-      title,
-      description,
-      videoUrl: embed,
-      role,
-      evaluation: questions,
-      attempts,
-      timeLimit,
-    };
+    if (useFile && videoFile) {
+      formData.append("videoFile", videoFile);
+    } else if (videoUrl) {
+      // Si es link de YouTube, convertir a embed
+      const embed = convertToEmbedUrl(videoUrl);
+      if (!embed) {
+        alert("Enlace YouTube inválido.");
+        return;
+      }
+      formData.append("videoUrl", embed);
+    }
 
     try {
       const url = editingCourse ? `${API_URL}/courses/${editingCourse}` : `${API_URL}/courses`;
@@ -95,10 +115,9 @@ const AdminCoursesPage = () => {
       const res = await fetch(url, {
         method,
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(payload),
+        body: formData,
       });
 
       const data = await res.json();
@@ -118,6 +137,8 @@ const AdminCoursesPage = () => {
     setTitle("");
     setDescription("");
     setVideoUrl("");
+    setVideoFile(null);
+    setUseFile(false);
     setRole("Gerente");
     setQuestions([]);
     setAttempts(1);
@@ -277,8 +298,74 @@ const AdminCoursesPage = () => {
         <label>Descripción:</label>
         <textarea value={description} onChange={(e) => setDescription(e.target.value)} required />
 
-        <label>Enlace del Video (YouTube):</label>
-        <input type="text" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} required />
+        {/* Selector para elegir entre link o archivo */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "2rem",
+            background: "rgba(255,255,255,0.03)",
+            borderRadius: "10px",
+            padding: "1rem 1.5rem",
+            margin: "1.2rem 0 1.5rem 0",
+            border: "1px solid #333",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.05)"
+          }}
+        >
+          <label style={{ display: "flex", alignItems: "center", fontWeight: 600, color: "#43e97b", cursor: "pointer" }}>
+            <input
+              type="radio"
+              checked={!useFile}
+              onChange={() => handleUseFileChange(false)}
+              style={{ marginRight: "0.6rem", accentColor: "#43e97b", width: 18, height: 18 }}
+            />
+            Usar enlace de YouTube
+          </label>
+          <label style={{ display: "flex", alignItems: "center", fontWeight: 600, color: "#43e97b", cursor: "pointer" }}>
+            <input
+              type="radio"
+              checked={useFile}
+              onChange={() => handleUseFileChange(true)}
+              style={{ marginRight: "0.6rem", accentColor: "#43e97b", width: 18, height: 18 }}
+            />
+            Subir archivo de video
+          </label>
+        </div>
+
+        {/* Ambos inputs, solo uno visible */}
+        <div style={{ display: useFile ? "none" : "block" }}>
+          <label style={{ color: "#43e97b", fontWeight: 600, marginBottom: 6 }}>Enlace del Video (YouTube):</label>
+          <input
+            type="text"
+            value={videoUrl}
+            onChange={(e) => setVideoUrl(e.target.value)}
+            style={{
+              background: "#23243a",
+              color: "#fff",
+              border: "1px solid #333",
+              borderRadius: "8px",
+              padding: "0.5rem",
+              marginBottom: "1rem"
+            }}
+          />
+        </div>
+        <div style={{ display: useFile ? "block" : "none" }}>
+          <label style={{ color: "#43e97b", fontWeight: 600, marginBottom: 6 }}>Archivo de Video:</label>
+          <input
+            type="file"
+            accept="video/*"
+            onChange={handleFileChange}
+            style={{
+              background: "#23243a",
+              color: "#fff",
+              border: "1px solid #333",
+              borderRadius: "8px",
+              padding: "0.5rem",
+              marginBottom: "1rem"
+            }}
+          />
+          {videoFile && <p style={{ color: '#2962ff', marginTop: 0 }}>Archivo seleccionado: {videoFile.name}</p>}
+        </div>
 
         <label>Rol del Empleado:</label>
         <select value={role} onChange={(e) => setRole(e.target.value)}>
@@ -386,17 +473,30 @@ const AdminCoursesPage = () => {
               <p>⏳ Tiempo límite: {course.timeLimit || course.time_limit} min</p>
               <p>🔁 Intentos: {course.attempts}</p>
 
+              {/* Mostrar video según tipo en la lista de cursos */}
               <div className="video-container">
                 {(course.videoUrl || course.video_url) && (course.videoUrl || course.video_url).trim() !== '' ? (
-                  <iframe
-                    src={course.videoUrl || course.video_url}
-                    title={course.title}
-                    width="100%"
-                    height="315"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
+                  (course.videoUrl || course.video_url).includes('youtube.com/embed/') ? (
+                    <iframe
+                      src={course.videoUrl || course.video_url}
+                      title={course.title}
+                      width="100%"
+                      height="315"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <video
+                      src={`http://localhost:3001${course.videoUrl || course.video_url}`}
+                      controls
+                      width="100%"
+                      height="315"
+                      style={{ background: '#000' }}
+                    >
+                      Tu navegador no soporta la reproducción de video.
+                    </video>
+                  )
                 ) : (
                   <div className="no-video">
                     <p>⚠️ No hay video disponible</p>

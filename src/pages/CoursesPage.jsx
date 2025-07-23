@@ -78,17 +78,28 @@ const CoursesPage = () => {
                 <p>{course.description}</p>
 
                 <div className="video-container">
-                  {(course.videoUrl || course.video_url) &&
-                    (course.videoUrl || course.video_url).trim() !== "" ? (
-                    <iframe
-                      src={ensureEmbedUrl(course.videoUrl || course.video_url)}
-                      title={course.title}
-                      width="100%"
-                      height="315"
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
+                  {(course.videoUrl || course.video_url) && (course.videoUrl || course.video_url).trim() !== "" ? (
+                    (course.videoUrl || course.video_url).includes('youtube.com/embed/') ? (
+                      <iframe
+                        src={ensureEmbedUrl(course.videoUrl || course.video_url)}
+                        title={course.title}
+                        width="100%"
+                        height="315"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    ) : (
+                      <video
+                        src={`http://localhost:3001${course.videoUrl || course.video_url}`}
+                        controls
+                        width="100%"
+                        height="315"
+                        style={{ background: '#000' }}
+                      >
+                        Tu navegador no soporta la reproducción de video.
+                      </video>
+                    )
                   ) : (
                     <div className="no-video">
                       <p>⚠️ No hay video disponible</p>
