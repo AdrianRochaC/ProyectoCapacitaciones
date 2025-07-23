@@ -269,7 +269,7 @@ const AdminCoursesPage = () => {
   return (
     <div className="admin-page-container">
       <div className="admin-main-container">
-        <h1>Panel Admin {editingCourse ? "(Editando)" : ""}</h1>
+        <h1>Panel Administrador {editingCourse ? "(Editando)" : ""}</h1>
       <form onSubmit={handleSubmit} className="admin-form">
         <label>Título:</label>
         <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required />
