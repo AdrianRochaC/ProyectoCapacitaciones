@@ -13,6 +13,8 @@ import Cuentas from "./pages/Cuentas";
 import Layout from "./components/LoadingScreen/Layout";
 import Dashboard from './pages/Dashboard';
 import Home from './pages/Home';
+import AdminDocumentos from "./pages/AdminDocumentos";
+import Documentos from "./pages/Documentos";
 
 const useAuth = () => {
   const [user, setUser] = useState(null);
@@ -142,6 +144,22 @@ function App() {
           <ProtectedRoute adminOnly={true}>
             <Layout>
               <Dashboard />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/admin-documentos" element={
+          <ProtectedRoute adminOnly={true}>
+            <Layout>
+              <AdminDocumentos />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/documentos" element={
+          <ProtectedRoute userOnly={true}>
+            <Layout>
+              <Documentos />
             </Layout>
           </ProtectedRoute>
         } />

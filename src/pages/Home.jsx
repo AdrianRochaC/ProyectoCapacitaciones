@@ -47,6 +47,12 @@ const Home = () => {
       description: "Ver y editar tu perfil de administrador.",
       route: "/perfil",
     },
+    {
+      title: "Documentos",
+      icon: <BookOpenCheck size={36} color="#2962ff" />,
+      description: "Accede a los documentos de la empresa.",
+      route: "/admin-documentos",
+    },
   ];
 
   // Tarjetas para usuario normal
@@ -68,6 +74,12 @@ const Home = () => {
       icon: <FaUser size={36} color="#607d8b" />,
       description: "Ver y editar tu perfil personal.",
       route: "/perfil",
+    },
+    {
+      title: "Documentos",
+      icon: <BookOpenCheck size={36} color="#2962ff" />,
+      description: "Accede a los documentos de la empresa.",
+      route: "/documentos",
     },
   ];
 
