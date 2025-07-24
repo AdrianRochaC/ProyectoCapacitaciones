@@ -6,6 +6,11 @@ import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import multer from 'multer';
 import path from 'path';
+// Agregar importación de los endpoints de preferencias
+import {
+  updateBackgroundImage,
+  getBackgroundImage
+} from './userPreferences.js';
 
 const app = express();
 const PORT = 3001;
@@ -76,7 +81,7 @@ app.get('/api/user-preferences', verifyToken, async (req, res) => {
     const connection = await mysql.createConnection(dbConfig);
     
     const [rows] = await connection.execute(
-      'SELECT theme, color_scheme, font_size, font_family, spacing, animations, background_type, background_image_url, background_color FROM user_preferences WHERE user_id = ?',
+      'SELECT theme, color_scheme, font_size, font_family, spacing, animations, background_type, background_image IS NOT NULL AS has_background_image, background_color FROM user_preferences WHERE user_id = ?',
       [req.user.id]
     );
 
@@ -92,7 +97,7 @@ app.get('/api/user-preferences', verifyToken, async (req, res) => {
         spacing: 'normal',
         animations: 'enabled',
         background_type: 'color',
-        background_image_url: null,
+        has_background_image: false,
         background_color: 'default'
       };
 
@@ -129,7 +134,6 @@ app.put('/api/user-preferences', verifyToken, async (req, res) => {
       spacing, 
       animations, 
       background_type, 
-      background_image_url, 
       background_color 
     } = req.body;
     
@@ -146,18 +150,18 @@ app.put('/api/user-preferences', verifyToken, async (req, res) => {
       await connection.execute(
         `UPDATE user_preferences 
          SET theme = ?, color_scheme = ?, font_size = ?, font_family = ?, spacing = ?, animations = ?,
-             background_type = ?, background_image_url = ?, background_color = ?
+             background_type = ?, background_color = ?
          WHERE user_id = ?`,
         [theme, color_scheme, font_size, font_family, spacing, animations, 
-         background_type, background_image_url, background_color, req.user.id]
+         background_type, background_color, req.user.id]
       );
     } else {
       // Crear nuevas preferencias
       await connection.execute(
-        `INSERT INTO user_preferences (user_id, theme, color_scheme, font_size, font_family, spacing, animations, background_type, background_image_url, background_color)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO user_preferences (user_id, theme, color_scheme, font_size, font_family, spacing, animations, background_type, background_color)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [req.user.id, theme, color_scheme, font_size, font_family, spacing, animations, 
-         background_type, background_image_url, background_color]
+         background_type, background_color]
       );
     }
 
@@ -174,7 +178,6 @@ app.put('/api/user-preferences', verifyToken, async (req, res) => {
         spacing, 
         animations, 
         background_type, 
-        background_image_url, 
         background_color 
       }
     });
@@ -194,7 +197,7 @@ app.post('/api/user-preferences/reset', verifyToken, async (req, res) => {
       `UPDATE user_preferences 
        SET theme = 'dark', color_scheme = 'default', font_size = 'medium', 
            font_family = 'inter', spacing = 'normal', animations = 'enabled',
-           background_type = 'color', background_image_url = NULL, background_color = 'default'
+           background_type = 'color', background_image = NULL, background_color = 'default'
        WHERE user_id = ?`,
       [req.user.id]
     );
@@ -212,7 +215,7 @@ app.post('/api/user-preferences/reset', verifyToken, async (req, res) => {
         spacing: 'normal',
         animations: 'enabled',
         background_type: 'color',
-        background_image_url: null,
+        background_image: null,
         background_color: 'default'
       }
     });
@@ -222,6 +225,11 @@ app.post('/api/user-preferences/reset', verifyToken, async (req, res) => {
     res.status(500).json({ success: false, message: 'Error interno del servidor' });
   }
 });
+
+// Endpoint para subir imagen de fondo
+app.put('/api/user-preferences/background-image', verifyToken, updateBackgroundImage);
+// Endpoint para obtener imagen de fondo
+app.get('/api/user-preferences/background-image', verifyToken, getBackgroundImage);
 
 // === RUTAS DE NOTIFICACIONES ===
 // Obtener notificaciones del usuario autenticado

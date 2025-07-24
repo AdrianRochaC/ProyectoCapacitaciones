@@ -28,61 +28,6 @@ const PersonalizationModal = ({ isOpen, onClose }) => {
     }
   }, [isOpen]);
 
-  const loadUserPreferences = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      
-      const preferences = await getUserPreferences();
-      
-      setCurrentTheme(preferences.theme);
-      setSelectedTheme(preferences.theme);
-      setColorScheme(preferences.color_scheme);
-      setFontSize(preferences.font_size);
-      setFontFamily(preferences.font_family);
-      setSpacing(preferences.spacing);
-      setAnimations(preferences.animations);
-      setBackgroundType(preferences.background_type);
-      setBackgroundImageUrl(preferences.background_image_url || '');
-      setBackgroundColor(preferences.background_color);
-      
-      // Aplicar configuraciones al DOM
-      applySettings(preferences.theme, preferences.color_scheme, preferences.font_size, preferences.font_family, preferences.spacing, preferences.animations, preferences.background_type, preferences.background_image_url, preferences.background_color);
-      
-    } catch (error) {
-      console.error('Error cargando preferencias:', error);
-      setError('No se pudieron cargar las preferencias. Usando configuración local.');
-      
-      // Cargar desde localStorage como respaldo
-      const localPreferences = {
-        theme: localStorage.getItem('theme') || 'dark',
-        color_scheme: localStorage.getItem('colorScheme') || 'default',
-        font_size: localStorage.getItem('fontSize') || 'medium',
-        font_family: localStorage.getItem('fontFamily') || 'inter',
-        spacing: localStorage.getItem('spacing') || 'normal',
-        animations: localStorage.getItem('animations') || 'enabled',
-        background_type: localStorage.getItem('backgroundType') || 'color',
-        background_image_url: localStorage.getItem('backgroundImageUrl') || null,
-        background_color: localStorage.getItem('backgroundColor') || 'default'
-      };
-      
-      setCurrentTheme(localPreferences.theme);
-      setSelectedTheme(localPreferences.theme);
-      setColorScheme(localPreferences.color_scheme);
-      setFontSize(localPreferences.font_size);
-      setFontFamily(localPreferences.font_family);
-      setSpacing(localPreferences.spacing);
-      setAnimations(localPreferences.animations);
-      setBackgroundType(localPreferences.background_type);
-      setBackgroundImageUrl(localPreferences.background_image_url || '');
-      setBackgroundColor(localPreferences.background_color);
-      
-      applySettings(localPreferences.theme, localPreferences.color_scheme, localPreferences.font_size, localPreferences.font_family, localPreferences.spacing, localPreferences.animations, localPreferences.background_type, localPreferences.background_image_url, localPreferences.background_color);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const applySettings = (theme, scheme, size, family, space, anim, bgType, bgImage, bgColor) => {
     // Aplicar al DOM
     document.documentElement.setAttribute('data-theme', theme);
@@ -116,118 +61,70 @@ const PersonalizationModal = ({ isOpen, onClose }) => {
     }
   };
 
-  // Función para manejar la subida de archivos
+  // Cambia handleFileUpload para enviar el archivo al backend
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
-
-    // Validar tipo de archivo
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    if (!validTypes.includes(file.type)) {
-      setError('Por favor selecciona una imagen en formato JPG, PNG o WebP.');
-      return;
-    }
-
-    // Validar tamaño (máximo 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (file.size > maxSize) {
-      setError('La imagen es demasiado grande. Máximo 5MB.');
-      return;
-    }
-
+    const formData = new FormData();
+    formData.append('background_image', file);
+    setUploadingImage(true);
+    setError(null);
     try {
-      setUploadingImage(true);
-      setError(null);
-
-      // Comprimir y convertir archivo a base64
-      const compressedBase64Url = await compressAndConvertImage(file);
-      
-      // Aplicar la imagen
-      await handleBackgroundImageChange(compressedBase64Url);
-      
-      setError(null);
+      const token = localStorage.getItem('authToken');
+      await fetch('/api/user-preferences/background-image', {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      });
+      // Recargar preferencias para actualizar el fondo
+      await loadUserPreferences();
     } catch (error) {
-      console.error('Error procesando imagen:', error);
-      setError('Error al procesar la imagen. Intenta con otra imagen.');
+      setError('Error al subir la imagen');
     } finally {
       setUploadingImage(false);
-      // Limpiar el input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
-  // Función para comprimir y convertir imagen
-  const compressAndConvertImage = (file) => {
-    return new Promise((resolve, reject) => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const img = document.createElement('img');
-      
-      img.onload = () => {
-        try {
-          // Calcular dimensiones máximas (máximo 800px de ancho o alto para reducir tamaño)
-          const maxDimension = 800;
-          let { width, height } = img;
-          
-          if (width > height) {
-            if (width > maxDimension) {
-              height = (height * maxDimension) / width;
-              width = maxDimension;
-            }
-          } else {
-            if (height > maxDimension) {
-              width = (width * maxDimension) / height;
-              height = maxDimension;
-            }
-          }
-          
-          // Configurar canvas
-          canvas.width = width;
-          canvas.height = height;
-          
-          // Dibujar imagen redimensionada
-          ctx.drawImage(img, 0, 0, width, height);
-          
-          // Convertir a base64 con compresión más agresiva
-          const quality = 0.6; // Calidad del 60% para reducir tamaño
-          const base64Url = canvas.toDataURL('image/jpeg', quality);
-          
-          // Verificar tamaño del resultado
-          const base64Size = Math.ceil((base64Url.length * 3) / 4);
-          const maxSize = 2 * 1024 * 1024; // 2MB máximo para API
-          
-          if (base64Size > maxSize) {
-            // Si aún es muy grande, comprimir más agresivamente
-            const lowerQuality = 0.4;
-            const compressedUrl = canvas.toDataURL('image/jpeg', lowerQuality);
-            
-            // Verificar tamaño final
-            const finalSize = Math.ceil((compressedUrl.length * 3) / 4);
-            if (finalSize > maxSize) {
-              // Si aún es muy grande, usar calidad muy baja
-              const veryLowQuality = 0.3;
-              const finalUrl = canvas.toDataURL('image/jpeg', veryLowQuality);
-              resolve(finalUrl);
-            } else {
-              resolve(compressedUrl);
-            }
-          } else {
-            resolve(base64Url);
-          }
-        } catch (error) {
-          reject(error);
+  // Cambia loadUserPreferences para cargar la imagen del backend si existe
+  const loadUserPreferences = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const preferences = await getUserPreferences();
+      setCurrentTheme(preferences.theme);
+      setSelectedTheme(preferences.theme);
+      setColorScheme(preferences.color_scheme);
+      setFontSize(preferences.font_size);
+      setFontFamily(preferences.font_family);
+      setSpacing(preferences.spacing);
+      setAnimations(preferences.animations);
+      setBackgroundType(preferences.background_type);
+      setBackgroundColor(preferences.background_color);
+      if (preferences.has_background_image) {
+        const token = localStorage.getItem('authToken');
+        const res = await fetch('/api/user-preferences/background-image', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const blob = await res.blob();
+          const imageUrl = URL.createObjectURL(blob);
+          setBackgroundImageUrl(imageUrl);
+          applySettings(preferences.theme, preferences.color_scheme, preferences.font_size, preferences.font_family, preferences.spacing, preferences.animations, 'image', imageUrl, preferences.background_color);
+        } else {
+          setBackgroundImageUrl('');
+          applySettings(preferences.theme, preferences.color_scheme, preferences.font_size, preferences.font_family, preferences.spacing, preferences.animations, preferences.background_type, '', preferences.background_color);
         }
-      };
-      
-      img.onerror = () => {
-        reject(new Error('No se pudo cargar la imagen'));
-      };
-      
-      // Cargar imagen
-      img.src = URL.createObjectURL(file);
-    });
+      } else {
+        setBackgroundImageUrl('');
+        applySettings(preferences.theme, preferences.color_scheme, preferences.font_size, preferences.font_family, preferences.spacing, preferences.animations, preferences.background_type, '', preferences.background_color);
+      }
+    } catch (error) {
+      setError('No se pudieron cargar las preferencias. Usando configuración local.');
+      setBackgroundImageUrl('');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Función para convertir archivo a base64 (mantener para compatibilidad)

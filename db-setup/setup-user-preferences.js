@@ -29,7 +29,7 @@ const setupUserPreferences = async () => {
         spacing VARCHAR(20) DEFAULT 'normal',
         animations VARCHAR(20) DEFAULT 'enabled',
         background_type ENUM('color', 'image') DEFAULT 'color',
-        background_image_url TEXT NULL,
+        background_image LONGBLOB NULL,
         background_color VARCHAR(20) DEFAULT 'default',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
