@@ -253,6 +253,29 @@ export const initializePreferences = async () => {
     // Intentar cargar desde la base de datos
     const preferences = await getUserPreferences();
     syncPreferencesWithLocalStorage(preferences);
+
+    // Si tiene imagen de fondo, cargarla y aplicarla
+    if (preferences.has_background_image) {
+      const token = getAuthToken();
+      const res = await fetch('http://localhost:3001/api/user-preferences/background-image', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const blob = await res.blob();
+        const imageUrl = URL.createObjectURL(blob);
+        preferences.background_type = 'image';
+        preferences.background_image_url = imageUrl;
+        applyPreferencesToDOM(preferences);
+        return preferences;
+      } else if (res.status === 404) {
+        // No hay imagen, continuar sin error
+        preferences.background_type = 'color';
+        preferences.background_image_url = '';
+        applyPreferencesToDOM(preferences);
+        return preferences;
+      }
+    }
+    // Si no hay imagen, aplicar normalmente
     applyPreferencesToDOM(preferences);
     return preferences;
   } catch (error) {
