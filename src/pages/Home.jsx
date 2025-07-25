@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { BookOpenCheck, ClipboardList, Users2, BarChart3, User } from "lucide-react";
-import { FaGraduationCap, FaClipboardList, FaUser, FaBell } from "react-icons/fa";
+import { FaGraduationCap, FaClipboardList, FaUser, FaBell, FaFileAlt } from "react-icons/fa";
 import "./Home.css";
 
 const Home = () => {
@@ -49,7 +49,7 @@ const Home = () => {
     },
     {
       title: "Documentos",
-      icon: <BookOpenCheck size={36} color="#2962ff" />,
+      icon: <FaFileAlt size={36} color="#2962ff" />,
       description: "Accede a los documentos de la empresa.",
       route: "/admin-documentos",
     },
@@ -77,7 +77,7 @@ const Home = () => {
     },
     {
       title: "Documentos",
-      icon: <BookOpenCheck size={36} color="#2962ff" />,
+      icon: <FaFileAlt size={36} color="#2962ff" />,
       description: "Accede a los documentos de la empresa.",
       route: "/documentos",
     },

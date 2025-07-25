@@ -8,7 +8,7 @@ import {
   LogOut,
   Settings
 } from "lucide-react";
-import { FaBell, FaCog } from "react-icons/fa";
+import { FaBell, FaCog, FaFileAlt } from "react-icons/fa";
 import "./AdminMenu.css";
 import "./Notifications.anim.css";
 import { useEffect, useState } from 'react';
@@ -86,6 +86,10 @@ const AdminMenu = () => {
     }
   };
 
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
+
   return (
     <>
       <nav className="main-menu">
@@ -121,6 +125,11 @@ const AdminMenu = () => {
             <li>
               <Link to="/perfil">
                 <span>Perfil</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/admin-documentos" className={isActive('/admin-documentos') ? 'active' : ''}>
+                <FaFileAlt style={{ marginRight: 8 }} /> Documentos
               </Link>
             </li>
           </ul>

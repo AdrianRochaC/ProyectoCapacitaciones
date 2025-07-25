@@ -1,0 +1,39 @@
+.doc-multiselect-section {
+  margin: 16px 0;
+}
+.doc-multiselect-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+  padding-bottom: 2px;
+}
+.doc-pill {
+  background: var(--bg-secondary, #23232b);
+  color: var(--text-primary, #fff);
+  border: 2px solid var(--gradient-primary, #a78bfa);
+  border-radius: 18px;
+  padding: 7px 18px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border 0.15s, box-shadow 0.15s;
+  user-select: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+.doc-pill.selected {
+  background: var(--gradient-primary, #a78bfa);
+  color: var(--text-white, #fff);
+  border-color: var(--gradient-primary, #a78bfa);
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(167,139,250,0.18);
+}
+.doc-pill:active {
+  transform: scale(0.97);
+}
+.doc-checkbox-row {
+  display: flex;
+  align-items: center;
+  margin: 12px 0 18px 0;
+} 

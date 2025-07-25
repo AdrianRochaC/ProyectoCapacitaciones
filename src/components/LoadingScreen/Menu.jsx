@@ -6,7 +6,8 @@ import {
   FaSignInAlt,
   FaClipboardList,
   FaBell,
-  FaCog
+  FaCog,
+  FaFileAlt
 } from "react-icons/fa";
 import "./Menu.css";
 import "./Notifications.anim.css";
@@ -102,6 +103,10 @@ const Menu = () => {
     fetchNotifications();
   };
 
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
+
   return (
     <>
       <nav className="main-menu">
@@ -122,6 +127,11 @@ const Menu = () => {
             <li>
               <Link to="/bitacora">
                 <FaClipboardList /> Bitácora
+              </Link>
+            </li>
+            <li>
+              <Link to="/documentos" className={isActive('/documentos') ? 'active' : ''}>
+                <FaFileAlt style={{ marginRight: 8 }} /> Documentos
               </Link>
             </li>
             <li>

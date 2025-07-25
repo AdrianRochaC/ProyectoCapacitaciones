@@ -6,6 +6,7 @@ import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
 // Agregar importación de los endpoints de preferencias
 import {
   updateBackgroundImage,
@@ -15,6 +16,29 @@ import {
 const app = express();
 const PORT = 3001;
 const JWT_SECRET = 'tu_clave_secreta_jwt'; // En producción usar variable de entorno
+
+// Middleware para verificar JWT
+const verifyToken = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({
+      success: false,
+      message: 'Token no proporcionado'
+    });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: 'Token inválido'
+    });
+  }
+};
 
 // Middleware
 app.use(cors({
@@ -41,6 +65,151 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
+// Crear carpeta uploads/documents si no existe
+const documentsDir = 'uploads/documents';
+if (!fs.existsSync(documentsDir)) {
+  fs.mkdirSync(documentsDir, { recursive: true });
+}
+
+// Configuración de Multer para documentos
+const documentStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, documentsDir);
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    cb(null, Date.now() + '-' + file.fieldname + ext);
+  }
+});
+const documentUpload = multer({
+  storage: documentStorage,
+  fileFilter: function (req, file, cb) {
+    // Permitir solo PDF, Word, Excel
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    ];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Tipo de archivo no permitido'));
+    }
+  },
+  limits: { fileSize: 20 * 1024 * 1024 } // 20MB máximo
+});
+
+// Servir documentos como archivos estáticos
+app.use('/uploads/documents', express.static(documentsDir));
+
+// Endpoint para subir documento (con asignación múltiple)
+app.post('/api/documents', verifyToken, documentUpload.single('document'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No se subió ningún archivo.' });
+    }
+    const { is_global, roles, users } = req.body;
+    const connection = await mysql.createConnection(dbConfig);
+    // Insertar documento
+    const [result] = await connection.execute(
+      `INSERT INTO documents (name, filename, mimetype, size, user_id, is_global) VALUES (?, ?, ?, ?, ?, ?)`,
+      [req.file.originalname, req.file.filename, req.file.mimetype, req.file.size, req.user.id, is_global === 'true' || is_global === true]
+    );
+    const documentId = result.insertId;
+    // Insertar targets (roles)
+    if (roles) {
+      const rolesArr = Array.isArray(roles) ? roles : JSON.parse(roles);
+      for (const role of rolesArr) {
+        await connection.execute(
+          `INSERT INTO document_targets (document_id, target_type, target_value) VALUES (?, 'role', ?)`,
+          [documentId, role]
+        );
+      }
+    }
+    // Insertar targets (usuarios)
+    if (users) {
+      const usersArr = Array.isArray(users) ? users : JSON.parse(users);
+      for (const userId of usersArr) {
+        await connection.execute(
+          `INSERT INTO document_targets (document_id, target_type, target_value) VALUES (?, 'user', ?)`,
+          [documentId, String(userId)]
+        );
+      }
+    }
+    await connection.end();
+    res.json({ success: true, message: 'Documento subido exitosamente.' });
+  } catch (error) {
+    console.error('Error subiendo documento:', error);
+    res.status(500).json({ success: false, message: 'Error interno del servidor.' });
+  }
+});
+
+// Endpoint para listar documentos según permisos
+app.get('/api/documents', verifyToken, async (req, res) => {
+  try {
+    const connection = await mysql.createConnection(dbConfig);
+    // Obtener rol y user_id
+    const [userRows] = await connection.execute('SELECT id, rol FROM usuarios WHERE id = ?', [req.user.id]);
+    if (userRows.length === 0) return res.json({ success: true, documents: [] });
+    const userId = String(userRows[0].id);
+    const userRole = userRows[0].rol;
+    // Si es Admin, mostrar todos los documentos
+    if (userRole === 'Admin') {
+      const [allDocs] = await connection.execute('SELECT * FROM documents ORDER BY created_at DESC');
+      await connection.end();
+      return res.json({ success: true, documents: allDocs });
+    }
+    // Documentos globales
+    const [globalDocs] = await connection.execute(
+      'SELECT * FROM documents WHERE is_global = 1 ORDER BY created_at DESC'
+    );
+    // Documentos por rol
+    const [roleDocs] = await connection.execute(
+      `SELECT d.* FROM documents d
+       JOIN document_targets t ON d.id = t.document_id
+       WHERE t.target_type = 'role' AND t.target_value = ?
+       ORDER BY d.created_at DESC`,
+      [userRole]
+    );
+    // Documentos por usuario
+    const [userDocs] = await connection.execute(
+      `SELECT d.* FROM documents d
+       JOIN document_targets t ON d.id = t.document_id
+       WHERE t.target_type = 'user' AND t.target_value = ?
+       ORDER BY d.created_at DESC`,
+      [userId]
+    );
+    // Unir y eliminar duplicados
+    const allDocs = [...globalDocs, ...roleDocs, ...userDocs];
+    const uniqueDocs = Array.from(new Map(allDocs.map(doc => [doc.id, doc])).values());
+    await connection.end();
+    res.json({ success: true, documents: uniqueDocs });
+  } catch (error) {
+    console.error('Error listando documentos:', error);
+    res.status(500).json({ success: false, message: 'Error interno del servidor.' });
+  }
+});
+
+// Endpoint para obtener destinatarios de un documento
+app.get('/api/documents/:id/targets', verifyToken, async (req, res) => {
+  try {
+    const connection = await mysql.createConnection(dbConfig);
+    const docId = req.params.id;
+    const [targets] = await connection.execute(
+      'SELECT target_type, target_value FROM document_targets WHERE document_id = ?',
+      [docId]
+    );
+    const roles = targets.filter(t => t.target_type === 'role').map(t => t.target_value);
+    const users = targets.filter(t => t.target_type === 'user').map(t => t.target_value);
+    await connection.end();
+    res.json({ success: true, roles, users });
+  } catch (error) {
+    console.error('Error obteniendo destinatarios:', error);
+    res.status(500).json({ success: false, message: 'Error interno del servidor.' });
+  }
+});
 
 // Configuración de la base de datos
 const dbConfig = {
@@ -51,28 +220,7 @@ const dbConfig = {
   database: 'railway'
 };
 
-// Middleware para verificar JWT
-const verifyToken = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
 
-  if (!token) {
-    return res.status(401).json({
-      success: false,
-      message: 'Token no proporcionado'
-    });
-  }
-
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch (error) {
-    return res.status(401).json({
-      success: false,
-      message: 'Token inválido'
-    });
-  }
-};
 
 // === RUTAS DE PREFERENCIAS DE USUARIO ===
 // Obtener preferencias del usuario

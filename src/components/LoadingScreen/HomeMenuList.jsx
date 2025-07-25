@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BookOpenCheck, ClipboardList, Users2, BarChart3, User, Settings, Home } from "lucide-react";
-import { FaGraduationCap, FaClipboardList, FaUser, FaBell, FaCog, FaHome } from "react-icons/fa";
+import { FaGraduationCap, FaClipboardList, FaUser, FaBell, FaCog, FaHome, FaFileAlt } from "react-icons/fa";
 import PersonalizationModal from '../PersonalizationModal';
 
 const HomeMenuList = ({ isAdmin, onNavigate, unreadCount, showNotifications }) => {
@@ -17,12 +17,14 @@ const HomeMenuList = ({ isAdmin, onNavigate, unreadCount, showNotifications }) =
         { to: "/AdminBitacora", icon: <ClipboardList size={22} />, label: "Bitácora" },
         { to: "/cuentas", icon: <Users2 size={22} />, label: "Cuentas" },
         { to: "/dashboard", icon: <BarChart3 size={22} />, label: "Dashboard" },
+        { to: "/admin-documentos", icon: <FaFileAlt size={22} />, label: "Documentos" },
         { to: "/perfil", icon: <User size={22} />, label: "Perfil" },
       ]
     : [
         { to: "/home", icon: <FaHome size={22} />, label: "Home" },
         { to: "/courses", icon: <FaGraduationCap size={22} />, label: "Cursos" },
         { to: "/bitacora", icon: <FaClipboardList size={22} />, label: "Bitácora" },
+        { to: "/documentos", icon: <FaFileAlt size={22} />, label: "Documentos" },
         { to: "/perfil", icon: <FaUser size={22} />, label: "Perfil" },
       ];
 
