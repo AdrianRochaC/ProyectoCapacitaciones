@@ -213,10 +213,10 @@ app.get('/api/documents/:id/targets', verifyToken, async (req, res) => {
 
 // Configuración de la base de datos
 const dbConfig = {
-  host: 'caboose.proxy.rlwy.net',
-  port: 46666,
+  host: 'trolley.proxy.rlwy.net',
+  port: 17594,
   user: 'root',
-  password: 'ZcVJNaDrDEeLSQUNtTYAcKsLzpVgmNEe',
+  password: 'CEgMeCUPsqySFOidbBiATJoUvEbEdEyZ',
   database: 'railway'
 };
 
