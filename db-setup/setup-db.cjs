@@ -3,11 +3,11 @@ const mysql = require('mysql2/promise');
 
 async function createTable() {
   const connection = await mysql.createConnection({
-    host: 'caboose.proxy.rlwy.net',
-    port: 46666,
-    user: 'root',
-    password: 'ZcVJNaDrDEeLSQUNtTYAcKsLzpVgmNEe',
-    database: 'railway'
+     host: 'trolley.proxy.rlwy.net',
+     port: 17594,
+     user: 'root',
+     password: 'CEgMeCUPsqySFOidbBiATJoUvEbEdEyZ',
+     database: 'railway'
   });
 
   try {
