@@ -7,7 +7,8 @@ const AdminCoursesPage = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
-  const [role, setRole] = useState("Gerente");
+  const [cargoId, setCargoId] = useState("");
+  const [cargos, setCargos] = useState([]);
   const [courses, setCourses] = useState([]);
   const [showEvaluation, setShowEvaluation] = useState(false);
   const [questions, setQuestions] = useState([]);
@@ -25,7 +26,31 @@ const AdminCoursesPage = () => {
 
   useEffect(() => {
     fetchCourses();
+    fetchCargos();
   }, []);
+
+  const fetchCargos = async () => {
+    try {
+      const response = await fetch(`${API_URL}/cargos/para-cursos`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setCargos(data.cargos);
+          // Establecer el primer cargo como seleccionado por defecto
+          if (data.cargos.length > 0) {
+            setCargoId(data.cargos[0].id);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error obteniendo cargos:', error);
+    }
+  };
 
   const fetchCourses = () => {
     fetch(`${API_URL}/courses`, {
@@ -91,7 +116,7 @@ const AdminCoursesPage = () => {
     let formData = new FormData();
     formData.append("title", title);
     formData.append("description", description);
-    formData.append("role", role);
+    formData.append("cargoId", cargoId);
     formData.append("attempts", attempts);
     formData.append("timeLimit", timeLimit);
     formData.append("evaluation", JSON.stringify(questions));
@@ -367,12 +392,13 @@ const AdminCoursesPage = () => {
           {videoFile && <p style={{ color: '#2962ff', marginTop: 0 }}>Archivo seleccionado: {videoFile.name}</p>}
         </div>
 
-        <label>Rol del Empleado:</label>
-        <select value={role} onChange={(e) => setRole(e.target.value)}>
-          <option value="Gerente">Gerente</option>
-          <option value="Contabilidad">Contabilidad</option>
-          <option value="Compras">Compras</option>
-          <option value="Atencion al Cliente">Atención al Cliente</option>
+        <label>Cargo/Departamento:</label>
+        <select value={cargoId} onChange={(e) => setCargoId(e.target.value)} required>
+          {cargos.map((cargo) => (
+            <option key={cargo.id} value={cargo.id}>
+              {cargo.nombre}
+            </option>
+          ))}
         </select>
 
         <button

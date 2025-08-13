@@ -15,6 +15,7 @@ import Dashboard from './pages/Dashboard';
 import Home from './pages/Home';
 import AdminDocumentos from "./pages/AdminDocumentos";
 import Documentos from "./pages/Documentos";
+import AdminCargos from "./pages/AdminCargos";
 
 const useAuth = () => {
   const [user, setUser] = useState(null);
@@ -152,6 +153,14 @@ function App() {
           <ProtectedRoute adminOnly={true}>
             <Layout>
               <AdminDocumentos />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/admin-cargos" element={
+          <ProtectedRoute adminOnly={true}>
+            <Layout>
+              <AdminCargos />
             </Layout>
           </ProtectedRoute>
         } />

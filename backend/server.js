@@ -513,10 +513,10 @@ app.post('/api/login', async (req, res) => {
 // Ruta de registro
 app.post('/api/register', async (req, res) => {
   try {
-    const { nombre, email, password, rol } = req.body;
+    const { nombre, email, password, cargo_id } = req.body;
 
     // Validaciones básicas
-    if (!nombre || !email || !password || !rol) {
+    if (!nombre || !email || !password || !cargo_id) {
       return res.status(400).json({
         success: false,
         message: 'Todos los campos son requeridos'
@@ -557,13 +557,27 @@ app.post('/api/register', async (req, res) => {
       });
     }
 
+    // Verificar que el cargo existe y está activo
+    const [cargo] = await connection.execute(
+      'SELECT id, nombre FROM cargos WHERE id = ? AND activo = TRUE',
+      [cargo_id]
+    );
+
+    if (cargo.length === 0) {
+      await connection.end();
+      return res.status(400).json({
+        success: false,
+        message: 'Cargo no válido o inactivo'
+      });
+    }
+
     // Encriptar contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Insertar usuario (activo por defecto)
+    // Insertar usuario con cargo_id y rol del cargo
     const [result] = await connection.execute(
-      'INSERT INTO usuarios (nombre, email, password, rol, activo) VALUES (?, ?, ?, ?, ?)',
-      [nombre, email, hashedPassword, rol, true]
+      'INSERT INTO usuarios (nombre, email, password, rol, cargo_id, activo) VALUES (?, ?, ?, ?, ?, ?)',
+      [nombre, email, hashedPassword, cargo[0].nombre, cargo_id, true]
     );
 
     await connection.end();
@@ -805,7 +819,7 @@ app.get('/api/profile/:id', verifyToken, async (req, res) => {
 // RUTA: Crear curso con evaluación
 app.post('/api/courses', verifyToken, upload.single('videoFile'), async (req, res) => {
   try {
-    const { title, description, videoUrl, role, attempts = 1, timeLimit = 30 } = req.body;
+    const { title, description, videoUrl, cargoId, attempts = 1, timeLimit = 30 } = req.body;
     let finalVideoUrl = videoUrl;
 
     // Si se subió un archivo, usa su ruta
@@ -823,10 +837,26 @@ app.post('/api/courses', verifyToken, upload.single('videoFile'), async (req, re
 
     const connection = await mysql.createConnection(dbConfig);
 
+    // Verificar que el cargo existe y obtener su nombre
+    const [cargoResult] = await connection.execute(
+      'SELECT id, nombre FROM cargos WHERE id = ?',
+      [cargoId]
+    );
+
+    if (cargoResult.length === 0) {
+      await connection.end();
+      return res.status(400).json({ 
+        success: false, 
+        message: 'El cargo seleccionado no existe' 
+      });
+    }
+
+    const cargoNombre = cargoResult[0].nombre;
+
     // Insertar curso
     const [result] = await connection.execute(
       `INSERT INTO courses (title, description, video_url, role, attempts, time_limit) VALUES (?, ?, ?, ?, ?, ?)`,
-      [title, description, finalVideoUrl, role, attempts, timeLimit]
+      [title, description, finalVideoUrl, cargoNombre, attempts, timeLimit]
     );
 
     const courseId = result.insertId;
@@ -843,11 +873,25 @@ app.post('/api/courses', verifyToken, upload.single('videoFile'), async (req, re
       );
     }
 
-    // === NOTIFICAR A USUARIOS DEL ROL ===
-    const [usersToNotify] = await connection.execute(
-      'SELECT id FROM usuarios WHERE rol = ? AND activo = 1',
-      [role]
+    // === CREAR ENTRADA EN BITÁCORA GLOBAL ===
+    await connection.execute(
+      `INSERT INTO bitacora_global (titulo, descripcion, estado, asignados, deadline) 
+       VALUES (?, ?, ?, ?, ?)`,
+      [
+        `Nuevo Curso: ${title}`,
+        `Se ha creado un nuevo curso de capacitación para el cargo: ${cargoNombre}. ${description}`,
+        'verde',
+        cargoNombre,
+        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 días desde hoy
+      ]
     );
+
+    // === NOTIFICAR A USUARIOS DEL CARGO ===
+    const [usersToNotify] = await connection.execute(
+      'SELECT id FROM usuarios WHERE cargo_id = ? AND activo = 1',
+      [cargoId]
+    );
+    
     for (const user of usersToNotify) {
       await connection.execute(
         'INSERT INTO notifications (user_id, message, type, data) VALUES (?, ?, ?, ?)',
@@ -857,7 +901,12 @@ app.post('/api/courses', verifyToken, upload.single('videoFile'), async (req, re
 
     await connection.end();
 
-    res.status(201).json({ success: true, message: 'Curso creado exitosamente', courseId });
+    res.status(201).json({ 
+      success: true, 
+      message: 'Curso creado exitosamente', 
+      courseId,
+      cargoNombre 
+    });
   } catch (error) {
     console.error('Error creando curso:', error);
     res.status(500).json({ success: false, message: 'Error interno al crear curso' });
@@ -1361,6 +1410,337 @@ app.delete('/api/bitacora/:id', verifyToken, async (req, res) => {
   }
 });
 
+// NUEVAS RUTAS PARA GESTIÓN DE CARGOS
+
+// Obtener todos los cargos
+app.get('/api/cargos', verifyToken, async (req, res) => {
+  try {
+    const connection = await mysql.createConnection(dbConfig);
+    
+    const [cargos] = await connection.execute(
+      'SELECT * FROM cargos ORDER BY nombre ASC'
+    );
+    
+    await connection.end();
+    
+    res.json({
+      success: true,
+      cargos: cargos
+    });
+    
+  } catch (error) {
+    console.error('Error obteniendo cargos:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+});
+
+  // Crear nuevo cargo
+  app.post('/api/cargos', verifyToken, async (req, res) => {
+    try {
+      const { nombre, descripcion } = req.body;
+      
+      if (!nombre || !descripcion) {
+        return res.status(400).json({
+          success: false,
+          message: 'Nombre y descripción son requeridos'
+        });
+      }
+      
+      const connection = await mysql.createConnection(dbConfig);
+      
+      // Verificar si el cargo ya existe
+      const [existingCargo] = await connection.execute(
+        'SELECT id FROM cargos WHERE nombre = ?',
+        [nombre]
+      );
+      
+      if (existingCargo.length > 0) {
+        await connection.end();
+        return res.status(400).json({
+          success: false,
+          message: 'Ya existe un cargo con ese nombre'
+        });
+      }
+      
+      const [result] = await connection.execute(
+        'INSERT INTO cargos (nombre, descripcion) VALUES (?, ?)',
+        [nombre, descripcion]
+      );
+      
+      await connection.end();
+      
+      res.status(201).json({
+        success: true,
+        message: 'Cargo creado exitosamente',
+        cargoId: result.insertId
+      });
+      
+    } catch (error) {
+      console.error('Error creando cargo:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error interno del servidor'
+      });
+    }
+  });
+
+// Actualizar cargo existente
+app.put('/api/cargos/:id', verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nombre, descripcion } = req.body;
+    
+    if (!nombre || !descripcion) {
+      return res.status(400).json({
+        success: false,
+        message: 'Nombre y descripción son requeridos'
+      });
+    }
+    
+    const connection = await mysql.createConnection(dbConfig);
+    
+    // Verificar si el cargo existe
+    const [existingCargo] = await connection.execute(
+      'SELECT id FROM cargos WHERE id = ?',
+      [id]
+    );
+    
+    if (existingCargo.length === 0) {
+      await connection.end();
+      return res.status(404).json({
+        success: false,
+        message: 'Cargo no encontrado'
+      });
+    }
+    
+    // Verificar si el nombre ya existe en otro cargo
+    const [duplicateName] = await connection.execute(
+      'SELECT id FROM cargos WHERE nombre = ? AND id != ?',
+      [nombre, id]
+    );
+    
+    if (duplicateName.length > 0) {
+      await connection.end();
+      return res.status(400).json({
+        success: false,
+        message: 'Ya existe otro cargo con ese nombre'
+      });
+    }
+    
+    await connection.execute(
+      'UPDATE cargos SET nombre = ?, descripcion = ? WHERE id = ?',
+      [nombre, descripcion, id]
+    );
+    
+    await connection.end();
+    
+    res.json({
+      success: true,
+      message: 'Cargo actualizado exitosamente'
+    });
+    
+  } catch (error) {
+    console.error('Error actualizando cargo:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+});
+
+// Eliminar cargo completamente
+app.delete('/api/cargos/:id', verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const connection = await mysql.createConnection(dbConfig);
+    
+    // Verificar si el cargo existe
+    const [existingCargo] = await connection.execute(
+      'SELECT id FROM cargos WHERE id = ?',
+      [id]
+    );
+    
+    if (existingCargo.length === 0) {
+      await connection.end();
+      return res.status(400).json({
+        success: false,
+        message: 'Cargo no encontrado'
+      });
+    }
+    
+    // Verificar que no haya usuarios asignados a este cargo
+    const [usersWithCargo] = await connection.execute(
+      'SELECT COUNT(*) as count FROM usuarios WHERE cargo_id = ?',
+      [id]
+    );
+    
+    if (usersWithCargo[0].count > 0) {
+      await connection.end();
+      return res.status(400).json({
+        success: false,
+        message: 'No se puede eliminar el cargo porque tiene usuarios asignados'
+      });
+    }
+    
+    // Eliminar cargo completamente
+    await connection.execute(
+      'DELETE FROM cargos WHERE id = ?',
+      [id]
+    );
+    
+    await connection.end();
+    
+      res.json({
+    success: true,
+    message: 'Cargo eliminado exitosamente'
+  });
+  
+} catch (error) {
+  console.error('Error eliminando cargo:', error);
+  res.status(500).json({
+    success: false,
+    message: 'Error interno del servidor'
+  });
+}
+});
+
+// Obtener métricas de un cargo específico
+app.get('/api/cargos/:id/metrics', verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const connection = await mysql.createConnection(dbConfig);
+    
+    // Verificar que el cargo existe
+    const [existingCargo] = await connection.execute(
+      'SELECT id FROM cargos WHERE id = ?',
+      [id]
+    );
+    
+    if (existingCargo.length === 0) {
+      await connection.end();
+      return res.status(404).json({
+        success: false,
+        message: 'Cargo no encontrado'
+      });
+    }
+    
+    // Obtener total de usuarios en este cargo
+    const [usuariosResult] = await connection.execute(
+      'SELECT COUNT(*) as total FROM usuarios WHERE cargo_id = ?',
+      [id]
+    );
+    
+    // Obtener total de cursos asignados a este cargo
+    const [cursosResult] = await connection.execute(
+      'SELECT COUNT(*) as total FROM courses WHERE role = (SELECT nombre FROM cargos WHERE id = ?)',
+      [id]
+    );
+    
+    // Obtener total de documentos asignados a este cargo
+    const [documentosResult] = await connection.execute(
+      'SELECT COUNT(DISTINCT d.id) as total FROM documents d JOIN document_targets dt ON d.id = dt.document_id WHERE dt.target_type = "role" AND dt.target_value = (SELECT nombre FROM cargos WHERE id = ?)',
+      [id]
+    );
+    
+    // Obtener promedio de progreso de usuarios en este cargo
+    const [progresoResult] = await connection.execute(
+      `SELECT AVG(
+        CASE 
+          WHEN cp.evaluation_score IS NOT NULL AND cp.evaluation_total > 0 
+          THEN (cp.evaluation_score / cp.evaluation_total) * 100
+          ELSE 0 
+        END
+      ) as promedio FROM course_progress cp 
+      JOIN usuarios u ON cp.user_id = u.id 
+      WHERE u.cargo_id = ?`,
+      [id]
+    );
+    
+    await connection.end();
+    
+    const metrics = {
+      totalUsuarios: usuariosResult[0].total,
+      totalCursos: cursosResult[0].total,
+      totalDocumentos: documentosResult[0].total,
+      promedioProgreso: Math.round(progresoResult[0].promedio || 0)
+    };
+    
+    res.json({
+      success: true,
+      metrics
+    });
+    
+  } catch (error) {
+    console.error('Error obteniendo métricas del cargo:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+});
+
+// Obtener cargos para el registro
+app.get('/api/cargos/activos', async (req, res) => {
+  try {
+    const connection = await mysql.createConnection(dbConfig);
+    
+    const [cargos] = await connection.execute(
+      'SELECT id, nombre, descripcion FROM cargos ORDER BY nombre ASC'
+    );
+    
+    await connection.end();
+    
+    res.json({
+      success: true,
+      cargos: cargos
+    });
+    
+  } catch (error) {
+    console.error('Error obteniendo cargos:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+});
+
+// Obtener cargos para la creación de cursos (solo admin)
+app.get('/api/cargos/para-cursos', verifyToken, async (req, res) => {
+  try {
+    // Verificar que el usuario sea admin
+    if (req.user.rol !== 'Admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Solo los administradores pueden acceder a esta información'
+      });
+    }
+
+    const connection = await mysql.createConnection(dbConfig);
+    
+    const [cargos] = await connection.execute(
+      'SELECT id, nombre, descripcion FROM cargos ORDER BY nombre ASC'
+    );
+    
+    await connection.end();
+    
+    res.json({
+      success: true,
+      cargos: cargos
+    });
+    
+  } catch (error) {
+    console.error('Error obteniendo cargos para cursos:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+});
 
 
 app.listen(PORT, '0.0.0.0', () => {

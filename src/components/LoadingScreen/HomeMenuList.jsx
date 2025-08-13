@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BookOpenCheck, ClipboardList, Users2, BarChart3, User, Settings, Home } from "lucide-react";
-import { FaGraduationCap, FaClipboardList, FaUser, FaBell, FaCog, FaHome, FaFileAlt } from "react-icons/fa";
+import { FaGraduationCap, FaClipboardList, FaUser, FaBell, FaCog, FaHome, FaFileAlt, FaUsers } from "react-icons/fa";
 import PersonalizationModal from '../PersonalizationModal';
 
 const HomeMenuList = ({ isAdmin, onNavigate, unreadCount, showNotifications }) => {
@@ -18,6 +18,7 @@ const HomeMenuList = ({ isAdmin, onNavigate, unreadCount, showNotifications }) =
         { to: "/cuentas", icon: <Users2 size={22} />, label: "Cuentas" },
         { to: "/dashboard", icon: <BarChart3 size={22} />, label: "Dashboard" },
         { to: "/admin-documentos", icon: <FaFileAlt size={22} />, label: "Documentos" },
+        { to: "/admin-cargos", icon: <FaUsers size={22} />, label: "Cargos" },
         { to: "/perfil", icon: <User size={22} />, label: "Perfil" },
       ]
     : [

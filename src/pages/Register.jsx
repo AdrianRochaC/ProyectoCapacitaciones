@@ -1,24 +1,56 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Register.css";
+
+const API_URL = 'http://localhost:3001';
 
 const Register = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("Gerente");
+  const [cargos, setCargos] = useState([]);
+  const [selectedCargoId, setSelectedCargoId] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCargos();
+  }, []);
+
+  const fetchCargos = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/cargos/activos`);
+      if (response.ok) {
+        const data = await response.json();
+        setCargos(data.cargos);
+        if (data.cargos.length > 0) {
+          setSelectedCargoId(data.cargos[0].id);
+        }
+      } else {
+        console.error('Error obteniendo cargos');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleRegister = async (e) => {
     e.preventDefault();
 
+    if (!selectedCargoId) {
+      alert("❌ Por favor selecciona un cargo");
+      return;
+    }
+
     try {
-      const response = await fetch("/api/register", {
+      const response = await fetch(`${API_URL}/api/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-          nombre: name,    // ← Corregido: usaba 'nombre' pero la variable es 'name'
+          nombre: name,
           email: email, 
           password: password, 
-          rol: role        // ← Corregido: usaba 'rol' pero la variable es 'role'
+          cargo_id: parseInt(selectedCargoId)
         })
       });
 
@@ -30,7 +62,7 @@ const Register = () => {
         setName("");
         setEmail("");
         setPassword("");
-        setRole("Gerente");
+        setSelectedCargoId(cargos.length > 0 ? cargos[0].id : "");
       } else {
         alert("❌ " + result.message);
       }
@@ -39,6 +71,16 @@ const Register = () => {
       alert("❌ Error de conexión. Verifica que el servidor esté funcionando.");
     }
   };
+
+  if (loading) {
+    return (
+      <div className="register-wrapper">
+        <div className="register-container">
+          <div className="loading">Cargando cargos disponibles...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="register-wrapper">
@@ -69,13 +111,17 @@ const Register = () => {
             required
           />
 
-          <label>Rol</label>
-          <select value={role} onChange={(e) => setRole(e.target.value)}>
-            <option value="Gerente">Gerente</option>
-            <option value="Contabilidad">Contabilidad</option>
-            <option value="Compras">Compras</option>
-            <option value="Atencion al Cliente">Atención al Cliente</option>
-            <option value="Admin">Administrador</option>
+          <label>Cargo/Departamento</label>
+          <select 
+            value={selectedCargoId} 
+            onChange={(e) => setSelectedCargoId(e.target.value)}
+            required
+          >
+            {cargos.map((cargo) => (
+              <option key={cargo.id} value={cargo.id}>
+                {cargo.nombre} - {cargo.descripcion}
+              </option>
+            ))}
           </select>
 
           <button type="submit">Crear cuenta</button>
