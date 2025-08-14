@@ -7,7 +7,7 @@ const AdminCoursesPage = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
-  const [cargoId, setCargoId] = useState("");
+  const [cargoId, setCargoId] = useState(1);
   const [cargos, setCargos] = useState([]);
   const [courses, setCourses] = useState([]);
   const [showEvaluation, setShowEvaluation] = useState(false);
@@ -164,7 +164,7 @@ const AdminCoursesPage = () => {
     setVideoUrl("");
     setVideoFile(null);
     setUseFile(false);
-    setRole("Gerente");
+    setCargoId(1); // Cambiar a setCargoId y usar el ID del primer cargo por defecto
     setQuestions([]);
     setAttempts(1);
     setTimeLimit(30);
@@ -242,7 +242,9 @@ const AdminCoursesPage = () => {
     const watchUrl = convertToWatchUrl(videoUrl);
     setVideoUrl(watchUrl);
 
-    setRole(course.role || "Gerente");
+    // Buscar el cargo por nombre para obtener su ID
+    const cargo = cargos.find(c => c.nombre === course.role);
+    setCargoId(cargo ? cargo.id : 1);
     setAttempts(course.attempts || 1);
     setTimeLimit(course.timeLimit || course.time_limit || 30);
     setEditingCourse(course.id);
@@ -393,7 +395,7 @@ const AdminCoursesPage = () => {
         </div>
 
         <label>Cargo/Departamento:</label>
-        <select value={cargoId} onChange={(e) => setCargoId(e.target.value)} required>
+        <select value={cargoId} onChange={(e) => setCargoId(parseInt(e.target.value))} required>
           {cargos.map((cargo) => (
             <option key={cargo.id} value={cargo.id}>
               {cargo.nombre}

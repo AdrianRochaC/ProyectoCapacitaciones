@@ -60,6 +60,7 @@ const AdminCargos = () => {
 
   const fetchCargoMetrics = async (cargoId) => {
     try {
+      console.log('🔍 FRONTEND: Solicitando métricas para cargo ID:', cargoId);
       const token = localStorage.getItem('authToken');
       const response = await fetch(`${API_URL}/api/cargos/${cargoId}/metrics`, {
         headers: {
@@ -69,12 +70,14 @@ const AdminCargos = () => {
       
       if (response.ok) {
         const data = await response.json();
-        setCargoMetrics(data);
+        console.log('📊 FRONTEND: Datos recibidos del servidor:', JSON.stringify(data, null, 2));
+        console.log('📊 FRONTEND: Métricas específicas:', JSON.stringify(data.metrics, null, 2));
+        setCargoMetrics(data.metrics);
       } else {
-        console.error('Error obteniendo métricas del cargo');
+        console.error('❌ FRONTEND: Error obteniendo métricas del cargo');
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('❌ FRONTEND: Error:', error);
     }
   };
 

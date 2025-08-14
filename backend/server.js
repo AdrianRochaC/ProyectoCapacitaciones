@@ -13,6 +13,9 @@ import {
   getBackgroundImage
 } from './userPreferences.js';
 
+// Importar funciones corregidas de métricas de cargos
+import { getCargoMetrics } from './cargosMetrics.js';
+
 const app = express();
 const PORT = 3001;
 const JWT_SECRET = 'tu_clave_secreta_jwt'; // En producción usar variable de entorno
@@ -557,9 +560,9 @@ app.post('/api/register', async (req, res) => {
       });
     }
 
-    // Verificar que el cargo existe y está activo
+    // Verificar que el cargo existe
     const [cargo] = await connection.execute(
-      'SELECT id, nombre FROM cargos WHERE id = ? AND activo = TRUE',
+      'SELECT id, nombre FROM cargos WHERE id = ?',
       [cargo_id]
     );
 
@@ -1014,18 +1017,34 @@ app.delete('/api/courses/:id', verifyToken, async (req, res) => {
 app.put('/api/courses/:id', verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, videoUrl, role, evaluation = [], attempts, timeLimit } = req.body;
+    const { title, description, videoUrl, cargoId, evaluation = [], attempts, timeLimit } = req.body;
 
-    if (!title || !description || !videoUrl || !role) {
+    if (!title || !description || !videoUrl || !cargoId) {
       return res.status(400).json({ success: false, message: 'Todos los campos del curso son requeridos' });
     }
 
     const connection = await mysql.createConnection(dbConfig);
 
+    // Verificar que el cargo existe y obtener su nombre
+    const [cargoResult] = await connection.execute(
+      'SELECT id, nombre FROM cargos WHERE id = ?',
+      [cargoId]
+    );
+
+    if (cargoResult.length === 0) {
+      await connection.end();
+      return res.status(400).json({ 
+        success: false, 
+        message: 'El cargo seleccionado no existe' 
+      });
+    }
+
+    const cargoNombre = cargoResult[0].nombre;
+
     // Actualizar curso
     const [updateResult] = await connection.execute(
       `UPDATE courses SET title = ?, description = ?, video_url = ?, role = ?, attempts = ?, time_limit = ? WHERE id = ?`,
-      [title, description, videoUrl, role, attempts, timeLimit, id]
+      [title, description, videoUrl, cargoNombre, attempts, timeLimit, id]
     );
 
     if (updateResult.affectedRows === 0) {
@@ -1608,67 +1627,14 @@ app.delete('/api/cargos/:id', verifyToken, async (req, res) => {
 }
 });
 
-// Obtener métricas de un cargo específico
+// Obtener métricas de un cargo específico (versión corregida)
 app.get('/api/cargos/:id/metrics', verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
+    console.log('🔍 SOLICITUD DE MÉTRICAS PARA CARGO ID:', id);
     
-    const connection = await mysql.createConnection(dbConfig);
-    
-    // Verificar que el cargo existe
-    const [existingCargo] = await connection.execute(
-      'SELECT id FROM cargos WHERE id = ?',
-      [id]
-    );
-    
-    if (existingCargo.length === 0) {
-      await connection.end();
-      return res.status(404).json({
-        success: false,
-        message: 'Cargo no encontrado'
-      });
-    }
-    
-    // Obtener total de usuarios en este cargo
-    const [usuariosResult] = await connection.execute(
-      'SELECT COUNT(*) as total FROM usuarios WHERE cargo_id = ?',
-      [id]
-    );
-    
-    // Obtener total de cursos asignados a este cargo
-    const [cursosResult] = await connection.execute(
-      'SELECT COUNT(*) as total FROM courses WHERE role = (SELECT nombre FROM cargos WHERE id = ?)',
-      [id]
-    );
-    
-    // Obtener total de documentos asignados a este cargo
-    const [documentosResult] = await connection.execute(
-      'SELECT COUNT(DISTINCT d.id) as total FROM documents d JOIN document_targets dt ON d.id = dt.document_id WHERE dt.target_type = "role" AND dt.target_value = (SELECT nombre FROM cargos WHERE id = ?)',
-      [id]
-    );
-    
-    // Obtener promedio de progreso de usuarios en este cargo
-    const [progresoResult] = await connection.execute(
-      `SELECT AVG(
-        CASE 
-          WHEN cp.evaluation_score IS NOT NULL AND cp.evaluation_total > 0 
-          THEN (cp.evaluation_score / cp.evaluation_total) * 100
-          ELSE 0 
-        END
-      ) as promedio FROM course_progress cp 
-      JOIN usuarios u ON cp.user_id = u.id 
-      WHERE u.cargo_id = ?`,
-      [id]
-    );
-    
-    await connection.end();
-    
-    const metrics = {
-      totalUsuarios: usuariosResult[0].total,
-      totalCursos: cursosResult[0].total,
-      totalDocumentos: documentosResult[0].total,
-      promedioProgreso: Math.round(progresoResult[0].promedio || 0)
-    };
+    const metrics = await getCargoMetrics(id);
+    console.log('✅ MÉTRICAS ENVIADAS AL FRONTEND:', JSON.stringify(metrics, null, 2));
     
     res.json({
       success: true,
@@ -1676,7 +1642,7 @@ app.get('/api/cargos/:id/metrics', verifyToken, async (req, res) => {
     });
     
   } catch (error) {
-    console.error('Error obteniendo métricas del cargo:', error);
+    console.error('❌ Error obteniendo métricas del cargo:', error);
     res.status(500).json({
       success: false,
       message: 'Error interno del servidor'

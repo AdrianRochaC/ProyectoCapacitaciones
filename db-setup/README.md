@@ -1,182 +1,203 @@
-# 🗄️ Configuración de Base de Datos - Proyecto Capacitaciones
+# Sistema de Gestión de Base de Datos - Proyecto Capacitaciones
 
-Este directorio contiene todos los scripts necesarios para configurar la base de datos del proyecto de capacitaciones.
+## 📋 Descripción General
 
-## 📁 Archivos Disponibles
+Este directorio contiene todos los scripts y herramientas para la configuración, gestión y mantenimiento de la base de datos del sistema de capacitaciones.
 
-### 🚀 `setup-complete-database.js` - **ARCHIVO PRINCIPAL**
-**Script consolidado que crea TODAS las tablas de una vez.**
+## 🚀 Funcionalidades Implementadas
 
-**Incluye:**
-- ✅ Tabla de cargos (nueva)
-- ✅ Tabla de usuarios
-- ✅ Tabla de cursos y preguntas
-- ✅ Tabla de progreso
-- ✅ Tabla de documentos y targets
-- ✅ Tabla de preferencias de usuario
-- ✅ Tabla de notificaciones
-- ✅ Tabla de bitácora (global y personal)
+### ✅ Sistema Completo de Base de Datos
+- **Tablas principales**: usuarios, cargos, courses, documents, notifications, etc.
+- **Relaciones**: Integridad referencial completa entre todas las tablas
+- **Índices**: Optimizados para consultas rápidas
+- **Caracteres**: Soporte completo para UTF-8
 
-**Uso:**
+### ✅ Gestión Avanzada de Cargos
+- **Estadísticas detalladas**: Empleados, cursos, documentos por cargo
+- **Métricas de rendimiento**: Porcentajes de aprobación, progreso de cursos
+- **Gestión CRUD**: Crear, leer, actualizar, eliminar cargos
+- **Validaciones**: Prevención de duplicados y dependencias
+
+### ✅ Gestión de Conexiones Mejorada
+- **Pool de conexiones**: Mejor rendimiento y estabilidad
+- **Reintentos automáticos**: Manejo robusto de errores de conexión
+- **Health checks**: Verificación de salud de la conexión
+- **Transacciones**: Soporte para operaciones atómicas
+
+## 📁 Archivos Principales
+
+### 🔧 Configuración y Setup
+- `setup-complete-database.js` - Configuración completa de la base de datos
+- `setup-cargos.js` - Configuración específica de cargos
+- `connection-manager.js` - Gestor de conexiones mejorado
+
+### 📊 Gestión de Cargos
+- `enhanced-cargos.js` - Funciones avanzadas para gestión de cargos
+- `test-cargos-stats.js` - Script de pruebas para estadísticas
+- `cleanup-test-cargo.js` - Limpieza de datos de prueba
+
+### 🔍 Verificación y Mantenimiento
+- `verify-system.js` - Verificación completa del sistema
+- `system-status.js` - Estado actual del sistema
+- `optimize-system.js` - Optimización de rendimiento
+
+## 🛠️ Uso de los Scripts
+
+### 1. Configuración Inicial
 ```bash
-cd db-setup
+# Configurar toda la base de datos desde cero
 node setup-complete-database.js
-```
 
-### 📋 `setup-cargos.js` - **GESTIÓN DE CARGOS**
-**Script específico para la gestión de cargos dinámica.**
-
-**Funciones incluidas:**
-- `setupCargosTable()` - Crear tabla y cargos por defecto
-- `agregarCargo(nombre, descripcion)` - Agregar nuevo cargo
-- `editarCargo(id, nombre, descripcion)` - Editar cargo existente
-- `eliminarCargo(id)` - Eliminar cargo completamente
-- `listarCargos()` - Listar todos los cargos
-
-**Uso:**
-```bash
-# Solo crear tabla de cargos
+# Solo configurar cargos
 node setup-cargos.js
-
-# Usar funciones en otros archivos
-const { agregarCargo, listarCargos } = require('./setup-cargos.js');
 ```
 
-## 🎯 Características del Sistema de Cargos
-
-### 📊 Estructura de la Tabla `cargos`
-```sql
-CREATE TABLE cargos (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  nombre VARCHAR(100) NOT NULL UNIQUE,
-  descripcion TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-```
-
-### 🔢 Cargos por Defecto
-1. **Admin** - Administrador del sistema
-2. **Gerente** - Gerente de departamento
-3. **Tecnología** - Personal de tecnología e informática
-4. **Contabilidad** - Personal de contabilidad
-5. **Compras** - Personal de compras
-6. **Recursos Humanos** - Personal de RRHH
-7. **Atención al Cliente** - Personal de atención al cliente
-8. **Ventas** - Personal de ventas
-9. **Operativo** - Personal operativo
-10. **Logística** - Personal de logística y almacén
-
-## 🚀 Instalación y Configuración
-
-### 1. **Instalar Dependencias**
+### 2. Gestión de Cargos
 ```bash
-cd db-setup
-npm install
+# Ver estadísticas generales de cargos
+node enhanced-cargos.js
+
+# Probar funcionalidades de cargos
+node test-cargos-stats.js
+
+# Limpiar datos de prueba
+node cleanup-test-cargo.js
 ```
 
-### 2. **Configurar Base de Datos**
-Asegúrate de que las credenciales en `dbConfig` sean correctas:
-```javascript
-const dbConfig = {
-  host: 'trolley.proxy.rlwy.net',
-  port: 17594,
-  user: 'root',
-  password: 'CEgMeCUPsqySFOidbBiATJoUvEbEdEyZ',
-  database: 'railway'
-};
-```
-
-### 3. **Ejecutar Script Principal**
+### 3. Verificación del Sistema
 ```bash
-node setup-complete-database.js
+# Verificar estado completo del sistema
+node verify-system.js
+
+# Verificar estado del sistema
+node system-status.js
+
+# Optimizar rendimiento
+node optimize-system.js
 ```
 
-## 🔧 Uso Avanzado
+## 📊 Funcionalidades de Estadísticas de Cargos
 
-### Agregar Nuevo Cargo Programáticamente
+### Estadísticas Generales
+- **Total de empleados** por cargo
+- **Empleados activos/inactivos**
+- **Cursos asignados** al cargo
+- **Documentos disponibles** para el cargo
+- **Porcentaje de aprobación** de cursos
+
+### Estadísticas Detalladas
+- **Lista completa de empleados** con su progreso
+- **Detalles de cursos** con métricas de participación
+- **Documentos asociados** con información de tamaño y autor
+- **Métricas de progreso** con puntuaciones promedio
+
+### Funciones Disponibles
 ```javascript
-const { agregarCargo } = require('./setup-cargos.js');
+// Obtener estadísticas de todos los cargos
+const cargosStats = await getAllCargosStats();
 
-// Agregar cargo de Marketing
-await agregarCargo(
-  'Marketing', 
-  'Personal de marketing y publicidad'
-);
+// Obtener estadísticas detalladas de un cargo específico
+const stats = await getCargoStats(cargoId);
+
+// Crear un nuevo cargo
+const nuevoId = await crearCargo(nombre, descripcion);
+
+// Actualizar un cargo existente
+await actualizarCargo(id, nombre, descripcion);
+
+// Eliminar un cargo (con validaciones)
+await eliminarCargo(id);
 ```
 
-### Editar Cargo Existente
+## 🔌 Gestión de Conexiones
+
+### Características del Pool de Conexiones
+- **Límite de conexiones**: 10 conexiones simultáneas
+- **Timeouts**: 60 segundos para adquisición y ejecución
+- **Reconexión automática**: Manejo de desconexiones
+- **Health checks**: Verificación periódica de conexión
+
+### Funciones de Conexión
 ```javascript
-const { editarCargo } = require('./setup-cargos.js');
+// Obtener una conexión del pool
+const connection = await getConnection();
 
-// Cambiar descripción del cargo de Ventas
-await editarCargo(
-  9, // ID del cargo de Ventas
-  'Ventas', 
-  'Personal de ventas y atención comercial'
-);
+// Ejecutar consulta con manejo automático
+const results = await executeQuery(sql, params);
+
+// Ejecutar consulta con reintentos
+const results = await executeQueryWithRetry(sql, params, maxRetries);
+
+// Ejecutar transacción
+const results = await executeTransaction(queries);
+
+// Verificar salud de la conexión
+const isHealthy = await checkConnectionHealth();
 ```
 
-### Listar Todos los Cargos
-```javascript
-const { listarCargos } = require('./setup-cargos.js');
+## 📈 Métricas y Reportes
 
-const cargos = await listarCargos();
-console.log('Cargos disponibles:', cargos);
-```
+### Métricas por Cargo
+- **Empleados**: Total, activos, inactivos
+- **Cursos**: Total, promedio de intentos, tiempo límite
+- **Documentos**: Total, globales, tamaño en MB
+- **Progreso**: Aprobados, reprobados, puntuación promedio
 
-## ⚠️ Consideraciones Importantes
+### Cálculos Automáticos
+- **Porcentaje de empleados activos**
+- **Porcentaje de aprobación de cursos**
+- **Promedio de puntuaciones**
+- **Tamaño total de documentos**
 
-### 🔄 **Orden de Ejecución**
-1. **Primero**: Ejecutar `setup-complete-database.js` para crear toda la estructura
-2. **Después**: Usar `setup-cargos.js` para gestiones específicas de cargos
+## 🛡️ Validaciones y Seguridad
 
-### 🗑️ **Eliminación de Datos**
-- Los scripts **ELIMINAN** las tablas existentes antes de crearlas
-- **¡CUIDADO!** Esto borrará todos los datos existentes
-- Hacer backup antes de ejecutar en producción
+### Validaciones de Cargos
+- **Nombres únicos**: Prevención de duplicados
+- **Dependencias**: Verificación antes de eliminar
+- **Campos requeridos**: Validación de datos obligatorios
+- **Integridad referencial**: Protección de relaciones
 
-### 🔗 **Relaciones entre Tablas**
-- La tabla `usuarios` ahora tiene `cargo_id` que referencia `cargos(id)`
-- Los documentos se asignan por `rol` (que puede ser el nombre del cargo)
-- Las preferencias se vinculan directamente con `usuarios(id)`
+### Manejo de Errores
+- **Reintentos automáticos**: Para errores de conexión
+- **Rollback de transacciones**: En caso de fallos
+- **Logging detallado**: Para debugging
+- **Mensajes informativos**: Para el usuario
 
-## 📊 Ventajas del Nuevo Sistema
+## 🔄 Mantenimiento
 
-### ✅ **Antes (Sistema Fijo)**
-- Roles hardcodeados en el código
-- Difícil de modificar sin tocar código
-- No había jerarquía de cargos
+### Tareas Recomendadas
+1. **Verificación semanal**: Ejecutar `verify-system.js`
+2. **Optimización mensual**: Ejecutar `optimize-system.js`
+3. **Backup regular**: Exportar datos importantes
+4. **Monitoreo**: Revisar logs de conexión
 
-### 🚀 **Ahora (Sistema Dinámico)**
-- Cargos gestionables desde la base de datos
-- Fácil agregar/editar/eliminar cargos
-- Sistema de prioridades para jerarquía
-- Cargos inactivos (soft delete)
-- Auditoría de cambios (timestamps)
+### Limpieza de Datos
+- **Datos de prueba**: Usar `cleanup-test-cargo.js`
+- **Registros antiguos**: Limpiar logs y notificaciones
+- **Archivos temporales**: Eliminar uploads no utilizados
 
-## 🎯 Próximos Pasos
+## 📞 Soporte
 
-1. **Ejecutar** `setup-complete-database.js`
-2. **Verificar** que todas las tablas se crearon correctamente
-3. **Integrar** el sistema de cargos en el frontend
-4. **Crear** interfaz de administración para gestionar cargos
-5. **Migrar** usuarios existentes para usar el nuevo sistema
+### Problemas Comunes
+1. **Error de conexión**: Verificar configuración de red
+2. **Timeout**: Aumentar límites en `connection-manager.js`
+3. **Memoria**: Reducir límite de conexiones del pool
+4. **Rendimiento**: Ejecutar optimización del sistema
 
-## 🆘 Solución de Problemas
+### Logs y Debugging
+- Todos los scripts incluyen logging detallado
+- Errores se muestran con stack trace completo
+- Conexiones se monitorean automáticamente
 
-### Error: "Access denied for user"
-- Verificar credenciales en `dbConfig`
-- Asegurar que el usuario tenga permisos en la base de datos
+## 🎯 Próximas Mejoras
 
-### Error: "Table already exists"
-- Los scripts eliminan tablas automáticamente
-- Si persiste, verificar que no haya procesos bloqueando
-
-### Error: "Foreign key constraint fails"
-- Verificar que las tablas se creen en el orden correcto
-- Los scripts ya manejan esto automáticamente
+- [ ] Dashboard web para estadísticas en tiempo real
+- [ ] Exportación de reportes a PDF/Excel
+- [ ] Notificaciones automáticas de métricas
+- [ ] Integración con sistemas externos
+- [ ] API REST para gestión remota
 
 ---
 
-**🎉 ¡Tu base de datos está lista para el sistema de capacitaciones con gestión dinámica de cargos!**
+**Desarrollado para el Sistema de Capacitaciones**  
+*Versión: 2.0 - Gestión Avanzada de Cargos*

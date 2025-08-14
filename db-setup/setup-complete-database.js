@@ -1,20 +1,20 @@
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
-
-// Configuración de la base de datos
-const dbConfig = {
-  host: 'trolley.proxy.rlwy.net',
-  port: 17594,
-  user: 'root',
-  password: 'CEgMeCUPsqySFOidbBiATJoUvEbEdEyZ',
-  database: 'railway'
-};
+const { getConnection, executeQuery, closePool, checkConnectionHealth } = require('./connection-manager');
 
 async function setupCompleteDatabase() {
-  const connection = await mysql.createConnection(dbConfig);
+  let connection = null;
 
   try {
     console.log('🚀 Iniciando configuración completa de la base de datos...\n');
+    
+    // Verificar conexión antes de comenzar
+    const isHealthy = await checkConnectionHealth();
+    if (!isHealthy) {
+      throw new Error('No se pudo establecer conexión con la base de datos');
+    }
+    
+    connection = await getConnection();
 
     // ========================================
     // 1. ELIMINACIÓN DE TABLAS EXISTENTES
@@ -245,7 +245,10 @@ async function setupCompleteDatabase() {
         titulo VARCHAR(255) NOT NULL,
         descripcion TEXT,
         estado ENUM('rojo', 'amarillo', 'verde') DEFAULT 'rojo',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        asignados TEXT,
+        deadline TIMESTAMP NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
     console.log('✅ Tabla "bitacora_global" creada');
@@ -305,7 +308,10 @@ async function setupCompleteDatabase() {
     console.error('❌ Error durante la configuración:', error.message);
     console.error('Stack trace:', error.stack);
   } finally {
-    await connection.end();
+    if (connection) {
+      connection.release();
+    }
+    await closePool();
     console.log('\n🔌 Conexión a la base de datos cerrada');
   }
 }

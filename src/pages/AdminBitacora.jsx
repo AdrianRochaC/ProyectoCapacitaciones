@@ -111,9 +111,16 @@ const AdminBitacora = () => {
       titulo: tarea.titulo,
       descripcion: tarea.descripcion,
       estado: tarea.estado,
-      asignados: Array.isArray(tarea.asignados)
-        ? tarea.asignados
-        : JSON.parse(tarea.asignados || "[]"),
+      asignados: (() => {
+        try {
+          return Array.isArray(tarea.asignados)
+            ? tarea.asignados
+            : JSON.parse(tarea.asignados || "[]");
+        } catch (error) {
+          console.warn(`Error parseando asignados para tarea ${tarea.id}:`, error);
+          return [];
+        }
+      })(),
       deadline: tarea.deadline?.split("T")[0] || "",
     });
     setShowModal(true);
@@ -173,9 +180,15 @@ const AdminBitacora = () => {
               {tareas
                 .filter((t) => t.estado === key)
                 .map((t) => {
-                  const asignados = Array.isArray(t.asignados)
-                    ? t.asignados
-                    : JSON.parse(t.asignados || "[]");
+                  let asignados = [];
+                  try {
+                    asignados = Array.isArray(t.asignados)
+                      ? t.asignados
+                      : JSON.parse(t.asignados || "[]");
+                  } catch (error) {
+                    console.warn(`Error parseando asignados para tarea ${t.id}:`, error);
+                    asignados = [];
+                  }
                   return (
                     <div key={t.id} className={`admin-tarea-card admin-status-${t.estado}`}>
                       <div className="admin-tarea-title">{t.titulo}</div>

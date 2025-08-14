@@ -100,7 +100,14 @@ const Bitacora = () => {
 
   // Agrupar por estado
   const tareasAsignadas = tareas.filter((t) =>
-    JSON.parse(t.asignados || "[]").includes(user.id)
+                (() => {
+              try {
+                return JSON.parse(t.asignados || "[]").includes(user.id);
+              } catch (error) {
+                console.warn(`Error parseando asignados para tarea ${t.id}:`, error);
+                return false;
+              }
+            })()
   );
 
   const tareasPorEstado = {
@@ -126,7 +133,13 @@ const Bitacora = () => {
                   {getStatusText(estado)} ({tareasEstado.length})
                 </h2>
                 {tareasEstado.map((tarea) => {
-                  const asignadoId = JSON.parse(tarea.asignados || "[]")[0];
+                  let asignadoId = null;
+    try {
+      const asignados = JSON.parse(tarea.asignados || "[]");
+      asignadoId = asignados[0];
+    } catch (error) {
+      console.warn(`Error parseando asignados para tarea ${tarea.id}:`, error);
+    }
                   return (
                     <div
                       key={tarea.id}
